@@ -11,7 +11,7 @@ var aiLengths = map[string]string{
 
 func writingPreferences(req *AiChatRequest) string {
 	switch req.Action {
-	case aiActionPolish, aiActionRewrite, aiActionContinue, aiActionCustom:
+	case aiActionPolish, aiActionRewrite, aiActionContinue, aiActionCustom, aiActionChapter:
 	default:
 		return ""
 	}
@@ -19,11 +19,18 @@ func writingPreferences(req *AiChatRequest) string {
 	if tone := aiTones[req.Tone]; tone != "" {
 		preferences = append(preferences, tone)
 	}
-	if length := aiLengths[req.Length]; length != "" {
+	length := aiLengths[req.Length]
+	if req.Action == aiActionChapter && strings.TrimSpace(req.ChapterDraft) == "" {
+		length = map[string]string{"shorter": "本章约300至500字", "longer": "本章约1000至1500字", "original": "本章约600至1000字"}[req.Length]
+	}
+	if length != "" {
 		preferences = append(preferences, length)
 	}
 	if len(preferences) == 0 {
 		return ""
+	}
+	if req.Action == aiActionChapter {
+		return "\n本章写作偏好（服从作者明确指令）：" + strings.Join(preferences, "；")
 	}
 	return "\n写作偏好（服从作者明确指令，续写仍不超过300字）：" + strings.Join(preferences, "；")
 }

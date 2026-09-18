@@ -4,6 +4,7 @@
     <MarkdownEditor ref="editor" v-model="content" :document-id="documentId" enable-ai-diff />
     <AiDock v-if="selectionFixture" />
     <WritingAssistantPanel v-else />
+    <button v-if="chapterFixture" type="button" @click="documentId = 'article-b'">切换测试文章</button>
   </div>
 </template>
 
@@ -21,6 +22,7 @@
   const editor = ref()
   const showModelConfig = new URLSearchParams(window.location.search).has('models')
   const selectionFixture = new URLSearchParams(window.location.search).has('selection')
+  const chapterFixture = new URLSearchParams(window.location.search).has('chapters')
   const content = ref('前文\n\n选中内容\n\n后文')
   const documentId = ref('article-a')
   const description = ref('原摘要')
@@ -38,6 +40,7 @@
       getFullText: () => content.value,
       getCursorContext: () => cursorContext(content.value, editor.value.getSelection().start),
       insertAtCursor: (text) => editor.value.insertAtCursor(text),
+      appendChapter: (text, expected) => editor.value.appendChapter(text, expected),
       fillDescription: (text) => { description.value = text; return true },
       applySuggestion: (value) => {
         const result = buildSuggestionPatch(metadataForm.value, value,

@@ -306,6 +306,7 @@
             this.$refs.contentEditorRef?.getSelection?.() || { text: '', start: 0, end: 0 },
           replaceSelection: (text) => this.$refs.contentEditorRef?.replaceSelection?.(text),
           insertAtCursor: (text) => this.$refs.contentEditorRef?.insertAtCursor?.(text),
+          appendChapter: (text, expected) => this.$refs.contentEditorRef?.appendChapter?.(text, expected),
           getFullText: () => this.form.content || '',
           getCursorContext: () => {
             const sel = this.$refs.contentEditorRef?.getSelection?.()

@@ -21,6 +21,7 @@ const (
 	aiActionOutline  = "outline"
 	aiActionTitle    = "title"
 	aiActionCustom   = "custom"
+	aiActionChapter  = "chapter"
 
 	aiMaxHistoryTurns = 6
 	aiToolBlogLimit   = 5
@@ -59,6 +60,10 @@ func validateAiChatRequest(r *AiChatRequest) error {
 		if strings.TrimSpace(r.Instruction) == "" {
 			return fmt.Errorf("action=custom 时 instruction 不能为空")
 		}
+	case aiActionChapter:
+		if err := validateChapterRequest(r); err != nil {
+			return err
+		}
 	default:
 		return fmt.Errorf("不支持的 action: %s", r.Action)
 	}
@@ -70,7 +75,7 @@ func (s *AiService) buildSystemPrompt() string {
 	return `你是本博客的写作助手，服务于博主本人，运行在后台 Markdown 编辑器中。
 规则：
 1. 输出永远是 Markdown 正文片段，不要寒暄、不要解释、不要使用代码围栏包裹整体输出。
-2. 行动语义：polish=保持原意优化表达；rewrite=换一种写法；continue=从上下文自然续写1~2段；outline=输出 Markdown 标题层级大纲；title=给5个候选标题（每行一个）；custom=遵循用户指令。
+2. 行动语义：polish=保持原意优化表达；rewrite=换一种写法；continue=从上下文自然续写1~2段；outline=输出 Markdown 标题层级大纲；title=给5个候选标题（每行一个）；custom=遵循用户指令；chapter=依据已确认的大纲只撰写或修改指定章节。
 3. 可调用工具参考博主历史文章的行文风格：search_my_blogs（按关键词搜索）、get_blog_content（按ID读全文）。工具名必须与上述名称完全一致，禁止拼写变体。
 4. 中文写作，代码块标注语言；不编造事实；不确定时保留原意而非添加虚构内容。
 5. 润色/改写时输出必须与原文保持相同的段落数量与顺序（逐段对应，不合并、不拆分、不增删段落），以便前端做逐段对比。
@@ -97,6 +102,8 @@ func (s *AiService) buildUserMessage(req *AiChatRequest) (message string) {
 		return fmt.Sprintf("当前标题或主题：%s\n请为以下内容拟5个候选标题，每行一个纯文本标题，不加序号、说明或 Markdown 标记，每个标题不超过120字：\n\n%s", req.Title, contextText)
 	case aiActionCustom:
 		return fmt.Sprintf("作者指令：%s\n\n%s", req.Instruction, contextText)
+	case aiActionChapter:
+		return buildChapterMessage(req, contextText)
 	}
 	return req.Instruction
 }

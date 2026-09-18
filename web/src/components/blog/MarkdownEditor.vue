@@ -76,7 +76,7 @@
 <script setup>
   import { computed, getCurrentInstance, nextTick, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
-  import { applySnapshot, captureEditorSnapshot, snapshotError, sourceOffsetToTextarea, textareaOffsetToSource, undoSnapshot } from './editorSnapshot'
+  import { appendDocumentSnapshot, applySnapshot, captureEditorSnapshot, snapshotError, sourceOffsetToTextarea, textareaOffsetToSource, undoSnapshot } from './editorSnapshot'
   import {
     ChatLineSquare,
     CopyDocument,
@@ -208,6 +208,14 @@
     return { ok: true }
   }
   const undoResult = computed(() => undoSnapshot(getEditorState(), aiUndoHistory.value.at(-1)))
+  const appendChapter = (text, expected) => {
+    if (aiStore.diff.active) return { ok: false, message: '请先完成当前对比' }
+    const result = appendDocumentSnapshot(getEditorState(), expected, text)
+    if (!result.ok) return result
+    aiUndoHistory.value = [...aiUndoHistory.value.slice(-19), result.undo]
+    value.value = result.content
+    return { ok: true }
+  }
   const canUndoAi = computed(() => undoResult.value.ok)
   const undoHint = computed(() => undoResult.value.message || '恢复应用前的正文和选区')
   const undoAiChange = () => {
@@ -337,6 +345,7 @@
     getEditorState,
     captureSelection,
     applySelectionSnapshot,
+    appendChapter,
     replaceSelection,
     insertAtCursor,
     getFullText

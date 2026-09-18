@@ -8,7 +8,7 @@ const server = await createServer({
   root: fileURLToPath(new URL('../../', import.meta.url)),
   cacheDir: 'node_modules/.vite-ai-editor-tests',
   plugins: [vue(), {
-    name: 'optional-local-selection-mock',
+    name: 'optional-local-ai-mock',
     configureServer(server) {
       // AI_TEST_MOCK=1 用于手工验证真实抽屉首次挂载和选区交接，不调用模型。
       if (process.env.AI_TEST_MOCK !== '1') return
@@ -22,7 +22,19 @@ const server = await createServer({
             for await (const chunk of req) body += chunk
             const payload = JSON.parse(body)
             res.setHeader('Content-Type', 'text/event-stream')
-            res.end(`event: message\ndata: ${JSON.stringify({ delta: `${payload.action}：${payload.selection}` })}\n\nevent: done\ndata: {"finishReason":"stop"}\n\n`)
+            let output = `${payload.action}：${payload.selection}`
+            if (payload.action === 'outline') output = '# 测试文章\n\n## 背景\n- 介绍问题\n\n## 实践\n- 给出示例'
+            if (payload.action === 'chapter') {
+              output = `这是「${payload.outline[payload.chapterIndex].title}」的测试正文。`
+              if (payload.chapterDraft) output += `\n\n根据要求「${payload.instruction}」修订：${payload.chapterDraft}`
+            }
+            res.write(`event: message\ndata: ${JSON.stringify({ delta: output })}\n\n`)
+            if (payload.instruction === '【测试失败】') return res.end()
+            const done = () => res.end('event: done\ndata: {"finishReason":"stop"}\n\n')
+            if (payload.instruction === '【测试慢速】') {
+              const timer = setTimeout(done, 15000)
+              res.on('close', () => clearTimeout(timer))
+            } else done()
           } catch {
             res.statusCode = 400
             res.end('Invalid test request')

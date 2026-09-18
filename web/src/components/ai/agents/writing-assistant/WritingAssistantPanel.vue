@@ -7,6 +7,15 @@
     </div>
 
     <template v-else>
+      <div class="writing-modes" role="group" aria-label="写作方式">
+        <el-button size="small" :type="!chapterMode ? 'primary' : 'default'" :aria-pressed="!chapterMode"
+                   :disabled="streaming || chapterBusy || editorDiffOpen" @click="chapterMode = false">快捷写作</el-button>
+        <el-button size="small" :type="chapterMode ? 'primary' : 'default'" :aria-pressed="chapterMode"
+                   :disabled="streaming || chapterBusy || editorDiffOpen" @click="chapterMode = true">大纲到章节</el-button>
+      </div>
+      <ChapterWritingWorkflow v-show="chapterMode" ref="chapterWorkflow" v-model:tone="tone" v-model:length="outputLength"
+                              :blocked="streaming || editorDiffOpen || !!aiStore.selectionAction" @busy="chapterBusy = $event" />
+      <template v-if="!chapterMode">
       <!-- 快捷动作 -->
       <div class="action-grid">
         <el-button
@@ -133,6 +142,7 @@
         <span>对话上下文 {{ Math.floor(history.length / 2) }} 轮</span>
         <el-button link size="small" :disabled="streaming" @click="clearHistory">清空</el-button>
       </div>
+      </template>
     </template>
   </div>
 </template>
@@ -146,6 +156,7 @@
 
   import { parseTitleCandidates, createWritingTask, retryTaskError } from './writingTask.js'
   import { snapshotError } from '@/components/blog/editorSnapshot.js'
+  import ChapterWritingWorkflow from './ChapterWritingWorkflow.vue'
 
   const aiStore = useAiStore()
 
@@ -153,7 +164,10 @@
   const aiEnabled = ref(true)
   const disabledReason = ref('')
   const streaming = ref(false)
-  watch(streaming, value => { aiStore.writingBusy = value }, { flush: 'sync' })
+  const chapterBusy = ref(false)
+  const chapterMode = ref(false)
+  const chapterWorkflow = ref(null)
+  watch([streaming, chapterBusy], ([quick, chapter]) => { aiStore.writingBusy = quick || chapter }, { flush: 'sync' })
   let disposed = false
   const instruction = ref('')
   const resultText = ref('')
@@ -193,6 +207,7 @@
   onBeforeUnmount(() => {
     disposed = true
     aiStore.selectionAction = null
+    aiStore.writingBusy = false
     document.removeEventListener('selectionchange', syncSelection)
     abortStream()
   })
@@ -296,6 +311,9 @@
     if (!resultText.value) return []
     if (!resultReady.value) return [{ key: 'copy', label: '复制', handler: copyResult }]
     const actions = []
+    if (currentAction.value === 'outline' && hasEditor.value) {
+      actions.push({ key: 'chapters', label: '按大纲逐节写作', handler: startChapters })
+    }
     if (currentAction.value === 'summary') {
       actions.push({ key: 'fill', label: '回填摘要', handler: fillDescription })
     }
@@ -313,6 +331,11 @@
   })
 
   // ---- 执行 ----
+  const startChapters = () => {
+    if (!resultReady.value || !ownsResult() || streaming.value || chapterBusy.value || editorDiffOpen.value) return
+    chapterWorkflow.value?.loadOutline(resultText.value)
+    chapterMode.value = true
+  }
   const runAction = (action) => {
     if (streaming.value || editorDiffOpen.value) return
     if (action.disabled.value) {
@@ -360,7 +383,7 @@
       outline: '生成大纲', title: '标题建议', custom: 'AI 结果'
     }[action] || 'AI 结果'
     streamingHint.value = '正在思考'
-    const payload = buildPayload(action)
+    const payload = buildPayload(action, action === 'outline' ? { instruction: instruction.value.trim() } : {})
     if (snapshot) {
       payload.selection = snapshot.text
       payload.content = snapshot.content
@@ -628,6 +651,7 @@
       () => editorCtx.value?.getEditorState?.()?.documentId, () => editorCtx.value?.getEditorState?.()?.active],
     () => {
       aiStore.selectionAction = null
+      chapterMode.value = false
       reset()
       history.value = []
       instruction.value = ''
@@ -645,12 +669,15 @@
     if (disposed || aiStore.selectionAction !== request) return
     aiStore.selectionAction = null
     if (!aiEnabled.value) return
-    if (streaming.value || editorDiffOpen.value) return ElMessage.warning('请先完成当前 AI 任务或对比')
+    if (streaming.value || chapterBusy.value || editorDiffOpen.value) return ElMessage.warning('请先完成当前 AI 任务或对比')
+    chapterMode.value = false
     await runChatAction(request.action, request.snapshot)
   }, { immediate: true })
 </script>
 
 <style scoped lang="scss">
+.writing-modes { display: flex; gap: 8px; }
+.writing-modes .el-button { flex: 1; margin: 0; }
 .writing-assistant {
   display: flex;
   flex-direction: column;
