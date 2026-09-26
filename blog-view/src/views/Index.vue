@@ -1,5 +1,5 @@
 <template>
-	<div class="site">
+	<div class="site" :class="{'docs-layout': isDocsPage}">
 		<!--顶部导航-->
 		<Nav :blogName="siteInfo.blogName" :categoryList="categoryList"/>
 		<!--首页大图 只在首页且pc端时显示-->
@@ -28,7 +28,6 @@
 							<Tags :tagList="tagList" :class="{'m-display-none':focusMode}"/>
 							<!--只在文章页面显示目录-->
 							<Tocbot v-if="$route.name==='blog'"/>
-							<SiteAbout :stats="siteStats" :class="{'m-display-none':focusMode}"/>
 						</div>
 					</div>
 				</div>
@@ -56,7 +55,6 @@
 	import Tags from "@/components/sidebar/Tags";
 	import RandomBlog from "@/components/sidebar/RandomBlog";
 	import Tocbot from "@/components/sidebar/Tocbot";
-	import SiteAbout from "@/components/sidebar/SiteAbout";
 	import BlogPasswordDialog from "@/components/index/BlogPasswordDialog";
 	import {mapState} from 'vuex'
 	import {SAVE_CLIENT_SIZE, SAVE_INTRODUCTION, SAVE_SITE_INFO, RESTORE_COMMENT_FORM} from "@/store/mutations-types";
@@ -64,7 +62,7 @@
 
 	export default {
 		name: "Index",
-		components: {Header, BlogPasswordDialog, Tocbot, SiteAbout, RandomBlog, Tags, Nav, Footer, Introduction},
+		components: {Header, BlogPasswordDialog, Tocbot, RandomBlog, Tags, Nav, Footer, Introduction},
 		data() {
 			return {
 				siteInfo: {
@@ -118,7 +116,7 @@
 		},
 		methods: {
 			getSite() {
-				getSite().then(res => {
+				return getSite().then(res => {
 					if (isSuccess(res)) {
 						const site = normalizeSite(res.data)
 						this.siteInfo = site.siteInfo
@@ -131,13 +129,22 @@
 						this.$store.commit(SAVE_SITE_INFO, this.siteInfo)
 						this.$store.commit(SAVE_INTRODUCTION, site.introduction)
 						document.title = this.$route.meta.title + this.siteInfo.webTitleSuffix
+					} else {
+						this.msgError(res.msg || '站点信息加载失败，请刷新重试')
 					}
+				}).catch(error => {
+					this.msgError(error.code === 'ECONNABORTED'
+						? '站点信息加载超时，请稍后刷新重试'
+						: '站点信息加载失败，请检查网络后重试')
 				})
 			},
 			//获取一言
 			getHitokoto() {
-				getHitokoto().then(res => {
+				return getHitokoto().then(res => {
 					this.hitokoto = res
+				}).catch(() => {
+					// 一言为可选的外部服务，不让失败阻断页面阅读。
+					this.hitokoto = {}
 				})
 			}
 		}
@@ -178,5 +185,13 @@
 		position: sticky;
 		top: 60px;
 		z-index: 10;
+	}
+	.docs-layout { background: #f6f8fb; }
+	.docs-layout .main .ui.container {
+		width: calc(100% - 40px) !important;
+		max-width: 1440px;
+	}
+	@media (max-width: 768px) {
+		.docs-layout .main .ui.container { width: calc(100% - 24px) !important; }
 	}
 </style>

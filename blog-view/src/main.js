@@ -8,6 +8,7 @@ import './assets/css/base.css'
 import './assets/css/icon/iconfont.css'
 //typo.css
 import "./assets/css/typo.css";
+import './assets/css/fonts.css'
 //semantic-ui
 import 'semantic-ui-css/semantic.min.css'
 //element-ui

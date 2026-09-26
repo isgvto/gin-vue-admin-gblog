@@ -1,0 +1,25 @@
+:root {
+	--blog-reading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "LXGW WenKai", "霞鹜文楷", "Microsoft YaHei", sans-serif;
+}
+
+.site,
+.site .ui:not(.icon),
+.site .el-input,
+.site .el-select,
+.site .el-dropdown,
+.site button,
+.site input,
+.site textarea,
+.typo,
+.docs-page,
+.docs-page .typo,
+.blog-title {
+	font-family: var(--blog-reading-font);
+}
+
+.typo pre,
+.typo code,
+.docs-page pre,
+.docs-page code {
+	font-family: Consolas, Monaco, "Courier New", monospace;
+}
