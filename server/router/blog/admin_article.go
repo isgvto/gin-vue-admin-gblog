@@ -1,8 +1,8 @@
 package blog
 
 import (
-	blogmw "github.com/flipped-aurora/gin-vue-admin/server/middleware/blog"
 	"github.com/gin-gonic/gin"
+	blogmw "github.com/isgvto/gin-vue-admin-gblog/server/middleware/blog"
 )
 
 type AdminArticleRouter struct{}

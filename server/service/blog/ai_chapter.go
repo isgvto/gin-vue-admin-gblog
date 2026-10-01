@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
 )
 
 func validateOutlineSize(outline []blogReq.AiOutlineSection) error {

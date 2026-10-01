@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	modelService "github.com/flipped-aurora/gin-vue-admin/server/service/ai"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	modelService "github.com/isgvto/gin-vue-admin-gblog/server/service/ai"
 	"go.uber.org/zap"
 )
 

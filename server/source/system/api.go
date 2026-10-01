@@ -3,8 +3,8 @@ package system
 import (
 	"context"
 
-	sysModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	sysModel "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -262,7 +262,7 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "版本控制", Method: "DELETE", Path: "/sysVersion/deleteSysVersionByIds", Description: "批量删除版本"},
 
 		//初始化gblog相关api
-		
+
 		{ApiGroup: "gblog", Method: "GET", Path: "/admin/blogs", Description: "博客列表"},
 		{ApiGroup: "gblog", Method: "GET", Path: "/admin/categoryAndTag", Description: "种类和标签"},
 		{ApiGroup: "gblog", Method: "GET", Path: "/admin/categories", Description: "获取类别列表"},

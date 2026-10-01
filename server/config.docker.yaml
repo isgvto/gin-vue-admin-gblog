@@ -1,8 +1,8 @@
-# github.com/flipped-aurora/gin-vue-admin/server Global Configuration
+# github.com/isgvto/gin-vue-admin-gblog/server Global Configuration
 
 # jwt configuration
 jwt:
-    signing-key: gvto
+    signing-key: isgvto
     expires-time: 7d
     buffer-time: 1d
     issuer: gvto
@@ -10,7 +10,7 @@ jwt:
 zap:
     level: info
     format: console
-    prefix: "[github.com/flipped-aurora/gin-vue-admin/server]"
+    prefix: "[github.com/isgvto/gin-vue-admin-gblog/server]"
     director: log
     show-line: true
     encode-level: LowercaseColorLevelEncoder
@@ -72,15 +72,14 @@ email:
 
 # system configuration
 system:
-    env: local # 修改为public可以关闭路由日志输出
     addr: 8888
     db-type: mysql
     oss-type: local # 控制oss选择走本地还是 七牛等其他仓 自行增加其他oss仓可以在 server/utils/upload/upload.go 中 NewOss函数配置
-    use-redis: false # 使用redis
+    use-redis: true # 使用redis
     use-mongo: false     # 使用mongo
     use-multipoint: false
     # IP限制次数 一个小时15000次
-    iplimit-count: 15000
+    iplimit-count: 1500
     #  IP限制一个小时
     iplimit-time: 3600
     #  路由全局前缀
@@ -181,7 +180,7 @@ autocode:
     web: web/src
     root: "" # root 自动适配项目根目录, 请不要手动配置,他会在项目加载的时候识别出根路径
     server: server
-    module: 'github.com/flipped-aurora/gin-vue-admin/server'
+    module: 'github.com/isgvto/gin-vue-admin-gblog/server'
     ai-path: ""  # AI服务路径
 
 # qiniu configuration (请自行七牛申请对应的 公钥 私钥 bucket 和 域名地址)
@@ -215,12 +214,12 @@ aliyun-oss:
 
 # tencent cos configuration
 tencent-cos:
-    bucket: xxxxx-10005608
-    region: ap-shanghai
+    bucket: gblog-1316762285
+    region: ap-beijing
     secret-id: your-secret-id
     secret-key: your-secret-key
-    base-url: https://gin.vue.admin
-    path-prefix: github.com/flipped-aurora/gin-vue-admin/server
+    base-url: https://gblog-1316762285.cos.ap-beijing.myqcloud.com
+    path-prefix: content-image
 
 # aws s3 configuration (minio compatible)
 aws-s3:
@@ -232,7 +231,7 @@ aws-s3:
     secret-id: your-secret-id
     secret-key: your-secret-key
     base-url: https://gin.vue.admin
-    path-prefix: github.com/flipped-aurora/gin-vue-admin/server
+    path-prefix: github.com/isgvto/gin-vue-admin-gblog/server
 
 # cloudflare r2 configuration
 cloudflare-r2:

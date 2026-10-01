@@ -3,8 +3,8 @@ package system
 import (
 	"context"
 
-	. "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	. "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -131,7 +131,7 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "blogVisitLog", Name: "blogVisitLog", Component: "view/blogLog/VisitLog.vue", Sort: 12, Meta: Meta{Title: "访问日志", Icon: "search"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "blogVisitorStats", Name: "blogVisitorStats", Component: "view/blogStatistics/Visitor.vue", Sort: 13, Meta: Meta{Title: "访客统计", Icon: "trend-charts"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "commentList", Name: "commentList", Component: "view/blog/comment/CommentList.vue", Sort: 14, Meta: Meta{Title: "评论管理", Icon: "chat-round"}},
-		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "gdashboard", Name: "gdashboard", Component: "view/blog/dashboard.vue", Sort: 15, Meta:Meta{Title: "GDashboard", Icon: "pie-chart"}},
+		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "gdashboard", Name: "gdashboard", Component: "view/blog/dashboard.vue", Sort: 15, Meta: Meta{Title: "GDashboard", Icon: "pie-chart"}},
 	}
 
 	// 创建子菜单

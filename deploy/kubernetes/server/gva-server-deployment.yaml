@@ -4,7 +4,7 @@ metadata:
   name: gva-server
   annotations:
     flipped-aurora/gin-vue-admin: backend
-    github: "https://github.com/flipped-aurora/gin-vue-admin.git"
+    github: "https://github.com/isgvto/gin-vue-admin-gblog.git"
     app.kubernetes.io/version: 0.0.1
   labels:
     app: gva-server
@@ -29,7 +29,7 @@ spec:
             - containerPort: 8888
               name: http
           volumeMounts:
-            - mountPath: /go/src/github.com/flipped-aurora/gin-vue-admin/server/config.docker.yaml
+            - mountPath: /go/src/github.com/isgvto/gin-vue-admin-gblog/server/config.docker.yaml
               name: config
               subPath: config.yaml
             - mountPath: /etc/localtime

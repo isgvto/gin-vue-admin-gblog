@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"runtime"
 	"time"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
@@ -18,9 +19,9 @@ const (
 )
 
 type Server struct {
-	Os   Os   `json:"os"`
-	Cpu  Cpu  `json:"cpu"`
-	Ram  Ram  `json:"ram"`
+	Os   Os     `json:"os"`
+	Cpu  Cpu    `json:"cpu"`
+	Ram  Ram    `json:"ram"`
 	Disk []Disk `json:"disk"`
 }
 
@@ -45,11 +46,11 @@ type Ram struct {
 
 type Disk struct {
 	MountPoint  string `json:"mountPoint"`
-	UsedMB      int `json:"usedMb"`
-	UsedGB      int `json:"usedGb"`
-	TotalMB     int `json:"totalMb"`
-	TotalGB     int `json:"totalGb"`
-	UsedPercent int `json:"usedPercent"`
+	UsedMB      int    `json:"usedMb"`
+	UsedGB      int    `json:"usedGb"`
+	TotalMB     int    `json:"totalMb"`
+	TotalGB     int    `json:"totalGb"`
+	UsedPercent int    `json:"usedPercent"`
 }
 
 //@author: [SliverHorn](https://github.com/SliverHorn)

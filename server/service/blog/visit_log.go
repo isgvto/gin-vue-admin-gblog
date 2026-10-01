@@ -1,9 +1,9 @@
 package blog
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
 )
 
 type VisitLogService struct{}

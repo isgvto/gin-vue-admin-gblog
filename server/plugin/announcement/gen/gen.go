@@ -1,11 +1,12 @@
 package main
 
 import (
-	"gorm.io/gen"
 	"path/filepath" //go:generate go mod tidy
+
+	"gorm.io/gen"
 	//go:generate go mod download
 	//go:generate go run gen.go
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/announcement/model"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/announcement/model"
 )
 
 func main() {

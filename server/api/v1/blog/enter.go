@@ -1,6 +1,6 @@
 package blog
 
-import "github.com/flipped-aurora/gin-vue-admin/server/service"
+import "github.com/isgvto/gin-vue-admin-gblog/server/service"
 
 type ApiGroup struct {
 	SiteApi         SiteApi

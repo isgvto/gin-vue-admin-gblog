@@ -8,13 +8,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	blogService "github.com/flipped-aurora/gin-vue-admin/server/service/blog"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-contrib/sse"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	blogService "github.com/isgvto/gin-vue-admin-gblog/server/service/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 	"go.uber.org/zap"
 )
 

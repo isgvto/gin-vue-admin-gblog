@@ -3,16 +3,17 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service"
-	astutil "github.com/flipped-aurora/gin-vue-admin/server/utils/ast"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils/stacktrace"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service"
+	astutil "github.com/isgvto/gin-vue-admin-gblog/server/utils/ast"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils/stacktrace"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type ZapCore struct {

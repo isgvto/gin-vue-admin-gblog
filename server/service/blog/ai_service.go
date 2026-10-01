@@ -10,8 +10,8 @@ import (
 	"github.com/cloudwego/eino/compose"
 	react "github.com/cloudwego/eino/flow/agent/react"
 	"github.com/cloudwego/eino/schema"
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
-	aiService "github.com/flipped-aurora/gin-vue-admin/server/service/ai"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
+	aiService "github.com/isgvto/gin-vue-admin-gblog/server/service/ai"
 )
 
 const (

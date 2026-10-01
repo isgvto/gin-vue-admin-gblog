@@ -1,9 +1,9 @@
 package initialize
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	aiModel "github.com/flipped-aurora/gin-vue-admin/server/model/ai"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
 )
 
 func bizModel() error {

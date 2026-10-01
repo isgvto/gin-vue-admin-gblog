@@ -1,7 +1,7 @@
 package ai
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 // AiModelConfig 大模型配置，供模型工厂动态创建 ChatModel

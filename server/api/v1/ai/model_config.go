@@ -3,11 +3,11 @@ package ai
 import (
 	"strconv"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	aiReq "github.com/flipped-aurora/gin-vue-admin/server/model/ai/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiReq "github.com/isgvto/gin-vue-admin-gblog/server/model/ai/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service"
 	"go.uber.org/zap"
 )
 

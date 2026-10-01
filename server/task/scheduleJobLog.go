@@ -3,8 +3,8 @@ package task
 import (
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
 )
 
 func RecordScheduleJobLog(jobID uint, beanName, methodName, params string, fn func() error) error {

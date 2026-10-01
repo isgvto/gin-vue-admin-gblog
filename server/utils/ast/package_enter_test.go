@@ -1,9 +1,10 @@
 package ast
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"path/filepath"
 	"testing"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 func TestPackageEnter_Rollback(t *testing.T) {
@@ -25,7 +26,7 @@ func TestPackageEnter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:              TypePackageApiEnter,
 				Path:              filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "api", "v1", "enter.go"),
-				ImportPath:        `"github.com/flipped-aurora/gin-vue-admin/server/api/v1/example"`,
+				ImportPath:        `"github.com/isgvto/gin-vue-admin-gblog/server/api/v1/example"`,
 				StructName:        "ExampleApiGroup",
 				PackageName:       "example",
 				PackageStructName: "ApiGroup",
@@ -37,7 +38,7 @@ func TestPackageEnter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:              TypePackageRouterEnter,
 				Path:              filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "router", "enter.go"),
-				ImportPath:        `"github.com/flipped-aurora/gin-vue-admin/server/router/example"`,
+				ImportPath:        `"github.com/isgvto/gin-vue-admin-gblog/server/router/example"`,
 				StructName:        "Example",
 				PackageName:       "example",
 				PackageStructName: "RouterGroup",
@@ -49,7 +50,7 @@ func TestPackageEnter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:              TypePackageServiceEnter,
 				Path:              filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "service", "enter.go"),
-				ImportPath:        `"github.com/flipped-aurora/gin-vue-admin/server/service/example"`,
+				ImportPath:        `"github.com/isgvto/gin-vue-admin-gblog/server/service/example"`,
 				StructName:        "ExampleServiceGroup",
 				PackageName:       "example",
 				PackageStructName: "ServiceGroup",
@@ -99,7 +100,7 @@ func TestPackageEnter_Injection(t *testing.T) {
 			fields: fields{
 				Type:              TypePackageApiEnter,
 				Path:              filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "api", "v1", "enter.go"),
-				ImportPath:        `"github.com/flipped-aurora/gin-vue-admin/server/api/v1/example"`,
+				ImportPath:        `"github.com/isgvto/gin-vue-admin-gblog/server/api/v1/example"`,
 				StructName:        "ExampleApiGroup",
 				PackageName:       "example",
 				PackageStructName: "ApiGroup",
@@ -110,7 +111,7 @@ func TestPackageEnter_Injection(t *testing.T) {
 			fields: fields{
 				Type:              TypePackageRouterEnter,
 				Path:              filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "router", "enter.go"),
-				ImportPath:        `"github.com/flipped-aurora/gin-vue-admin/server/router/example"`,
+				ImportPath:        `"github.com/isgvto/gin-vue-admin-gblog/server/router/example"`,
 				StructName:        "Example",
 				PackageName:       "example",
 				PackageStructName: "RouterGroup",
@@ -122,7 +123,7 @@ func TestPackageEnter_Injection(t *testing.T) {
 			fields: fields{
 				Type:              TypePackageServiceEnter,
 				Path:              filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "service", "enter.go"),
-				ImportPath:        `"github.com/flipped-aurora/gin-vue-admin/server/service/example"`,
+				ImportPath:        `"github.com/isgvto/gin-vue-admin-gblog/server/service/example"`,
 				StructName:        "ExampleServiceGroup",
 				PackageName:       "example",
 				PackageStructName: "ServiceGroup",

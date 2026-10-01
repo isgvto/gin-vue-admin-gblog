@@ -1,9 +1,9 @@
 package system
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/api/v1"
-	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
+	v1 "github.com/isgvto/gin-vue-admin-gblog/server/api/v1"
+	"github.com/isgvto/gin-vue-admin-gblog/server/middleware"
 )
 
 type ApiTokenRouter struct{}

@@ -1,9 +1,9 @@
 package initialize
 
 import (
-	blogmw "github.com/flipped-aurora/gin-vue-admin/server/middleware/blog"
-	"github.com/flipped-aurora/gin-vue-admin/server/router"
 	"github.com/gin-gonic/gin"
+	blogmw "github.com/isgvto/gin-vue-admin-gblog/server/middleware/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/router"
 )
 
 // 占位方法，保证文件可以正确加载，避免go空变量检测报错，请勿删除。

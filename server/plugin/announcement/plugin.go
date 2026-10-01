@@ -2,9 +2,10 @@ package announcement
 
 import (
 	"context"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/announcement/initialize"
-	interfaces "github.com/flipped-aurora/gin-vue-admin/server/utils/plugin/v2"
+
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/announcement/initialize"
+	interfaces "github.com/isgvto/gin-vue-admin-gblog/server/utils/plugin/v2"
 )
 
 var _ interfaces.Plugin = (*plugin)(nil)

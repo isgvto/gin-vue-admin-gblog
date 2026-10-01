@@ -1,10 +1,11 @@
 package blog
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"strings"
 	"testing"
 	"unicode/utf8"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 func TestArticleContextDistributedAndBounded(t *testing.T) {

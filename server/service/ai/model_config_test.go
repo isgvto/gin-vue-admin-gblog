@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	aiModel "github.com/flipped-aurora/gin-vue-admin/server/model/ai"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
 )
 
 func TestSafeModelIDContract(t *testing.T) {

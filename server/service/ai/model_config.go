@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	aiModel "github.com/flipped-aurora/gin-vue-admin/server/model/ai"
-	aiReq "github.com/flipped-aurora/gin-vue-admin/server/model/ai/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
+	aiReq "github.com/isgvto/gin-vue-admin-gblog/server/model/ai/request"
 	"gorm.io/gorm"
 )
 

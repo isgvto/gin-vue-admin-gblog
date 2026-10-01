@@ -1,6 +1,6 @@
 package response
 
-import blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
+import blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
 
 type Option struct {
 	Label string      `json:"label"`
