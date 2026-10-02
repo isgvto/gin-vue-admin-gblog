@@ -3,10 +3,12 @@ package system
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
 	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
 	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
 	systemReq "github.com/isgvto/gin-vue-admin-gblog/server/model/system/request"
 	"go.uber.org/zap"
+	"strconv"
 )
 
 type SysErrorApi struct{}
@@ -170,25 +172,24 @@ func (sysErrorApi *SysErrorApi) GetSysErrorList(c *gin.Context) {
 
 // GetSysErrorSolution 触发错误日志的异步处理
 // @Tags SysError
-// @Summary 根据ID触发处理：标记为处理中，1分钟后自动改为处理完成
+// @Summary 根据ID触发异步模型分析
 // @Security ApiKeyAuth
 // @Accept application/json
 // @Produce application/json
-// @Param id query string true "错误日志ID"
+// @Param data body ai.ErrorAnalysisRequest true "错误日志ID"
 // @Success 200 {object} response.Response{msg=string} "处理已提交"
-// @Router /sysError/getSysErrorSolution [get]
+// @Router /sysError/getSysErrorSolution [post]
 func (sysErrorApi *SysErrorApi) GetSysErrorSolution(c *gin.Context) {
 	// 创建业务用Context
 	ctx := c.Request.Context()
 
-	// 兼容 id 与 ID 两种参数
-	ID := c.Query("id")
-	if ID == "" {
+	var req aiModel.ErrorAnalysisRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage("缺少参数: id", c)
 		return
 	}
 
-	err := sysErrorService.GetSysErrorSolution(ctx, ID)
+	err := sysErrorService.GetSysErrorSolution(ctx, strconv.FormatUint(uint64(req.ID), 10))
 	if err != nil {
 		global.GVA_LOG.Error("处理触发失败!", zap.Error(err))
 		response.FailWithMessage("处理触发失败:"+err.Error(), c)

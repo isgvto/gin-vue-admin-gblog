@@ -10,6 +10,7 @@ func bizModel() error {
 	db := global.GVA_DB
 	err := db.AutoMigrate(
 		aiModel.AiModelConfig{},
+		aiModel.ErrorAnalysisConfig{},
 		blogModel.About{},
 		blogModel.Blog{},
 		blogModel.BlogTag{},
@@ -30,5 +31,5 @@ func bizModel() error {
 	if err != nil {
 		return err
 	}
-	return nil
+	return migrateErrorAnalysisAccess(db)
 }

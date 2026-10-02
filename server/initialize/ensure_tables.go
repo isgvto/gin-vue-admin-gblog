@@ -4,6 +4,7 @@ import (
 	"context"
 
 	adapter "github.com/casbin/gorm-adapter/v3"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
 	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
 	"github.com/isgvto/gin-vue-admin-gblog/server/model/example"
 	sysModel "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
@@ -38,6 +39,8 @@ func (e *ensureTables) MigrateTable(ctx context.Context) (context.Context, error
 		return ctx, system.ErrMissingDBContext
 	}
 	tables := []interface{}{
+		aiModel.AiModelConfig{},
+		aiModel.ErrorAnalysisConfig{},
 		sysModel.SysApi{},
 		sysModel.SysUser{},
 		sysModel.SysBaseMenu{},

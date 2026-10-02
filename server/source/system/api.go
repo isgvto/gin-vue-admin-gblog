@@ -44,6 +44,9 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []sysModel.SysApi{
+		{ApiGroup: "AI 功能", Method: "GET", Path: "/ai/modelConfig/errorAnalysis", Description: "读取错误分析模型分配"},
+		{ApiGroup: "AI 功能", Method: "PUT", Path: "/ai/modelConfig/errorAnalysis", Description: "保存错误分析模型分配"},
+		{ApiGroup: "AI 功能", Method: "POST", Path: "/ai/modelConfig/errorAnalysis/test", Description: "测试错误分析模型"},
 		{ApiGroup: "jwt", Method: "POST", Path: "/jwt/jsonInBlacklist", Description: "jwt加入黑名单(退出，必选)"},
 
 		{ApiGroup: "登录日志", Method: "DELETE", Path: "/sysLoginLog/deleteLoginLog", Description: "删除登录日志"},
@@ -233,7 +236,7 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "错误日志", Method: "PUT", Path: "/sysError/updateSysError", Description: "更新错误日志"},
 		{ApiGroup: "错误日志", Method: "GET", Path: "/sysError/findSysError", Description: "根据ID获取错误日志"},
 		{ApiGroup: "错误日志", Method: "GET", Path: "/sysError/getSysErrorList", Description: "获取错误日志列表"},
-		{ApiGroup: "错误日志", Method: "GET", Path: "/sysError/getSysErrorSolution", Description: "触发错误处理(异步)"},
+		{ApiGroup: "错误日志", Method: "POST", Path: "/sysError/getSysErrorSolution", Description: "触发错误处理(异步)"},
 
 		{ApiGroup: "公告", Method: "POST", Path: "/info/createInfo", Description: "新建公告"},
 		{ApiGroup: "公告", Method: "DELETE", Path: "/info/deleteInfo", Description: "删除公告"},

@@ -15,6 +15,104 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/ai/modelConfig/errorAnalysis": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI模型配置"
+                ],
+                "summary": "读取错误分析模型分配",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI模型配置"
+                ],
+                "summary": "保存错误分析模型分配",
+                "parameters": [
+                    {
+                        "description": "错误分析配置",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ai.ErrorAnalysisConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/ai/modelConfig/errorAnalysis/test": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI模型配置"
+                ],
+                "summary": "使用当前分配进行示例错误分析",
+                "parameters": [
+                    {
+                        "description": "待测试的错误分析配置",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ai.ErrorAnalysisConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/createApi": {
             "post": {
                 "security": [
@@ -5599,7 +5697,7 @@ const docTemplate = `{
             }
         },
         "/sysError/getSysErrorSolution": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -5614,14 +5712,16 @@ const docTemplate = `{
                 "tags": [
                     "SysError"
                 ],
-                "summary": "根据ID触发处理：标记为处理中，1分钟后自动改为处理完成",
+                "summary": "根据ID触发异步模型分析",
                 "parameters": [
                     {
-                        "type": "string",
                         "description": "错误日志ID",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ai.ErrorAnalysisRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -8126,9 +8226,66 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "ai.ErrorAnalysisConfig": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "modelId": {
+                    "type": "integer"
+                },
+                "timeoutSeconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ai.ErrorAnalysisRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "common.JSONMap": {
             "type": "object",
             "additionalProperties": true
+        },
+        "config.AI": {
+            "type": "object",
+            "properties": {
+                "api-key": {
+                    "type": "string"
+                },
+                "base-url": {
+                    "type": "string"
+                },
+                "context-limit": {
+                    "type": "integer"
+                },
+                "daily-limit": {
+                    "type": "integer"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "max-tokens": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "temperature": {
+                    "type": "number"
+                }
+            }
         },
         "config.AliyunOSS": {
             "type": "object",
@@ -8794,6 +8951,14 @@ const docTemplate = `{
         "config.Server": {
             "type": "object",
             "properties": {
+                "ai": {
+                    "description": "AI配置（模型配置页未配置时的兜底）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/config.AI"
+                        }
+                    ]
+                },
                 "aliyun-oss": {
                     "$ref": "#/definitions/config.AliyunOSS"
                 },
@@ -8835,7 +9000,7 @@ const docTemplate = `{
                     }
                 },
                 "email": {
-                    "$ref": "#/definitions/github_com_flipped-aurora_gin-vue-admin_server_config.Email"
+                    "$ref": "#/definitions/github_com_isgvto_gin-vue-admin-gblog_server_config.Email"
                 },
                 "excel": {
                     "$ref": "#/definitions/config.Excel"
@@ -9317,7 +9482,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_flipped-aurora_gin-vue-admin_server_config.Email": {
+        "github_com_isgvto_gin-vue-admin-gblog_server_config.Email": {
             "type": "object",
             "properties": {
                 "from": {
@@ -10871,6 +11036,21 @@ const docTemplate = `{
                     "description": "主键ID",
                     "type": "integer"
                 },
+                "analysisCompletedAt": {
+                    "type": "string"
+                },
+                "analysisError": {
+                    "type": "string"
+                },
+                "analysisModel": {
+                    "type": "string"
+                },
+                "analysisModelId": {
+                    "type": "integer"
+                },
+                "analysisStartedAt": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -10888,6 +11068,12 @@ const docTemplate = `{
                 },
                 "solution": {
                     "description": "解决方案",
+                    "type": "string"
+                },
+                "solutionGeneratedAt": {
+                    "type": "string"
+                },
+                "solutionModel": {
                     "type": "string"
                 },
                 "status": {

@@ -58,3 +58,7 @@ export const testModelConnection = (data) => requestModel({
 export const getProviderModels = (data) => requestModel({
   url: '/ai/modelConfig/providerModels', method: 'POST', data, timeout: 35000
 })
+
+export const getErrorAnalysisConfig = () => requestModel({ url: '/ai/modelConfig/errorAnalysis', method: 'GET' })
+export const saveErrorAnalysisConfig = (data) => requestModel({ url: '/ai/modelConfig/errorAnalysis', method: 'PUT', data })
+export const testErrorAnalysis = (data) => requestModel({ url: '/ai/modelConfig/errorAnalysis/test', method: 'POST', data, timeout: (data.timeoutSeconds + 15) * 1000 })

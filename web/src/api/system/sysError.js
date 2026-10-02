@@ -114,13 +114,13 @@ export const getSysErrorPublic = () => {
 // @Security ApiKeyAuth
 // @Accept application/json
 // @Produce application/json
-// @Param id query string true "错误日志ID"
+// @Param data body object true "错误日志ID"
 // @Success 200 {string} string "{\"success\":true,\"data\":{},\"msg\":\"处理已提交\"}"
-// @Router /sysError/getSysErrorSolution [get]
-export const getSysErrorSolution = (params) => {
+// @Router /sysError/getSysErrorSolution [post]
+export const getSysErrorSolution = (data) => {
   return service({
     url: '/sysError/getSysErrorSolution',
-    method: 'get',
-    params
+    method: 'post',
+    data
   })
 }

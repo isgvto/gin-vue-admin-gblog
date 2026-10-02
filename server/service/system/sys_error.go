@@ -2,10 +2,8 @@ package system
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/isgvto/gin-vue-admin-gblog/server/global"
-	"github.com/isgvto/gin-vue-admin-gblog/server/model/common"
 	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
 	systemReq "github.com/isgvto/gin-vue-admin-gblog/server/model/system/request"
 )
@@ -18,6 +16,17 @@ func (sysErrorService *SysErrorService) CreateSysError(ctx context.Context, sysE
 	if global.GVA_DB == nil {
 		return nil
 	}
+	// Public log ingestion cannot set server-owned analysis state.
+	sysError.Status = "未处理"
+	sysError.Solution = nil
+	sysError.AnalysisTask = ""
+	sysError.AnalysisError = ""
+	sysError.AnalysisModel = ""
+	sysError.AnalysisModelID = 0
+	sysError.AnalysisStartedAt = nil
+	sysError.AnalysisCompletedAt = nil
+	sysError.SolutionModel = ""
+	sysError.SolutionGeneratedAt = nil
 	err = global.GVA_DB.Create(sysError).Error
 	return err
 }
@@ -39,13 +48,16 @@ func (sysErrorService *SysErrorService) DeleteSysErrorByIds(ctx context.Context,
 // UpdateSysError 更新错误日志记录
 // Author [yourname](https://github.com/yourname)
 func (sysErrorService *SysErrorService) UpdateSysError(ctx context.Context, sysError system.SysError) (err error) {
-	err = global.GVA_DB.Model(&system.SysError{}).Where("id = ?", sysError.ID).Updates(&sysError).Error
+	err = global.GVA_DB.Model(&system.SysError{}).Where("id = ?", sysError.ID).Select("form", "info", "level").Updates(&sysError).Error
 	return err
 }
 
 // GetSysError 根据ID获取错误日志记录
 // Author [yourname](https://github.com/yourname)
 func (sysErrorService *SysErrorService) GetSysError(ctx context.Context, ID string) (sysError system.SysError, err error) {
+	if err = recoverExpiredErrorAnalysis(ctx); err != nil {
+		return
+	}
 	err = global.GVA_DB.Where("id = ?", ID).First(&sysError).Error
 	return
 }
@@ -53,6 +65,9 @@ func (sysErrorService *SysErrorService) GetSysError(ctx context.Context, ID stri
 // GetSysErrorInfoList 分页获取错误日志记录
 // Author [yourname](https://github.com/yourname)
 func (sysErrorService *SysErrorService) GetSysErrorInfoList(ctx context.Context, info systemReq.SysErrorSearch) (list []system.SysError, total int64, err error) {
+	if err = recoverExpiredErrorAnalysis(ctx); err != nil {
+		return
+	}
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
@@ -80,48 +95,4 @@ func (sysErrorService *SysErrorService) GetSysErrorInfoList(ctx context.Context,
 
 	err = db.Find(&sysErrors).Error
 	return sysErrors, total, err
-}
-
-// GetSysErrorSolution 异步处理错误
-// Author [yourname](https://github.com/yourname)
-func (sysErrorService *SysErrorService) GetSysErrorSolution(ctx context.Context, ID string) (err error) {
-	// 立即更新为处理中
-	err = global.GVA_DB.WithContext(ctx).Model(&system.SysError{}).Where("id = ?", ID).Update("status", "处理中").Error
-	if err != nil {
-		return err
-	}
-
-	// 异步协程在一分钟后更新为处理完成
-	go func(id string) {
-		// 查询当前错误信息用于生成方案
-		var se system.SysError
-		_ = global.GVA_DB.Model(&system.SysError{}).Where("id = ?", id).First(&se).Error
-
-		// 构造 LLM 请求参数，使用管家模式(butler)根据错误信息生成解决方案
-		var form, info string
-		if se.Form != nil {
-			form = *se.Form
-		}
-		if se.Info != nil {
-			info = *se.Info
-		}
-
-		llmReq := common.JSONMap{
-			"mode": "solution",
-			"info": info,
-			"form": form,
-		}
-
-		// 调用服务层 LLMAuto，忽略错误但尽量写入方案
-		var solution string
-		if data, err := (&AutoCodeService{}).LLMAuto(context.Background(), llmReq); err == nil {
-			solution = fmt.Sprintf("%v", data.(map[string]interface{})["text"])
-			_ = global.GVA_DB.Model(&system.SysError{}).Where("id = ?", id).Updates(map[string]interface{}{"status": "处理完成", "solution": solution}).Error
-		} else {
-			// 即使生成失败也标记为完成，避免任务卡住
-			_ = global.GVA_DB.Model(&system.SysError{}).Where("id = ?", id).Update("status", "处理失败").Error
-		}
-	}(ID)
-
-	return nil
 }

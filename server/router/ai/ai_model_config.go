@@ -9,6 +9,9 @@ func (r *ModelConfigRouter) InitModelConfigRouter(Router *gin.RouterGroup) {
 	{
 		configRouter.GET("list", modelConfigApi.GetList)
 		configRouter.GET("providers", modelConfigApi.Providers)
+		configRouter.GET("errorAnalysis", modelConfigApi.GetErrorAnalysis)
+		configRouter.PUT("errorAnalysis", modelConfigApi.SaveErrorAnalysis)
+		configRouter.POST("errorAnalysis/test", modelConfigApi.TestErrorAnalysis)
 		configRouter.POST("testConnection", modelConfigApi.TestConnection)
 		configRouter.POST("providerModels", modelConfigApi.ProviderModels)
 		configRouter.POST("", modelConfigApi.Create)

@@ -16,7 +16,7 @@ func (s *SysErrorRouter) InitSysErrorRouter(Router *gin.RouterGroup, PublicRoute
 		sysErrorRouter.DELETE("deleteSysError", sysErrorApi.DeleteSysError)           // 删除错误日志
 		sysErrorRouter.DELETE("deleteSysErrorByIds", sysErrorApi.DeleteSysErrorByIds) // 批量删除错误日志
 		sysErrorRouter.PUT("updateSysError", sysErrorApi.UpdateSysError)              // 更新错误日志
-		sysErrorRouter.GET("getSysErrorSolution", sysErrorApi.GetSysErrorSolution)    // 触发错误日志处理
+		sysErrorRouter.POST("getSysErrorSolution", sysErrorApi.GetSysErrorSolution)   // 触发错误日志处理
 	}
 	{
 		sysErrorRouterWithoutRecord.GET("findSysError", sysErrorApi.FindSysError)       // 根据ID获取错误日志

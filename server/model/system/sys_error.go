@@ -3,10 +3,19 @@ package system
 
 import (
 	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"time"
 )
 
 // 错误日志 结构体  SysError
 type SysError struct {
+	AnalysisModel       string     `json:"analysisModel" gorm:"size:255"`
+	AnalysisModelID     uint       `json:"analysisModelId"`
+	AnalysisStartedAt   *time.Time `json:"analysisStartedAt"`
+	AnalysisCompletedAt *time.Time `json:"analysisCompletedAt"`
+	AnalysisError       string     `json:"analysisError" gorm:"type:text"`
+	AnalysisTask        string     `json:"-" gorm:"size:64"`
+	SolutionModel       string     `json:"solutionModel" gorm:"size:255"`
+	SolutionGeneratedAt *time.Time `json:"solutionGeneratedAt"`
 	global.GVA_MODEL
 	Form     *string `json:"form" form:"form" gorm:"comment:错误来源;column:form;type:text;" binding:"required"` //错误来源
 	Info     *string `json:"info" form:"info" gorm:"comment:错误内容;column:info;type:text;"`                    //错误内容

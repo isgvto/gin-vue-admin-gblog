@@ -95,6 +95,8 @@
 
     </div>
 
+    <ErrorAnalysisSettings ref="errorAnalysisSettings" />
+
     <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
@@ -180,9 +182,11 @@
   import { useAppStore } from '@/pinia'
   import PageHeading from '@/components/admin/PageHeading.vue'
 
+  import ErrorAnalysisSettings from '@/components/ai/ErrorAnalysisSettings.vue'
+
   export default {
     name: 'AiModelConfig',
-    components: { PageHeading },
+    components: { PageHeading, ErrorAnalysisSettings },
     data() {
       return {
         loading: false,
@@ -320,6 +324,7 @@
           const res = await getModelConfigList(this.queryInfo)
           this.modelList = (res.data?.list || []).map(row => ({ ...row, id: row.id ?? row.ID }))
           this.total = res.data?.total || 0
+          this.$refs.errorAnalysisSettings?.refreshModels()
         } finally {
           this.loading = false
         }

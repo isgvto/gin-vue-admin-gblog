@@ -136,6 +136,11 @@ func (s *ModelConfigService) Update(info aiReq.AiModelConfigUpsert) error {
 	if record.IsDefault && !info.Status {
 		return errors.New("默认模型不可停用，请先将其他模型设为默认")
 	}
+	if !info.Status {
+		if err := ensureNotBoundToErrorAnalysis(record.ID, true); err != nil {
+			return err
+		}
+	}
 	updates := map[string]any{
 		"name": info.Name, "provider": info.Provider, "base_url": info.BaseURL,
 		"model": info.Model, "temperature": info.Temperature,
@@ -161,6 +166,9 @@ func (s *ModelConfigService) Delete(id uint) error {
 	}
 	if record.IsDefault {
 		return errors.New("默认模型不可删除，请先将其他模型设为默认")
+	}
+	if err := ensureNotBoundToErrorAnalysis(id, false); err != nil {
+		return err
 	}
 	if err := global.GVA_DB.Delete(&record).Error; err != nil {
 		return err
