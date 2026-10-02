@@ -1,3 +1,13 @@
+ai:
+    enable: true
+    provider: openai
+    base-url: https://api.deepseek.com/v1
+    api-key: ""
+    model: deepseek-chat
+    temperature: 0.7
+    max-tokens: 4096
+    context-limit: 8000
+    daily-limit: 200
 aliyun-oss:
     endpoint: yourEndpoint
     access-key-id: yourAccessKeyId
@@ -67,14 +77,14 @@ db-list:
 disk-list:
     - mount-point: /
 email:
-    to: xxx@qq.com
-    from: xxx@163.com
+    to: 3135679861@qq.com
+    from: lz13526112262@163.com
     host: smtp.163.com
     secret: xxx
     nickname: test
     port: 465
     is-ssl: true
-    is-loginauth: false
+    is-loginauth: true
 excel:
     dir: ./resource/excel/
 hua-wei-obs:
@@ -254,15 +264,3 @@ zap:
     show-line: true
     log-in-console: true
     retention-day: -1
-
-# ai
-ai:
-    enable: true
-    provider: openai
-    base-url: https://api.deepseek.com/v1
-    api-key: ""
-    model: deepseek-chat
-    temperature: 0.7
-    max-tokens: 4096
-    context-limit: 8000
-    daily-limit: 200

@@ -89,6 +89,11 @@ func (s *AutoCodeService) LLMAutoStream(ctx context.Context, llm common.JSONMap)
 }
 
 func buildLLMAutoPath(llm common.JSONMap) (string, error) {
+	// 页面绘制已移除；共享接口仍供代码生成、字典和导出模板等功能使用。
+	if strings.TrimSpace(fmt.Sprintf("%v", llm["mode"])) == "createWeb" {
+		return "", errors.New("AI页面绘制功能已移除")
+	}
+
 	if global.GVA_CONFIG.AutoCode.AiPath == "" {
 		return "", errors.New("请先前往插件市场个人中心获取 AiPath 并填写到 config.yaml 中")
 	}

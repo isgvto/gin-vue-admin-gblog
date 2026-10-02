@@ -34,6 +34,10 @@ func (systemConfigService *SystemConfigService) SetSystemConfig(system system.Sy
 		global.GVA_VP.Set(k, v)
 	}
 	err = global.GVA_VP.WriteConfig()
+	if err == nil {
+		// 邮件测试可能紧接着保存请求到达，不等待文件监听器异步刷新。
+		global.GVA_CONFIG.Email = system.Config.Email
+	}
 	return err
 }
 

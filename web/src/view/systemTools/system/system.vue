@@ -209,14 +209,17 @@
           <el-form-item label="是否LoginAuth认证">
             <el-switch v-model="config.email['is-loginauth']" />
           </el-form-item>
-          <el-form-item label="secret">
+          <el-form-item label="邮箱授权码">
             <el-input
               v-model.trim="config.email.secret"
-              placeholder="请输入secret"
+              type="password"
+              show-password
+              placeholder="请输入发送者邮箱的客户端授权码，非登录密码"
             />
           </el-form-item>
           <el-form-item label="测试邮件">
             <el-button @click="email">测试邮件</el-button>
+            <span class="ml-3 text-sm text-gray-500">测试使用已保存配置，修改后请先点击“立即更新”</span>
           </el-form-item>
         </el-tab-pane>
         <el-tab-pane
