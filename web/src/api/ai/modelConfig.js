@@ -62,3 +62,7 @@ export const getProviderModels = (data) => requestModel({
 export const getErrorAnalysisConfig = () => requestModel({ url: '/ai/modelConfig/errorAnalysis', method: 'GET' })
 export const saveErrorAnalysisConfig = (data) => requestModel({ url: '/ai/modelConfig/errorAnalysis', method: 'PUT', data })
 export const testErrorAnalysis = (data) => requestModel({ url: '/ai/modelConfig/errorAnalysis/test', method: 'POST', data, timeout: (data.timeoutSeconds + 15) * 1000 })
+
+export const getFeatureModelConfig = (feature) => requestModel({ url: `/ai/modelConfig/${feature}`, method: 'GET' })
+export const saveFeatureModelConfig = (feature, data) => requestModel({ url: `/ai/modelConfig/${feature}`, method: 'PUT', data })
+export const testFeatureModelConfig = (feature, data) => requestModel({ url: `/ai/modelConfig/${feature}/test`, method: 'POST', data, timeout: (data.timeoutSeconds + 15) * 1000 })

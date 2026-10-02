@@ -15,6 +15,41 @@ definitions:
     required:
     - id
     type: object
+  ai.WorkflowChatRequest:
+    properties:
+      conversation_id:
+        type: string
+      history:
+        items:
+          $ref: '#/definitions/ai.WorkflowTurn'
+        type: array
+      inputs:
+        $ref: '#/definitions/common.JSONMap'
+      mode:
+        type: string
+      query:
+        type: string
+      response_mode:
+        type: string
+      sessionId:
+        type: integer
+    type: object
+  ai.WorkflowConfig:
+    properties:
+      enabled:
+        type: boolean
+      modelId:
+        type: integer
+      timeoutSeconds:
+        type: integer
+    type: object
+  ai.WorkflowTurn:
+    properties:
+      content:
+        type: string
+      role:
+        type: string
+    type: object
   common.JSONMap:
     additionalProperties: true
     type: object
@@ -2315,6 +2350,65 @@ paths:
       summary: 使用当前分配进行示例错误分析
       tags:
       - AI模型配置
+  /ai/modelConfig/workflow:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 读取需求工作流模型分配
+      tags:
+      - AI模型配置
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 功能模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.WorkflowConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 保存需求工作流模型分配
+      tags:
+      - AI模型配置
+  /ai/modelConfig/workflow/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 待测试的功能模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.WorkflowConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 测试需求工作流模型
+      tags:
+      - AI模型配置
   /api/createApi:
     post:
       consumes:
@@ -3079,6 +3173,29 @@ paths:
       summary: 增加方法
       tags:
       - AddFunc
+  /autoCode/aiWorkflowChat:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 本轮问题和上下文
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.WorkflowChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 使用配置的模型进行需求分析或工作流对话
+      tags:
+      - AI需求工作流
   /autoCode/createPackage:
     post:
       consumes:

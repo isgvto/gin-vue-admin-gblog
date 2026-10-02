@@ -7,25 +7,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// One-time migration inherits existing permissions rather than granting a role
-// access merely because it can log in. Subsequent permission revocations persist.
-func migrateErrorAnalysisAccess(db *gorm.DB) error {
+func migrateWorkflowAccess(db *gorm.DB) error {
 	if !db.Migrator().HasTable(&adapter.CasbinRule{}) {
 		return nil
 	}
 	return db.Transaction(func(tx *gorm.DB) error {
-		var cfg aiModel.ErrorAnalysisConfig
-		if err := tx.Where("id = ?", 1).Attrs(aiModel.ErrorAnalysisConfig{ID: 1, TimeoutSeconds: 60}).FirstOrCreate(&cfg).Error; err != nil {
+		var cfg aiModel.WorkflowConfig
+		if err := tx.Where("id = ?", 1).Attrs(aiModel.WorkflowConfig{ID: 1, TimeoutSeconds: 180}).FirstOrCreate(&cfg).Error; err != nil {
 			return err
 		}
 		if cfg.PermissionsMigrated {
 			return nil
 		}
 		mappings := []struct{ from, method, to, targetMethod, description string }{
-			{"/ai/modelConfig/list", "GET", "/ai/modelConfig/errorAnalysis", "GET", "读取错误分析模型分配"},
-			{"/ai/modelConfig", "PUT", "/ai/modelConfig/errorAnalysis", "PUT", "保存错误分析模型分配"},
-			{"/ai/modelConfig/testConnection", "POST", "/ai/modelConfig/errorAnalysis/test", "POST", "测试错误分析模型"},
-			{"/sysError/getSysErrorSolution", "GET", "/sysError/getSysErrorSolution", "POST", "触发错误日志模型分析"},
+			{"/ai/modelConfig/list", "GET", "/ai/modelConfig/workflow", "GET", "读取需求工作流模型分配"},
+			{"/ai/modelConfig", "PUT", "/ai/modelConfig/workflow", "PUT", "保存需求工作流模型分配"},
+			{"/ai/modelConfig/testConnection", "POST", "/ai/modelConfig/workflow/test", "POST", "测试需求工作流模型"},
+			{"/autoCode/saveAIWorkflowSession", "POST", "/autoCode/aiWorkflowChat", "POST", "AI 需求工作流对话"},
 		}
 		for _, m := range mappings {
 			var rules []adapter.CasbinRule
@@ -44,12 +42,6 @@ func migrateErrorAnalysisAccess(db *gorm.DB) error {
 			if err := tx.Where("path = ? AND method = ?", api.Path, api.Method).FirstOrCreate(&api).Error; err != nil {
 				return err
 			}
-		}
-		if err := tx.Where("path = ? AND method = ?", "/sysError/getSysErrorSolution", "GET").Delete(&system.SysApi{}).Error; err != nil {
-			return err
-		}
-		if err := tx.Where("v1 = ? AND v2 = ?", "/sysError/getSysErrorSolution", "GET").Delete(&adapter.CasbinRule{}).Error; err != nil {
-			return err
 		}
 		return tx.Model(&cfg).Update("permissions_migrated", true).Error
 	})

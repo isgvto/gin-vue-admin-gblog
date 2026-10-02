@@ -18,19 +18,28 @@ import (
 type ErrorAnalysisService struct{}
 
 func ensureNotBoundToErrorAnalysis(id uint, enabledOnly bool) error {
-	if !global.GVA_DB.Migrator().HasTable(&aiModel.ErrorAnalysisConfig{}) {
-		return nil
+	bindings := []struct {
+		model   any
+		feature string
+	}{
+		{&aiModel.ErrorAnalysisConfig{}, "错误日志分析"},
+		{&aiModel.WorkflowConfig{}, "AI 需求工作流"},
 	}
-	query := global.GVA_DB.Model(&aiModel.ErrorAnalysisConfig{}).Where("model_id = ?", id)
-	if enabledOnly {
-		query = query.Where("enabled = ?", true)
-	}
-	var count int64
-	if err := query.Count(&count).Error; err != nil {
-		return err
-	}
-	if count > 0 {
-		return errors.New("该模型已分配给错误日志分析，请先调整功能模型分配")
+	for _, binding := range bindings {
+		if !global.GVA_DB.Migrator().HasTable(binding.model) {
+			continue
+		}
+		query := global.GVA_DB.Model(binding.model).Where("model_id = ?", id)
+		if enabledOnly {
+			query = query.Where("enabled = ?", true)
+		}
+		var count int64
+		if err := query.Count(&count).Error; err != nil {
+			return err
+		}
+		if count > 0 {
+			return fmt.Errorf("该模型已分配给%s，请先调整功能模型分配", binding.feature)
+		}
 	}
 	return nil
 }
@@ -48,21 +57,25 @@ func (s ErrorAnalysisService) Resolve(cfg aiModel.ErrorAnalysisConfig) (*aiModel
 	if cfg.TimeoutSeconds < 10 || cfg.TimeoutSeconds > 180 {
 		return nil, errors.New("分析超时须在 10～180 秒之间")
 	}
+	return resolveFeatureModel(cfg.ModelID, "错误分析")
+}
+
+func resolveFeatureModel(modelID uint, feature string) (*aiModel.AiModelConfig, error) {
 	var model aiModel.AiModelConfig
 	query := global.GVA_DB.Where("status = ?", true)
-	if cfg.ModelID == 0 {
+	if modelID == 0 {
 		query = query.Where("is_default = ?", true)
 	} else {
-		query = query.Where("id = ?", cfg.ModelID)
+		query = query.Where("id = ?", modelID)
 	}
 	if err := query.First(&model).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("错误分析模型不存在或已停用，请在 AI 模型配置中重新选择")
+			return nil, fmt.Errorf("%s模型不存在或已停用，请在 AI 模型配置中重新选择", feature)
 		}
 		return nil, err
 	}
 	if strings.TrimSpace(model.APIKey) == "" {
-		return nil, errors.New("错误分析模型未配置 API Key")
+		return nil, fmt.Errorf("%s模型未配置 API Key", feature)
 	}
 	return &model, nil
 }

@@ -8,7 +8,7 @@
           </h1>
           <p class="mt-3 text-sm leading-6 text-slate-500">
             会话会自动保存到后端。刷新页面后可以继续查看历史需求、按节点回看结果，并支持回滚到任意
-            Assistant 节点后重新续聊。
+            Assistant 节点后重新续聊。模型由“AI 模型配置 → 功能模型分配”指定。
           </p>
         </div>
         <div class="flex flex-wrap">
@@ -378,10 +378,10 @@
               <div
                 class="rounded-xl border border-dashed border-slate-300 bg-white px-3 py-2 text-xs text-slate-500"
               >
-                conversation_id:
+                本地会话标识:
                 <span class="break-all font-mono text-slate-700">{{
                   currentSession.conversationId ||
-                  '当前会话还没有 conversation_id'
+                  '当前会话还没有本地标识'
                 }}</span>
               </div>
               <div
@@ -396,18 +396,7 @@
 
             <el-divider />
 
-            <el-collapse>
-              <el-collapse-item title="额外透传参数" name="settings">
-                <el-form-item label="额外透传参数 JSON">
-                  <el-input
-                    v-model="settings.extraPayload"
-                    type="textarea"
-                    :rows="4"
-                    placeholder='例如：{"tenant":"default","provider":"dify"}'
-                  />
-                </el-form-item>
-              </el-collapse-item>
-            </el-collapse>
+
           </el-form>
         </div>
       </el-card>
@@ -590,7 +579,7 @@
               <h3 class="text-sm font-semibold text-slate-800">继续追问</h3>
               <span class="text-xs text-slate-400">{{
                 currentSession.conversationId
-                  ? '会自动续用当前 conversation_id'
+                  ? '会携带当前会话最近的历史消息'
                   : '若已回滚，将基于当前节点结果重新开启会话'
               }}</span>
             </div>
@@ -1000,13 +989,10 @@ import {
   getAIWorkflowSessionList,
   saveAIWorkflowSession
 } from '@/api/autoCode'
-import { useUserStore } from '@/pinia/modules/user'
 
 defineOptions({ name: 'AIWorkflow' })
 
 const router = useRouter()
-const userStore = useUserStore()
-const SETTINGS_KEY = 'gva_ai_workflow_settings'
 const ACTIVE_SESSION_KEY = 'gva_ai_workflow_active_session_ids'
 const TAB_MODE_MAP = {
   analysis: 'analysisChat',
@@ -1017,7 +1003,6 @@ const FLOW_TYPE_LABEL_MAP = {
   gva_polish: 'GVA 功能完善',
   mcp_assist: 'MCP 使用指导'
 }
-const defaultSettings = { extraPayload: '' }
 const newAnalysisForm = () => ({
   requirement: '',
   packageType: 'auto',
@@ -1107,7 +1092,6 @@ const analysisLoading = ref(false)
 const workflowLoading = ref(false)
 const dumpLoading = reactive({ analysis: false, workflow: false })
 const conversationListRef = ref(null)
-const settings = reactive(loadStorage(SETTINGS_KEY, defaultSettings))
 const activeSessionIds = reactive(
   loadStorage(ACTIVE_SESSION_KEY, { analysis: 0, workflow: 0 })
 )
@@ -1161,14 +1145,7 @@ const selectedAssistantMessage = computed(
         item.id === currentSession.value.currentNodeId
     ) || null
 )
-const currentUser = computed(() =>
-  String(
-    userStore.userInfo.ID ||
-      userStore.userInfo.uuid ||
-      userStore.userInfo.id ||
-      'gva-ai-workflow'
-  )
-)
+
 const hasWorkflowResult = computed(() =>
   Boolean(
     workflowResult.value.summary ||
@@ -1190,11 +1167,7 @@ const formatTime = (value) => {
     : date.toLocaleString()
 }
 
-watch(
-  () => ({ ...settings }),
-  (value) => localStorage.setItem(SETTINGS_KEY, JSON.stringify(value)),
-  { deep: true }
-)
+
 watch(
   () => ({ ...activeSessionIds }),
   (value) => localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(value)),
@@ -1856,7 +1829,7 @@ const sessionPayload = (tab) => ({
   conversationId: sessions[tab].conversationId,
   messageId: sessions[tab].messageId,
   currentNodeId: sessions[tab].currentNodeId,
-  settings: { extraPayload: settings.extraPayload },
+  settings: {},
   formData: clone(sessions[tab].formData),
   resultData: clone(sessions[tab].resultData),
   messages: sessions[tab].messages.map((item) => ({
@@ -2037,62 +2010,28 @@ const rollbackToMessage = async (messageId) => {
   ElMessage.success('已回滚到所选节点，后续追问会从这里重新开始')
 }
 
-const parseExtraPayload = () => {
-  if (!settings.extraPayload.trim()) return {}
-  try {
-    const parsed = JSON.parse(settings.extraPayload)
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch (error) {
-    ElMessage.error('额外透传参数不是有效 JSON')
-    throw error
-  }
-}
-
 const sendChat = async ({ tab, query, inputs, onProgress }) => {
-  let extra = {}
-  try {
-    extra = parseExtraPayload()
-  } catch (error) {
-    return null
-  }
-  const safeExtra = { ...extra }
-  delete safeExtra.mode
-  delete safeExtra.query
-  delete safeExtra.inputs
-  delete safeExtra.user
-  delete safeExtra.response_mode
-  delete safeExtra.conversation_id
   const requestData = {
-    ...safeExtra,
     mode: TAB_MODE_MAP[tab],
-    query:
-      query ||
-      (tab === 'analysis'
-        ? analysisForm.requirement
-        : `请基于当前输入生成${
-            FLOW_TYPE_LABEL_MAP[workflowForm.flowType] || 'Prompt 工作流'
-          }`),
+    query: query || (tab === 'analysis' ? analysisForm.requirement : '请基于当前输入生成分步骤 Prompt 工作流'),
     inputs,
-    user: currentUser.value,
-    response_mode: 'streaming',
-    scene: 'gva_ai_workflow'
+    sessionId: sessions[tab].id,
+    // 本轮 user/assistant 已加入界面，只有此前的消息作为历史上下文。
+    history: sessions[tab].messages.slice(0, -2).slice(-10).map(message => ({
+      role: message.role,
+      content: String(message.content || '').slice(0, 6000)
+    })),
+    response_mode: 'streaming'
   }
   if (!String(requestData.query || '').trim()) {
-    ElMessage.error('当前请求缺少 query，已阻止发送')
+    ElMessage.error('请输入需求或追问')
     return null
   }
-  if (sessions[tab].conversationId)
-    requestData.conversation_id = sessions[tab].conversationId
+  if (sessions[tab].conversationId) requestData.conversation_id = sessions[tab].conversationId
   try {
-    return resolveChat(
-      await (tab === 'analysis'
-        ? analyzeRequirementByAISSEStream(requestData, {
-            onMessage: onProgress
-          })
-        : generatePromptFlowByAISSEStream(requestData, {
-            onMessage: onProgress
-          }))
-    )
+    return resolveChat(await (tab === 'analysis'
+      ? analyzeRequirementByAISSEStream(requestData, { onMessage: onProgress })
+      : generatePromptFlowByAISSEStream(requestData, { onMessage: onProgress })))
   } catch (error) {
     ElMessage.error(error?.message || 'AI 请求失败')
     return null

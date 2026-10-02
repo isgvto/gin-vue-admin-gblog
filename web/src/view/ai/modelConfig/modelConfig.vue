@@ -95,7 +95,8 @@
 
     </div>
 
-    <ErrorAnalysisSettings ref="errorAnalysisSettings" />
+    <FeatureModelSettings ref="errorAnalysisSettings" feature="errorAnalysis" title="错误日志分析" description="指定用于分析系统错误日志的模型，独立控制启用状态。" />
+    <FeatureModelSettings ref="workflowSettings" feature="workflow" title="AI 需求工作流" description="需求分析与分步骤 Prompt 共用此模型，支持历史上下文和流式对话。" :timeout-max="600" :initial-timeout="180" />
 
     <!-- 新增/编辑对话框 -->
     <el-dialog
@@ -182,11 +183,11 @@
   import { useAppStore } from '@/pinia'
   import PageHeading from '@/components/admin/PageHeading.vue'
 
-  import ErrorAnalysisSettings from '@/components/ai/ErrorAnalysisSettings.vue'
+  import FeatureModelSettings from '@/components/ai/FeatureModelSettings.vue'
 
   export default {
     name: 'AiModelConfig',
-    components: { PageHeading, ErrorAnalysisSettings },
+    components: { PageHeading, FeatureModelSettings },
     data() {
       return {
         loading: false,
@@ -325,6 +326,7 @@
           this.modelList = (res.data?.list || []).map(row => ({ ...row, id: row.id ?? row.ID }))
           this.total = res.data?.total || 0
           this.$refs.errorAnalysisSettings?.refreshModels()
+          this.$refs.workflowSettings?.refreshModels()
         } finally {
           this.loading = false
         }

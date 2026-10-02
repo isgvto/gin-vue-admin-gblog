@@ -45,6 +45,11 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []adapter.CasbinRule{
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow", V2: "PUT"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow/test", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/autoCode/aiWorkflowChat", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/autoCode/aiWorkflowChat", V2: "POST"},
 		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/errorAnalysis", V2: "GET"},
 		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/errorAnalysis", V2: "PUT"},
 		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/errorAnalysis/test", V2: "POST"},

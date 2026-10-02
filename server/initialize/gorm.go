@@ -52,6 +52,7 @@ func RegisterTables() {
 		system.SysDictionary{},
 		system.SysOperationRecord{},
 		system.SysAutoCodeHistory{},
+		system.SysAIWorkflowSession{},
 		system.SysDictionaryDetail{},
 		system.SysBaseMenuParameter{},
 		system.SysBaseMenuBtn{},

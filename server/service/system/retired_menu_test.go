@@ -61,3 +61,14 @@ func TestRemovedAIPageDrawingLLMMode(t *testing.T) {
 		t.Fatalf("shared AI mode affected: path=%q err=%v", path, err)
 	}
 }
+
+func TestWorkflowModesNoLongerUseAIPath(t *testing.T) {
+	previous := global.GVA_CONFIG.AutoCode.AiPath
+	global.GVA_CONFIG.AutoCode.AiPath = "https://example.invalid/{FUNC}"
+	t.Cleanup(func() { global.GVA_CONFIG.AutoCode.AiPath = previous })
+	for _, mode := range []string{"analysisChat", "workflowPromptChat", " analysisChat "} {
+		if _, err := buildLLMAutoPath(common.JSONMap{"mode": mode}); err == nil {
+			t.Fatalf("legacy workflow mode accepted: %s", mode)
+		}
+	}
+}

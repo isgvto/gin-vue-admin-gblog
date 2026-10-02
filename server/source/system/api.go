@@ -44,6 +44,10 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []sysModel.SysApi{
+		{ApiGroup: "AI 功能", Method: "GET", Path: "/ai/modelConfig/workflow", Description: "读取需求工作流模型分配"},
+		{ApiGroup: "AI 功能", Method: "PUT", Path: "/ai/modelConfig/workflow", Description: "保存需求工作流模型分配"},
+		{ApiGroup: "AI 功能", Method: "POST", Path: "/ai/modelConfig/workflow/test", Description: "测试需求工作流模型"},
+		{ApiGroup: "AI 功能", Method: "POST", Path: "/autoCode/aiWorkflowChat", Description: "AI 需求工作流对话"},
 		{ApiGroup: "AI 功能", Method: "GET", Path: "/ai/modelConfig/errorAnalysis", Description: "读取错误分析模型分配"},
 		{ApiGroup: "AI 功能", Method: "PUT", Path: "/ai/modelConfig/errorAnalysis", Description: "保存错误分析模型分配"},
 		{ApiGroup: "AI 功能", Method: "POST", Path: "/ai/modelConfig/errorAnalysis/test", Description: "测试错误分析模型"},

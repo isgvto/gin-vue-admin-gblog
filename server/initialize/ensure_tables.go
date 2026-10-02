@@ -41,6 +41,7 @@ func (e *ensureTables) MigrateTable(ctx context.Context) (context.Context, error
 	tables := []interface{}{
 		aiModel.AiModelConfig{},
 		aiModel.ErrorAnalysisConfig{},
+		aiModel.WorkflowConfig{},
 		sysModel.SysApi{},
 		sysModel.SysUser{},
 		sysModel.SysBaseMenu{},

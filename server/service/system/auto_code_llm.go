@@ -89,6 +89,10 @@ func (s *AutoCodeService) LLMAutoStream(ctx context.Context, llm common.JSONMap)
 }
 
 func buildLLMAutoPath(llm common.JSONMap) (string, error) {
+	modeValue, _ := llm["mode"].(string)
+	if strings.TrimSpace(modeValue) == "analysisChat" || strings.TrimSpace(modeValue) == "workflowPromptChat" {
+		return "", errors.New("AI 需求工作流已迁移到模型配置，请使用受保护的 aiWorkflowChat 接口")
+	}
 	// 页面绘制已移除；共享接口仍供代码生成、字典和导出模板等功能使用。
 	if strings.TrimSpace(fmt.Sprintf("%v", llm["mode"])) == "createWeb" {
 		return "", errors.New("AI页面绘制功能已移除")

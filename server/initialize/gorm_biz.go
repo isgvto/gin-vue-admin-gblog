@@ -11,6 +11,7 @@ func bizModel() error {
 	err := db.AutoMigrate(
 		aiModel.AiModelConfig{},
 		aiModel.ErrorAnalysisConfig{},
+		aiModel.WorkflowConfig{},
 		blogModel.About{},
 		blogModel.Blog{},
 		blogModel.BlogTag{},
@@ -31,5 +32,8 @@ func bizModel() error {
 	if err != nil {
 		return err
 	}
-	return migrateErrorAnalysisAccess(db)
+	if err := migrateErrorAnalysisAccess(db); err != nil {
+		return err
+	}
+	return migrateWorkflowAccess(db)
 }

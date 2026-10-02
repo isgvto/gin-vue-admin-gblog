@@ -5,6 +5,7 @@ const DEFAULT_LLM_TIMEOUT = 1000 * 60 * 10
 
 const LLM_AUTO_URL = '/autoCode/llmAuto'
 const LLM_AUTO_SSE_URL = '/autoCode/llmAutoSSE'
+const WORKFLOW_CHAT_URL = '/autoCode/aiWorkflowChat'
 const timerHost = typeof window !== 'undefined' ? window : globalThis
 
 const firstText = (...values) =>
@@ -294,7 +295,7 @@ const streamLLMRequest = async (url, data, options = {}) => {
         firstText(event.message_id, event.messageId) || state.messageId
     }
     if (text) {
-      state.answerText = mergeStreamText(state.answerText, text)
+      state.answerText = eventName === 'done' ? text : (typeof event?.delta === 'string' ? state.answerText + text : mergeStreamText(state.answerText, text))
     }
 
     if (
@@ -368,10 +369,8 @@ const streamLLMRequest = async (url, data, options = {}) => {
         if (trimmed.startsWith('data:')) {
           const dataStr = trimmed.slice(5).trim()
           if (!dataStr || dataStr === '[DONE]') continue
-          try {
-            const event = JSON.parse(dataStr)
-            handleSSEEvent(event)
-          } catch (e) {
+          let event
+          try { event = JSON.parse(dataStr) } catch (e) {
             // 非 JSON 数据，作为文本处理
             if (dataStr) {
               state.answerText += dataStr
@@ -385,6 +384,7 @@ const streamLLMRequest = async (url, data, options = {}) => {
               })
             }
           }
+          if (event !== undefined) handleSSEEvent(event)
         }
       }
     }
@@ -395,12 +395,9 @@ const streamLLMRequest = async (url, data, options = {}) => {
       if (trimmed.startsWith('data:')) {
         const dataStr = trimmed.slice(5).trim()
         if (dataStr && dataStr !== '[DONE]') {
-          try {
-            const event = JSON.parse(dataStr)
-            handleSSEEvent(event)
-          } catch {
-            state.answerText += dataStr
-          }
+          let event
+          try { event = JSON.parse(dataStr) } catch { state.answerText += dataStr }
+          if (event !== undefined) handleSSEEvent(event)
         }
       }
     }
@@ -422,71 +419,17 @@ export const llmAutoStream = async (data, options = {}) =>
 export const llmAutoSSEStream = async (data, options = {}) =>
   streamLLMRequest(LLM_AUTO_SSE_URL, data, options)
 
-export const analyzeRequirementByAI = (data, options = {}) => {
-  return llmAuto(
-    {
-      mode: 'analysisChat',
-      ...data
-    },
-    {
-      ...options,
-      donNotShowLoading: options.donNotShowLoading ?? true
-    }
-  )
-}
-
-export const analyzeRequirementByAIStream = (data, options = {}) => {
-  return llmAutoStream(
-    {
-      mode: 'analysisChat',
-      ...data
-    },
-    options
-  )
-}
-
-export const analyzeRequirementByAISSEStream = (data, options = {}) => {
-  return llmAutoSSEStream(
-    {
-      mode: 'analysisChat',
-      ...data
-    },
-    options
-  )
-}
-
-export const generatePromptFlowByAI = (data, options = {}) => {
-  return llmAuto(
-    {
-      mode: 'workflowPromptChat',
-      ...data
-    },
-    {
-      ...options,
-      donNotShowLoading: options.donNotShowLoading ?? true
-    }
-  )
-}
-
-export const generatePromptFlowByAIStream = (data, options = {}) => {
-  return llmAutoStream(
-    {
-      mode: 'workflowPromptChat',
-      ...data
-    },
-    options
-  )
-}
-
-export const generatePromptFlowByAISSEStream = (data, options = {}) => {
-  return llmAutoSSEStream(
-    {
-      mode: 'workflowPromptChat',
-      ...data
-    },
-    options
-  )
-}
+const workflowRequest = (mode, data, options = {}) => service({
+  url: WORKFLOW_CHAT_URL, method: 'POST', data: { ...data, mode, response_mode: 'blocking' },
+  timeout: options.timeout ?? DEFAULT_LLM_TIMEOUT + 15000, donNotShowLoading: true
+})
+const workflowStream = (mode, data, options = {}) => streamLLMRequest(WORKFLOW_CHAT_URL, { ...data, mode, response_mode: 'streaming' }, { timeout: DEFAULT_LLM_TIMEOUT + 15000, ...options })
+export const analyzeRequirementByAI = (data, options) => workflowRequest('analysisChat', data, options)
+export const analyzeRequirementByAIStream = (data, options) => workflowStream('analysisChat', data, options)
+export const analyzeRequirementByAISSEStream = analyzeRequirementByAIStream
+export const generatePromptFlowByAI = (data, options) => workflowRequest('workflowPromptChat', data, options)
+export const generatePromptFlowByAIStream = (data, options) => workflowStream('workflowPromptChat', data, options)
+export const generatePromptFlowByAISSEStream = generatePromptFlowByAIStream
 
 export const addFunc = (data) => {
   return service({

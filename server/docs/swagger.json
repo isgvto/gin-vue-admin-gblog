@@ -105,6 +105,104 @@
                 }
             }
         },
+        "/ai/modelConfig/workflow": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI模型配置"
+                ],
+                "summary": "读取需求工作流模型分配",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI模型配置"
+                ],
+                "summary": "保存需求工作流模型分配",
+                "parameters": [
+                    {
+                        "description": "功能模型配置",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ai.WorkflowConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/ai/modelConfig/workflow/test": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI模型配置"
+                ],
+                "summary": "测试需求工作流模型",
+                "parameters": [
+                    {
+                        "description": "待测试的功能模型配置",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ai.WorkflowConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/createApi": {
             "post": {
                 "security": [
@@ -1460,6 +1558,44 @@
                         "description": "{\"success\":true,\"data\":{},\"msg\":\"创建成功\"}",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/autoCode/aiWorkflowChat": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AI需求工作流"
+                ],
+                "summary": "使用配置的模型进行需求分析或工作流对话",
+                "parameters": [
+                    {
+                        "description": "本轮问题和上下文",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ai.WorkflowChatRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -8240,6 +8376,60 @@
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "ai.WorkflowChatRequest": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {
+                    "type": "string"
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ai.WorkflowTurn"
+                    }
+                },
+                "inputs": {
+                    "$ref": "#/definitions/common.JSONMap"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "query": {
+                    "type": "string"
+                },
+                "response_mode": {
+                    "type": "string"
+                },
+                "sessionId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ai.WorkflowConfig": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "modelId": {
+                    "type": "integer"
+                },
+                "timeoutSeconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ai.WorkflowTurn": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         },
