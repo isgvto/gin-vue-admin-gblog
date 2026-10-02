@@ -30,21 +30,35 @@
         </el-button>
       </div>
 
-      <details class="writing-preferences">
-        <summary>正文生成偏好</summary>
+      <details class="writing-preferences" open>
+        <summary>正文生成偏好 <span class="preference-summary">{{ preferenceSummary }}</span></summary>
         <div class="preference-fields">
+          <div class="preference-field">
+          <label>语言风格</label>
           <el-select v-model="tone" size="small" aria-label="写作语气" :disabled="streaming || editorDiffOpen">
-            <el-option label="自然文风" value="natural" />
-            <el-option label="正式严谨" value="formal" />
-            <el-option label="亲切易懂" value="friendly" />
+            <el-option v-for="option in writingTones" :key="option.value" :label="option.label" :value="option.value" />
           </el-select>
+          <p>{{ toneDescription }}</p>
+          </div>
+          <div class="preference-field">
+          <label>目标篇幅</label>
           <el-select v-model="outputLength" size="small" aria-label="篇幅偏好" :disabled="streaming || editorDiffOpen">
-            <el-option label="保持篇幅" value="original" />
-            <el-option label="适度精简" value="shorter" />
-            <el-option label="适度扩写" value="longer" />
+            <el-option v-for="option in writingLengths" :key="option.value" :label="option.label" :value="option.value" />
           </el-select>
+          <p>{{ lengthDescription }}</p>
+          </div>
+          <div class="preference-field preference-strength">
+            <label>修改力度 <span>润色 / 改写 / 自定义指令</span></label>
+            <el-select v-model="editStrength" size="small" aria-label="修改力度" :disabled="streaming || editorDiffOpen">
+              <el-option v-for="option in writingStrengths" :key="option.value" :label="option.label" :value="option.value" />
+            </el-select>
+            <p>{{ strengthDescription }}</p>
+          </div>
         </div>
-        <small>适用于润色、改写、续写与自定义指令。</small>
+        <div class="preference-footer">
+          <small>文风用于正文操作；篇幅用于润色、改写和自定义指令。续写仍不超过 300 字。大纲、标题、摘要和标签不受影响。本次明确指令优先，篇幅比例仅供参考。</small>
+          <el-button link size="small" :disabled="streaming || editorDiffOpen || preferencesDefault" @click="resetPreferences">恢复默认</el-button>
+        </div>
       </details>
 
       <!-- 自定义指令 -->
@@ -158,6 +172,7 @@
   import { parseTitleCandidates, createWritingTask, retryTaskError } from './writingTask.js'
   import { snapshotError } from '@/components/blog/editorSnapshot.js'
   import ChapterWritingWorkflow from './ChapterWritingWorkflow.vue'
+  import { writingTones, writingLengths, writingStrengths } from './writingPreferences.js'
 
   const aiStore = useAiStore()
 
@@ -187,6 +202,15 @@
   const includeCategory = ref(true)
   const tone = ref('natural')
   const outputLength = ref('original')
+  const editStrength = ref('standard')
+  const toneDescription = computed(() => writingTones.find(option => option.value === tone.value)?.description)
+  const lengthDescription = computed(() => writingLengths.find(option => option.value === outputLength.value)?.description)
+  const strengthDescription = computed(() => writingStrengths.find(option => option.value === editStrength.value)?.description)
+  const preferenceSummary = computed(() => [writingTones.find(option => option.value === tone.value)?.label,
+    writingLengths.find(option => option.value === outputLength.value)?.label,
+    writingStrengths.find(option => option.value === editStrength.value)?.label].join(' · '))
+  const preferencesDefault = computed(() => tone.value === 'natural' && outputLength.value === 'original' && editStrength.value === 'standard')
+  const resetPreferences = () => { tone.value = 'natural'; outputLength.value = 'original'; editStrength.value = 'standard' }
   const lastTask = shallowRef(null)
   const resultSnapshot = shallowRef(null)
   const taskStatus = ref('')
@@ -363,6 +387,7 @@
       action,
       tone: tone.value,
       length: outputLength.value,
+      editStrength: editStrength.value,
       title: editor?.getTitle?.() || '',
       content: editor?.getFullText?.() || '',
       ...extra
@@ -661,8 +686,7 @@
       reset()
       history.value = []
       instruction.value = ''
-      tone.value = 'natural'
-      outputLength.value = 'original'
+      resetPreferences()
       syncSelection()
     },
     { flush: 'sync' }
@@ -689,7 +713,8 @@
   flex-direction: column;
   gap: 12px;
   height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
+  > * { flex-shrink: 0; }
 }
 
 .ai-disabled-tip {
@@ -724,9 +749,23 @@
 .writing-preferences {
   font-size: 12px;
   color: var(--el-text-color-regular);
-  summary { cursor: pointer; padding: 4px 0; }
-  .preference-fields { display: flex; gap: 8px; margin: 8px 0; }
-  .el-select { flex: 1; min-width: 0; }
+  padding: 12px;
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 10px;
+  background: var(--el-fill-color-blank);
+  summary { cursor: pointer; font-weight: 600; line-height: 1.6; }
+  .preference-summary { display: none; color: var(--el-text-color-secondary); font-weight: 400; margin-left: 8px; }
+  &:not([open]) .preference-summary { display: inline; }
+  .preference-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+  .preference-field { min-width: 0; }
+  label { display: block; margin-bottom: 6px; font-weight: 500; }
+  label span { font-size: 11px; color: var(--el-text-color-secondary); font-weight: 400; margin-left: 6px; }
+  .el-select { width: 100%; }
+  p { margin: 6px 0 0; color: var(--el-text-color-secondary); font-size: 11px; line-height: 1.6; }
+  .preference-strength { grid-column: 1 / -1; }
+  .preference-footer { display: flex; align-items: flex-start; gap: 8px; border-top: 1px solid var(--el-border-color-lighter); padding-top: 10px; }
+  small { flex: 1; line-height: 1.6; color: var(--el-text-color-secondary); }
+  .preference-footer .el-button { flex-shrink: 0; padding: 0; height: 20px; }
 }
 .retry-row, .title-candidate {
   display: flex;
@@ -754,7 +793,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  min-height: 0;
+  min-height: 180px;
   padding: 10px;
   border: 1px solid #ebeef5;
   border-radius: 6px;

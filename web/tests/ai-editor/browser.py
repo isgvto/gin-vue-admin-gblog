@@ -275,14 +275,18 @@ with sync_playwright() as playwright:
 
     reset('前文原选区后文')
     select('原选区')
-    page.locator('summary').filter(has_text='正文生成偏好').click()
+    if page.locator('.writing-preferences').get_attribute('open') is None:
+        page.locator('summary').filter(has_text='正文生成偏好').click()
     page.get_by_role('combobox', name='写作语气').click()
     page.get_by_role('option', name='正式严谨', exact=True).click()
+    page.locator('.writing-preferences .el-select').nth(2).click()
+    page.get_by_role('option', name='轻度修饰', exact=True).click()
     response_text[0] = '新选区'
     page.locator('.custom-input textarea').fill('重新表述选区')
     with page.expect_request('**/test-api/blog/ai/chat') as request:
         page.get_by_role('button', name='发送', exact=True).click()
     assert request.value.post_data_json['tone'] == 'formal'
+    assert request.value.post_data_json['editStrength'] == 'light'
     expect(page.get_by_role('button', name='与原选区对比', exact=True)).to_be_enabled()
     with page.expect_request('**/test-api/blog/ai/chat') as retry:
         page.get_by_role('button', name='重新生成', exact=True).click()

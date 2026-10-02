@@ -14,6 +14,7 @@ type AiChatRequest struct {
 	Action        string             `json:"action"`
 	Tone          string             `json:"tone,omitempty"`
 	Length        string             `json:"length,omitempty"`
+	EditStrength  string             `json:"editStrength,omitempty"`
 	Content       string             `json:"content"`
 	Selection     string             `json:"selection"`
 	CursorContext string             `json:"cursorContext"`

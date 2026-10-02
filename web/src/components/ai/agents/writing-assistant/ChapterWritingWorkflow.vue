@@ -37,7 +37,7 @@
         <template v-if="!current.adopted">
           <div class="chapter-preferences">
             <el-select :model-value="tone" size="small" aria-label="章节写作语气" :disabled="busy || blocked" @update:model-value="emit('update:tone', $event)">
-              <el-option label="自然文风" value="natural" /><el-option label="正式严谨" value="formal" /><el-option label="亲切易懂" value="friendly" />
+              <el-option v-for="option in writingTones" :key="option.value" :label="option.label" :value="option.value" />
             </el-select>
             <el-select :model-value="length" size="small" aria-label="章节篇幅" :disabled="busy || blocked" @update:model-value="emit('update:length', $event)">
               <el-option label="标准篇幅" value="original" /><el-option label="精简篇幅" value="shorter" /><el-option label="扩展篇幅" value="longer" />
@@ -80,6 +80,7 @@
   import { useAiStore } from '@/pinia/modules/ai'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
   import { chapterMarkdown, chapterOwnerError, chapterPayload, parseChapterOutline } from './chapterWorkflow.js'
+  import { writingTones } from './writingPreferences.js'
 
   const props = defineProps({ blocked: Boolean, tone: String, length: String })
   const emit = defineEmits(['busy', 'update:tone', 'update:length'])
