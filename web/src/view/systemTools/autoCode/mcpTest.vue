@@ -1,5 +1,6 @@
 <template>
-  <div class="p-2">
+  <div class="admin-page admin-page--cards p-2">
+    <AdminPageHeading title="MCP 配置示例" description="查看服务配置与运行状态。" />
     <el-card class="mb-2">
       <template #header>
         <div class="flex flex-wrap items-center justify-between gap-3 font-bold">
@@ -169,7 +170,7 @@
     <el-dialog
       v-model="testDialogVisible"
       :title="currentTestingTool ? `${currentTestingTool.name} - 参数测试` : '参数测试'"
-      width="60%"
+      width="min(760px, 94vw)"
       :before-close="handleCloseDialog"
     >
       <el-form

@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--workspace">
+    <AdminPageHeading title="字典管理" description="维护字典分类与对应字典值。" />
     <warning-bar
       title="获取字典且缓存方法已在前端utils/dictionary 已经封装完成 不必自己书写 使用方法查看文件内注释"
     />
@@ -209,7 +210,7 @@
           </div>
         </div>
       </template>
-      
+
       <div class="import-drawer-content">
         <div class="mb-4">
           <el-alert
@@ -282,7 +283,7 @@
           />
         </div>
 
-    
+
       </div>
     </el-drawer>
 
@@ -709,7 +710,7 @@
 
     const file = files[0]
     readJsonFile(file)
-    
+
     // 清空input，以便可以重复选择同一文件
     e.target.value = ''
   }
@@ -808,7 +809,7 @@
         } catch (e) {
           ElMessage.error('处理 AI 返回结果失败: ' + (e.message || e))
         }
-      } 
+      }
     } catch (err) {
       ElMessage.error('AI 调用失败: ' + (err.message || err))
     } finally {

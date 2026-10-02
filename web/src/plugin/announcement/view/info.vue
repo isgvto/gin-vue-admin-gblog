@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="公告管理" description="管理公告内容、发布信息和作者。" />
     <div class="gva-search-box">
       <el-form
         ref="elSearchFormRef"

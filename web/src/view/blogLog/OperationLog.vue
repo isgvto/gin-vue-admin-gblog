@@ -1,12 +1,14 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="博客操作日志" description="查看博客相关操作与请求详情。" />
+    <section class="gva-table-box">
 		<!--搜索-->
 		<el-form inline>
 			<el-form-item label="操作时间">
 				<DateTimeRangePicker :date="queryInfo.date" :setDate="setDate"/>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" size="small" icon="el-icon-search" @click="search">搜索</el-button>
+				<el-button type="primary" size="small" icon="Search" @click="search">搜索</el-button>
 			</el-form-item>
 		</el-form>
 
@@ -23,14 +25,14 @@
 					</el-form>
 				</template>
 			</el-table-column>
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
-			<el-table-column label="操作者" prop="username"></el-table-column>
+			<el-table-column label="序号" type="index" width="70" align="center"></el-table-column>
+			<el-table-column label="操作者" prop="username" min-width="120" show-overflow-tooltip></el-table-column>
 			<el-table-column label="请求方式" prop="method" width="80"></el-table-column>
-			<el-table-column label="描述" prop="description" show-overflow-tooltip></el-table-column>
-			<el-table-column label="IP" prop="ip"></el-table-column>
-			<el-table-column label="IP来源" prop="ipSource" show-overflow-tooltip></el-table-column>
-			<el-table-column label="操作系统" prop="os"></el-table-column>
-			<el-table-column label="浏览器" prop="browser" show-overflow-tooltip></el-table-column>
+			<el-table-column label="描述" prop="description" show-overflow-tooltip min-width="220"></el-table-column>
+			<el-table-column label="IP" prop="ip" min-width="140" show-overflow-tooltip></el-table-column>
+			<el-table-column label="IP来源" prop="ipSource" show-overflow-tooltip min-width="180"></el-table-column>
+			<el-table-column label="操作系统" prop="os" min-width="130" show-overflow-tooltip></el-table-column>
+			<el-table-column label="浏览器" prop="browser" show-overflow-tooltip min-width="110"></el-table-column>
 			<el-table-column label="操作耗时" width="110">
 				<template v-slot="scope">
 					<el-tag size="small">{{ scope.row.times }}ms</el-tag>
@@ -39,10 +41,10 @@
 			<el-table-column label="操作时间" width="170">
 				<template v-slot="scope">{{ blogDateFormat(scope.row.createTime) }}</template>
 			</el-table-column>
-			<el-table-column label="操作" width="120">
+			<el-table-column label="操作" width="120" align="center">
 				<template v-slot="scope">
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteLogById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteLogById(scope.row.id)">
+						<template #reference><el-button size="small" type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -53,7 +55,9 @@
 		               :page-sizes="[10, 20, 30, 50]" :page-size="queryInfo.pageSize" :total="total"
 		               layout="total, sizes, prev, pager, next, jumper" background>
 		</el-pagination>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

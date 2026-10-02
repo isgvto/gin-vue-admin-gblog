@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container">
+  <div class="admin-page admin-page--cards profile-container">
     <!-- 顶部个人信息卡片 -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm mb-8">
       <!-- 顶部背景图 -->

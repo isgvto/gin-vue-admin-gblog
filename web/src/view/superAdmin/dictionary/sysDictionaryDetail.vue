@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="字典明细" description="维护当前字典的键值与排序。" />
     <div class="gva-table-box">
       <div class="gva-btn-list justify-between flex items-center">
         <span class="text font-bold">字典详细内容</span>
@@ -36,7 +37,7 @@
         row-key="ID"
         default-expand-all
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
 
         <el-table-column align="left" label="展示值" prop="label" min-width="100"/>
 

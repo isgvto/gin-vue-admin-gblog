@@ -1,28 +1,25 @@
 <template>
-  <div class="model-config-page">
-    <el-form inline>
-      <el-form-item>
-        <el-button type="primary" size="small" icon="Plus" @click="openCreateDialog">
-          新增模型
-        </el-button>
-      </el-form-item>
-      <el-form-item>
+  <div class="admin-page admin-page--list model-config-page">
+    <PageHeading title="AI 模型配置" description="管理供应商、访问凭据与默认模型，验证模型连接是否可用。">
+      <el-button type="primary" icon="Plus" @click="openCreateDialog">新增模型</el-button>
+    </PageHeading>
+    <div class="gva-table-box">
+    <el-form inline class="admin-filter-form" @submit.prevent="getData">
+      <el-form-item label="名称">
         <el-input
           v-model="queryInfo.name"
           placeholder="按名称搜索"
           clearable
-          size="small"
           style="width: 200px"
           @keyup.enter="getData"
           @clear="getData"
         />
       </el-form-item>
-      <el-form-item>
+      <el-form-item label="供应商">
         <el-select
           v-model="queryInfo.provider"
-          placeholder="供应商"
+          placeholder="全部供应商"
           clearable
-          size="small"
           style="width: 180px"
           @change="getData"
         >
@@ -36,26 +33,26 @@
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="modelList" border stripe>
-      <el-table-column label="名称" prop="name" min-width="140" />
-      <el-table-column label="供应商" width="150">
+    <el-table v-loading="loading" :data="modelList">
+      <el-table-column label="名称" prop="name" min-width="130" />
+      <el-table-column label="供应商" width="130">
         <template #default="{ row }">{{ providerLabel(row.provider) }}</template>
       </el-table-column>
-      <el-table-column label="模型" prop="model" min-width="140" />
-      <el-table-column label="API Key" width="120">
+      <el-table-column label="模型" prop="model" min-width="130" />
+      <el-table-column label="API Key" width="110">
         <template #default="{ row }">
           <span v-if="row.hasKey">****{{ row.keyTail }}</span>
           <el-tag v-else type="danger" size="small">未配置</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="90">
+      <el-table-column label="状态" width="80" align="center">
         <template #default="{ row }">
           <el-tag :type="row.status ? 'success' : 'info'" size="small">
             {{ row.status ? '启用' : '停用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="默认" width="90">
+      <el-table-column label="默认" width="90" align="center">
         <template #default="{ row }">
           <el-tag v-if="row.isDefault" type="warning" size="small">默认</el-tag>
           <el-button
@@ -71,13 +68,13 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" prop="remark" min-width="120" show-overflow-tooltip />
-      <el-table-column label="操作" width="230" fixed="right">
+      <el-table-column label="操作" width="180" :fixed="compactTable ? false : 'right'" align="center">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="small" :loading="testingId === row.id" :disabled="testingId !== null" @click="testSaved(row)">测试</el-button>
+          <el-button type="primary" link @click="openEditDialog(row)">编辑</el-button>
+          <el-button link type="primary" :loading="testingId === row.id" :disabled="testingId !== null" @click="testSaved(row)">测试</el-button>
           <el-popconfirm title="确定删除该模型配置吗？" @confirm="remove(row.id)">
             <template #reference>
-              <el-button type="danger" size="small" :disabled="row.isDefault">删除</el-button>
+              <el-button type="danger" link :disabled="row.isDefault">删除</el-button>
             </template>
           </el-popconfirm>
         </template>
@@ -96,11 +93,14 @@
       @current-change="handleCurrentChange"
     />
 
+    </div>
+
     <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="form.id ? '编辑模型' : '新增模型'"
-      width="560px"
+      width="min(640px, 94vw)"
+      class="admin-config-dialog"
       :close-on-click-modal="false"
       @closed="resetForm"
     >
@@ -120,12 +120,14 @@
           <div v-if="providerHint" class="provider-hint">{{ providerHint }}</div>
         </el-form-item>
         <el-form-item v-if="needBaseUrl" label="Base URL" prop="baseUrl">
-          <el-input v-model="form.baseUrl" :placeholder="baseUrlPlaceholder" @blur="autoLoadProviderModels" />
+          <el-input autocomplete="off" name="ai-config-base-url" v-model="form.baseUrl" :placeholder="baseUrlPlaceholder" @blur="autoLoadProviderModels" />
         </el-form-item>
         <el-form-item label="API Key" prop="apiKey">
           <el-input
             v-model="form.apiKey"
             type="password"
+            autocomplete="new-password"
+            name="ai-config-api-key"
             show-password
             clearable
             :placeholder="form.id ? '留空表示不修改' : 'sk-...'"
@@ -175,9 +177,12 @@
     testModelConnection
   } from '@/api/ai/modelConfig'
   import { ElMessage } from 'element-plus'
+  import { useAppStore } from '@/pinia'
+  import PageHeading from '@/components/admin/PageHeading.vue'
 
   export default {
     name: 'AiModelConfig',
+    components: { PageHeading },
     data() {
       return {
         loading: false,
@@ -218,6 +223,7 @@
       }
     },
     computed: {
+      compactTable() { return useAppStore().device === 'mobile' },
       currentProvider() {
         return this.providers.find((p) => p.value === this.form.provider)
       },
@@ -391,8 +397,7 @@
 
 <style scoped lang="scss">
 .model-config-page {
-  padding: 16px;
-  background: #fff;
+  min-width: 0;
 }
 
 .pagination {

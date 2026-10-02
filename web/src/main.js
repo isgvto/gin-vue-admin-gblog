@@ -18,6 +18,8 @@ import clickOutSide from '@/directive/clickOutSide'
 import { store } from '@/pinia'
 import App from './App.vue'
 import '@/core/error-handel'
+import AdminPageHeading from '@/components/admin/PageHeading.vue'
+import '@/style/admin-controls.scss'
 import MarkdownEditor from '@/components/blog/MarkdownEditor.vue'
 
 const app = createApp(App)
@@ -34,6 +36,7 @@ app.config.globalProperties.blogDateFormat = (value) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
 }
 app.component('mavon-editor', MarkdownEditor)
+app.component('AdminPageHeading', AdminPageHeading)
 
 setupVueRootValidator(app, {
     lang: 'zh'

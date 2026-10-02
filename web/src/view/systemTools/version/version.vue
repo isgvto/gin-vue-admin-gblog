@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="版本管理" description="维护系统版本与更新记录。" />
     <div class="gva-search-box">
       <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline"
         @keyup.enter="onSubmit">
@@ -51,7 +52,7 @@
       </div>
       <el-table ref="multipleTable" style="width: 100%" tooltip-effect="dark" :data="tableData" row-key="ID"
         @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
 
         <el-table-column sortable align="left" label="日期" prop="CreatedAt" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>

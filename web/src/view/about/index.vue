@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-2">
+  <div class="admin-page admin-page--cards mt-2">
     <div class="flex flex-col md:flex-row gap-4">
       <div class="w-full md:w-1/2">
         <el-card class="min-w-96">

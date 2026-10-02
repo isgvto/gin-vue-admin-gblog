@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="用户管理" description="维护账号资料、状态与角色。" />
     <warning-bar title="注：右上角头像下拉可切换角色" />
     <div class="gva-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
@@ -105,7 +106,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" :min-width="appStore.operateMinWith" fixed="right">
+        <el-table-column label="操作" :min-width="appStore.operateMinWith" fixed="right" align="center">
           <template #default="scope">
             <el-button
               type="primary"

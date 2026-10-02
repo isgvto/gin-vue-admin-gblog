@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="系统错误日志" description="查询错误记录并查看详细信息。" />
     <div class="gva-search-box">
       <el-form
         ref="elSearchFormRef"
@@ -84,7 +85,7 @@
         row-key="ID"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
 
         <el-table-column
           sortable

@@ -1,5 +1,5 @@
 <template>
-  <div class="state-page">
+  <div class="admin-page admin-page--cards state-page">
     <!-- 顶部标题栏 -->
     <div class="page-header">
       <div class="page-title">

@@ -1,5 +1,5 @@
 <template>
-  <div id="userLayout" class="w-full h-full relative">
+  <div id="userLayout" class="admin-page admin-page--auth w-full h-full relative">
     <div
       class="rounded-lg flex items-center justify-evenly w-full h-full md:w-screen md:h-screen md:bg-[#194bfb] bg-white"
     >

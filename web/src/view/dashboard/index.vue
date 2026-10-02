@@ -1,10 +1,10 @@
 ﻿<template>
-  <div class="h-full gva-container2 overflow-auto bg-slate-50/60 dark:bg-slate-900">
+  <div class="admin-page admin-page--cards h-full gva-container2 overflow-auto bg-slate-50/60 dark:bg-slate-900">
     <div class="space-y-4 p-4 lg:p-6">
       <section
         class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white px-5 py-6 shadow-sm dark:border-slate-700 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
       >
-        
+
         <div class="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p class="text-xs tracking-[0.2em] text-slate-500 dark:text-slate-400">DASHBOARD</p>
@@ -62,7 +62,7 @@
           <div
             class="relative min-h-[200px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-slate-900 p-5 text-white shadow-sm dark:border-slate-700"
           >
-            
+
             <div class="relative">
               <div class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs">商业授权</div>
               <h3 class="mt-3 text-lg font-semibold">解锁完整商用支持与专属服务</h3>

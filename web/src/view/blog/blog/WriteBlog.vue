@@ -1,5 +1,5 @@
 <template>
-  <div class="write-blog-page">
+  <div class="admin-page admin-page--editor write-blog-page">
     <el-form :model="form" :rules="formRules" ref="formRef" label-position="top" class="writer-form">
       <div class="writer-shell">
         <main class="writer-main">

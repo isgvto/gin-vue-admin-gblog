@@ -1,7 +1,9 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="动态管理" description="查看和管理已发布的日常动态。" />
+    <section class="gva-table-box">
 		<el-table :data="momentList">
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
+			<el-table-column label="序号" type="index" width="100" align="center"></el-table-column>
 			<el-table-column label="内容" prop="content" show-overflow-tooltip></el-table-column>
 			<el-table-column label="发布状态" width="80">
 				<template v-slot="scope">
@@ -12,11 +14,11 @@
 			<el-table-column label="创建时间" width="170">
 				<template v-slot="scope">{{ blogDateFormat(scope.row.createTime) }}</template>
 			</el-table-column>
-			<el-table-column label="操作" width="200">
+			<el-table-column label="操作" width="200" align="center">
 				<template v-slot="scope">
-					<el-button type="primary" icon="el-icon-edit" size="small" @click="goEditMomentPage(scope.row.id)">编辑</el-button>
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteMomentById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-button type="primary" icon="Edit" size="small" @click="goEditMomentPage(scope.row.id)">编辑</el-button>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteMomentById(scope.row.id)">
+						<template #reference><el-button size="small" type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -27,7 +29,9 @@
 		               :page-sizes="[10, 20, 30, 50]" :page-size="queryInfo.pageSize" :total="total"
 		               layout="total, sizes, prev, pager, next, jumper" background>
 		</el-pagination>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

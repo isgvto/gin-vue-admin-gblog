@@ -1,9 +1,11 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="友情链接" description="维护友链信息与友链页面内容。" />
+    <section class="gva-table-box">
 		<!--添加-->
 		<el-form inline>
 			<el-form-item>
-				<el-button type="primary" size="small" icon="el-icon-plus" @click="addDialogVisible=true">添加友链</el-button>
+				<el-button type="primary" size="small" icon="Plus" @click="addDialogVisible=true">添加友链</el-button>
 			</el-form-item>
 			<el-form-item style="margin-left: 20px">
 				<el-switch v-model="infoForm.commentEnabled" active-text="页面评论" @change="commentEnabledChanged"></el-switch>
@@ -11,7 +13,7 @@
 		</el-form>
 
 		<el-table :data="friendList">
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
+			<el-table-column label="序号" type="index" width="100" align="center"></el-table-column>
 			<el-table-column label="头像" width="80">
 				<template v-slot="scope">
 					<el-avatar shape="square" :size="50" fit="contain" :src="scope.row.avatar"></el-avatar>
@@ -20,7 +22,7 @@
 			<el-table-column label="昵称" prop="nickname"></el-table-column>
 			<el-table-column label="描述" prop="description"></el-table-column>
 			<el-table-column label="站点" prop="website"></el-table-column>
-			<el-table-column label="是否公开" width="100">
+			<el-table-column label="是否公开" width="100" align="center">
 				<template v-slot="scope">
 					<el-switch v-model="scope.row.isPublished" @change="friendPublishedChanged(scope.row)"></el-switch>
 				</template>
@@ -29,11 +31,11 @@
 			<el-table-column label="创建时间" width="170">
 				<template v-slot="scope">{{ blogDateFormat(scope.row.createTime) }}</template>
 			</el-table-column>
-			<el-table-column label="操作" width="200">
+			<el-table-column label="操作" width="200" align="center">
 				<template v-slot="scope">
-					<el-button type="primary" icon="el-icon-edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteFriendById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-button type="primary" icon="Edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteFriendById(scope.row.id)">
+						<template #reference><el-button size="small" type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -51,12 +53,12 @@
 				<mavon-editor v-model="infoForm.content"/>
 			</el-form-item>
 			<el-form-item style="text-align: right;">
-				<el-button type="primary" icon="el-icon-check" @click="updateContent">保存</el-button>
+				<el-button type="primary" icon="Check" @click="updateContent">保存</el-button>
 			</el-form-item>
 		</el-form>
 
 		<!--添加友链对话框-->
-		<el-dialog title="添加友链" width="40%" v-model="addDialogVisible" :close-on-click-modal="false" @close="addDialogClosed">
+		<el-dialog title="添加友链" width="min(760px, 94vw)" v-model="addDialogVisible" :close-on-click-modal="false" @close="addDialogClosed">
 			<!--内容主体-->
 			<el-form :model="addForm" :rules="formRules" ref="addFormRef" label-width="80px">
 				<el-form-item label="昵称" prop="nickname">
@@ -83,7 +85,7 @@
 		</el-dialog>
 
 		<!--编辑友链对话框-->
-		<el-dialog title="编辑友链" width="40%" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
+		<el-dialog title="编辑友链" width="min(760px, 94vw)" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
 			<!--内容主体-->
 			<el-form :model="editForm" :rules="formRules" ref="editFormRef" label-width="80px">
 				<el-form-item label="昵称" prop="nickname">
@@ -108,7 +110,9 @@
 				<el-button type="primary" @click="editFriend">确 定</el-button>
 			</template>
 		</el-dialog>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

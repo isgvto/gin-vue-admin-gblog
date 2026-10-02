@@ -1,5 +1,6 @@
 <template>
-  <div class="flex justify-center w-full pt-2">
+  <div class="admin-page admin-page--cards flex justify-center w-full pt-2">
+    <AdminPageHeading title="扫码上传" description="通过二维码上传文件。" />
     <el-upload
         ref="uploadRef"
         class="h5-uploader"

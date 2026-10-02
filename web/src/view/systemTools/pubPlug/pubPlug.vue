@@ -1,5 +1,6 @@
 <template>
-  <div class="gva-form-box">
+  <div class="admin-page admin-page--workspace gva-form-box">
+    <AdminPageHeading title="插件发布" description="整理插件资料与打包信息。" />
     <div class="p-4 bg-white dark:bg-slate-900">
       <WarningBar
         title="目前只支持标准插件（通过插件模板生成的标准目录插件），非标准插件请自行打包"

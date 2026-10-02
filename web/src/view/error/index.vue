@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--auth">
     <div class="w-full h-screen bg-gray-50 flex items-center justify-center">
       <div class="flex flex-col items-center text-2xl gap-4">
         <img class="w-1/3" src="../../assets/404.png" />

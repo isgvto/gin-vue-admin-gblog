@@ -1,6 +1,8 @@
 <template>
-  <div class="system">
-    <el-form ref="form" :model="config" label-width="240px">
+  <div class="admin-page admin-page--legacy-form system">
+    <AdminPageHeading title="系统配置" description="按服务模块维护系统运行配置。" />
+    <section class="gva-form-box">
+    <el-form ref="form" :model="config" label-width="180px">
       <!--  System start  -->
       <el-tabs v-model="activeNames">
         <el-tab-pane label="系统配置" name="1" class="mt-3.5">
@@ -992,6 +994,8 @@
       <el-button type="primary" @click="update">立即更新 </el-button>
       <el-button type="primary" @click="reload">重载服务 </el-button>
     </div>
+
+    </section>
   </div>
 </template>
 
@@ -1130,7 +1134,6 @@
 
 <style lang="scss" scoped>
   .system {
-    @apply bg-white p-9 rounded dark:bg-slate-900;
     h2 {
       @apply p-2.5 my-2.5 text-lg shadow;
     }

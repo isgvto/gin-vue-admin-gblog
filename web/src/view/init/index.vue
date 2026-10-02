@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-lg flex items-center justify-evenly w-full h-full relative md:w-screen md:h-screen md:bg-[#194bfb] overflow-hidden"
+    class="admin-page admin-page--auth rounded-lg flex items-center justify-evenly w-full h-full relative md:w-screen md:h-screen md:bg-[#194bfb] overflow-hidden"
   >
     <div
       class="rounded-md w-full h-full flex items-center justify-center overflow-hidden"
@@ -274,7 +274,7 @@
           type: 'success',
           message: res.msg
         })
-        
+
         // 显示AI助手配置提示弹窗
         ElMessageBox.confirm(
           '已经完成基础数据库初始化！建议先进行编辑器AI助手配置，以获得更好的开发体验。',

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center mx-4 gap-4">
+  <div class="admin-header-tools flex items-center mx-4 gap-4">
     <el-tooltip v-if="isDev" class="" effect="dark" content="视频教程" placement="bottom">
       <el-dropdown @command="toDoc">
         <span class="w-8 h-8 p-2 rounded-full flex items-center justify-center shadow border border-gray-200 dark:border-gray-600 cursor-pointer border-solid">

@@ -1,5 +1,6 @@
 <template>
-  <div v-loading.fullscreen.lock="fullscreenLoading">
+  <div v-loading.fullscreen.lock="fullscreenLoading" class="admin-page admin-page--list">
+    <AdminPageHeading title="文件管理" description="管理上传的文件与图片资源。" />
     <div class="flex gap-4 pt-2">
       <div
         class="flex-none w-64 bg-white text-slate-700 dark:text-slate-400 dark:bg-slate-900 rounded p-4"

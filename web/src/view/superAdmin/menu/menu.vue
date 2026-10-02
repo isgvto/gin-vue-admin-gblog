@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <PageHeading title="菜单管理" description="按功能维护菜单入口、路由与角色权限。">
+      <el-button type="primary" icon="plus" @click="addMenu(0)">新增根菜单</el-button>
+    </PageHeading>
     <div class="gva-table-box">
-      <div class="gva-btn-list">
-        <el-button type="primary" icon="plus" @click="addMenu(0)">
-          新增根菜单
-        </el-button>
+      <div class="gva-btn-list admin-filter-bar">
         <el-input v-model="menuSearch" placeholder="搜索菜单名称或路由" clearable style="width: 240px" />
         <el-select v-model="visibilityFilter" style="width: 150px">
           <el-option label="全部菜单" value="all" />
@@ -17,7 +17,7 @@
 
       <!-- 由于此处菜单跟左侧列表一一对应所以不需要分页 pageSize默认999 -->
       <el-table :key="`${expandMenus}-${menuSearch}-${visibilityFilter}`" :data="filteredMenuTree" row-key="ID" :default-expand-all="expandMenus || !!menuSearch || visibilityFilter === 'hidden'">
-        <el-table-column align="left" label="ID" min-width="100" prop="ID" />
+        <el-table-column align="left" label="ID" width="76" prop="ID" />
         <el-table-column
           align="left"
           label="展示名称"
@@ -64,7 +64,7 @@
           prop="hidden"
         >
           <template #default="scope">
-            <span>{{ scope.row.hidden ? '隐藏' : '显示' }}</span>
+            <el-tag :type="scope.row.hidden ? 'info' : 'success'" size="small">{{ scope.row.hidden ? '隐藏' : '显示' }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -77,43 +77,23 @@
         <el-table-column
           align="left"
           label="文件路径"
-          min-width="360"
+          min-width="260"
+          show-overflow-tooltip
           prop="component"
         />
-        <el-table-column align="left" fixed="right" label="操作" :min-width="appStore.operateMinWith">
+        <el-table-column align="left" :fixed="appStore.device === 'mobile' ? false : 'right'" label="操作" width="160">
           <template #default="scope">
-            <el-button
-              type="primary"
-              link
-              icon="plus"
-              @click="addMenu(scope.row.ID)"
-            >
-              添加子菜单
-            </el-button>
-            <el-button
-              type="primary"
-              link
-              icon="edit"
-              @click="editMenu(scope.row.ID)"
-            >
-              编辑
-            </el-button>
-            <el-button
-              type="primary"
-              link
-              icon="user"
-              @click="openAssignRoleDrawer(scope.row)"
-            >
-              分配角色
-            </el-button>
-            <el-button
-              type="primary"
-              link
-              icon="delete"
-              @click="deleteMenu(scope.row.ID)"
-            >
-              删除
-            </el-button>
+            <el-button type="primary" link icon="edit" @click="editMenu(scope.row.ID)">编辑</el-button>
+            <el-dropdown trigger="click" class="ml-3">
+              <el-button link type="primary">更多 <el-icon class="ml-1"><ArrowDown /></el-icon></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item icon="plus" @click="addMenu(scope.row.ID)">添加子菜单</el-dropdown-item>
+                  <el-dropdown-item icon="user" @click="openAssignRoleDrawer(scope.row)">分配角色</el-dropdown-item>
+                  <el-dropdown-item divided icon="delete" @click="deleteMenu(scope.row.ID)">删除菜单</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -135,7 +115,7 @@
       </template>
 
       <warning-bar title="新增菜单，需要在角色管理内配置权限才可使用" />
-      
+
       <!-- 基础信息区域 -->
       <div class="border-b border-gray-200">
         <h3 class="font-semibold text-gray-700 mb-4">基础信息</h3>
@@ -171,9 +151,9 @@
           <el-row class="w-full">
             <el-col :span="12">
               <el-form-item label="展示名称" prop="meta.title">
-                <el-input 
-                  v-model="form.meta.title" 
-                  autocomplete="off" 
+                <el-input
+                  v-model="form.meta.title"
+                  autocomplete="off"
                   placeholder="请输入菜单展示名称"
                 />
               </el-form-item>
@@ -191,7 +171,7 @@
           </el-row>
         </el-form>
       </div>
-       
+
       <!-- 路由配置区域 -->
       <div class="border-b border-gray-200">
         <h3 class="font-semibold text-gray-700 mb-4">路由配置</h3>
@@ -245,7 +225,7 @@
            </el-row>
         </el-form>
       </div>
-       
+
       <!-- 显示设置区域 -->
       <div class="border-b border-gray-200">
         <h3 class="font-semibold text-gray-700 mb-4">显示设置</h3>
@@ -263,9 +243,9 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item label="排序标记" prop="sort">
-                  <el-input 
-                    v-model.number="form.sort" 
-                    autocomplete="off" 
+                  <el-input
+                    v-model.number="form.sort"
+                    autocomplete="off"
                     placeholder="请输入排序数字"
                   />
                 </el-form-item>
@@ -285,7 +265,7 @@
             </el-row>
         </el-form>
       </div>
-        
+
       <!-- 高级配置区域 -->
       <div class="border-b border-gray-200">
         <h3 class="font-semibold text-gray-700 mb-4">高级配置</h3>
@@ -397,7 +377,7 @@
              </el-row>
         </el-form>
       </div>
-          
+
       <!-- 菜单参数配置区域 -->
       <div class="border-b border-gray-200">
         <div class="flex justify-between items-center mb-4">
@@ -406,8 +386,8 @@
             新增菜单参数
           </el-button>
         </div>
-            <el-table 
-              :data="form.parameters" 
+            <el-table
+              :data="form.parameters"
               style="width: 100%"
               class="parameter-table"
             >
@@ -418,8 +398,8 @@
                 width="150"
               >
                 <template #default="scope">
-                  <el-select 
-                    v-model="scope.row.type" 
+                  <el-select
+                    v-model="scope.row.type"
                     placeholder="请选择"
                     size="small"
                   >
@@ -430,8 +410,8 @@
               </el-table-column>
               <el-table-column align="center" prop="key" label="参数key" width="150">
                 <template #default="scope">
-                  <el-input 
-                    v-model="scope.row.key" 
+                  <el-input
+                    v-model="scope.row.key"
                     size="small"
                     placeholder="请输入参数key"
                   />
@@ -439,8 +419,8 @@
               </el-table-column>
               <el-table-column align="center" prop="value" label="参数值">
                 <template #default="scope">
-                  <el-input 
-                    v-model="scope.row.value" 
+                  <el-input
+                    v-model="scope.row.value"
                     size="small"
                     placeholder="请输入参数值"
                   />
@@ -459,7 +439,7 @@
               </el-table-column>
             </el-table>
       </div>
-           
+
       <!-- 可控按钮配置区域 -->
       <div class="mb-2 mt-2">
         <div class="flex justify-between items-center mb-4">
@@ -482,8 +462,8 @@
             </el-tooltip>
           </div>
         </div>
-             <el-table 
-               :data="form.menuBtn" 
+             <el-table
+               :data="form.menuBtn"
                style="width: 100%"
                class="button-table"
              >
@@ -494,8 +474,8 @@
                  width="150"
                >
                  <template #default="scope">
-                   <el-input 
-                     v-model="scope.row.name" 
+                   <el-input
+                     v-model="scope.row.name"
                      size="small"
                      placeholder="请输入按钮名称"
                    />
@@ -503,8 +483,8 @@
                </el-table-column>
                <el-table-column align="center" prop="desc" label="备注">
                  <template #default="scope">
-                   <el-input 
-                     v-model="scope.row.desc" 
+                   <el-input
+                     v-model="scope.row.desc"
                      size="small"
                      placeholder="请输入按钮备注"
                    />
@@ -568,6 +548,7 @@
   } from '@/api/menu'
   import { getAuthorityList } from '@/api/authority'
   import icon from '@/view/superAdmin/menu/icon.vue'
+  import PageHeading from '@/components/admin/PageHeading.vue'
   import WarningBar from '@/components/warningBar/warningBar.vue'
   import { canRemoveAuthorityBtnApi } from '@/api/authorityBtn'
   import { reactive, ref, nextTick, computed } from 'vue'
@@ -905,7 +886,7 @@
   }
 
 
-  
+
   .form-tip {
     margin-top: 8px;
     font-size: 12px;
@@ -913,36 +894,36 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    
+
     .el-icon {
       color: #409eff;
     }
   }
-  
+
   .label-with-tooltip {
     display: flex;
     align-items: center;
     gap: 6px;
-    
+
     .el-icon {
       color: #909399;
       cursor: help;
-      
+
       &:hover {
         color: #409eff;
       }
     }
   }
-  
+
   .parameter-table,
   .button-table {
     border: 1px solid #ebeef5;
     border-radius: 6px;
-    
+
     :deep(.el-table__header) {
       background-color: #fafafa;
     }
-    
+
     :deep(.el-table__body) {
       .el-table__row {
         &:hover {

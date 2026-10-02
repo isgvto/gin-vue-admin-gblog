@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="参数管理" description="集中管理业务参数及其说明。" />
     <warning-bar title="获取参数且缓存方法已在前端utils/params 已经封装完成 不必自己书写 使用方法查看文件内注释" />
     <div class="gva-search-box">
       <el-form
@@ -102,7 +103,7 @@
         row-key="ID"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
 
         <el-table-column align="left" label="日期" prop="createdAt" width="180">
           <template #default="scope">{{
