@@ -63,6 +63,7 @@
             link
             type="primary"
             size="small"
+            :disabled="!row.status"
             @click="setDefault(row.id)"
           >
             设为默认
@@ -75,7 +76,7 @@
           <el-button type="primary" size="small" @click="openEditDialog(row)">编辑</el-button>
           <el-popconfirm title="确定删除该模型配置吗？" @confirm="remove(row.id)">
             <template #reference>
-              <el-button type="danger" size="small">删除</el-button>
+              <el-button type="danger" size="small" :disabled="row.isDefault">删除</el-button>
             </template>
           </el-popconfirm>
         </template>
@@ -139,7 +140,8 @@
           <el-input-number v-model="form.maxTokens" :min="256" :max="65536" :step="256" />
         </el-form-item>
         <el-form-item label="启用" prop="status">
-          <el-switch v-model="form.status" />
+          <el-switch v-model="form.status" :disabled="form.isDefault" />
+          <span v-if="form.isDefault" class="provider-hint">请先将其他模型设为默认，再停用此模型</span>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" :rows="2" />
@@ -273,6 +275,7 @@
       openEditDialog(row) {
         this.form = {
           id: row.id,
+          isDefault: row.isDefault,
           name: row.name,
           provider: row.provider,
           baseUrl: row.baseUrl,
