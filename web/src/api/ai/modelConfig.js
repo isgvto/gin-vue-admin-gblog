@@ -50,3 +50,11 @@ export function getModelProviders() {
     method: 'GET'
   })
 }
+
+export const testModelConnection = (data) => requestModel({
+  url: '/ai/modelConfig/testConnection', method: 'POST', data, timeout: 35000
+})
+
+export const getProviderModels = (data) => requestModel({
+  url: '/ai/modelConfig/providerModels', method: 'POST', data, timeout: 35000
+})

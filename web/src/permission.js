@@ -4,6 +4,7 @@ import getPageTitle from '@/utils/page'
 import router from '@/router'
 import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
+import { joinMenuPath, firstMenuPage } from '@/utils/menuRoute'
 
 // 配置 NProgress
 Nprogress.configure({
@@ -53,7 +54,7 @@ function addRouteByChildren(route, segments = [], parentName = null) {
 
   // 如果标记为 defaultMenu，则该路由应作为顶级路由（不包裹在 layout 下）
   if (route?.meta?.defaultMenu === true && parentName === null) {
-    const fullPath = [...segments, route.path].filter(Boolean).join('/')
+    const fullPath = joinMenuPath(segments, route.path)
     const children = route.children ? [...route.children] : []
     const newRoute = { ...route, path: fullPath }
     delete newRoute.children
@@ -78,15 +79,13 @@ function addRouteByChildren(route, segments = [], parentName = null) {
     if(!parentName){
       const firstChild = route.children[0]
       if (firstChild) {
-         const fullParentPath = [...segments, route.path].filter(Boolean).join('/')
-         const redirectPath = normalizeRelativePath(
-           [fullParentPath, firstChild.path].filter(Boolean).join('/')
-         )
+         const fullParentPath = joinMenuPath(segments, route.path)
+         const redirectPath = firstMenuPage(route.children, [fullParentPath])
          const parentRoute = {
-           path: normalizeRelativePath(fullParentPath),
+           path: fullParentPath.startsWith('/') ? fullParentPath : normalizeRelativePath(fullParentPath),
            name: route.name, // 保留父级名称，以便 defaultRouter 可以指向它
            meta: route.meta,
-           redirect: "/layout/" + redirectPath,
+           ...(redirectPath ? { redirect: redirectPath } : {}),
          }
          router.addRoute('layout', parentRoute)
        }
@@ -97,12 +96,12 @@ function addRouteByChildren(route, segments = [], parentName = null) {
   }
 
   // 叶子节点：注册为其父（defaultMenu 顶级或 layout）的二级子路由
-  const fullPath = [...segments, route.path].filter(Boolean).join('/')
+  const fullPath = joinMenuPath(segments, route.path)
   const newRoute = { ...route, path: fullPath }
   delete newRoute.children
   delete newRoute.parent
   // 子路由使用相对路径，避免 /layout/layout/... 的问题
-  newRoute.path = normalizeRelativePath(newRoute.path)
+  newRoute.path = fullPath.startsWith('/') ? fullPath : normalizeRelativePath(fullPath)
 
   if (parentName) {
     // 挂载到 defaultMenu 顶级路由下

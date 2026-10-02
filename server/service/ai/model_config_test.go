@@ -107,6 +107,16 @@ func TestModelConfigLifecycle(t *testing.T) {
 	if disabled.APIKey != "secret" || !disabled.IsDefault {
 		t.Fatal("edit/default failed")
 	}
+	resolved, err := service.resolveProbe(input)
+	if err != nil || resolved.APIKey != "secret" {
+		t.Fatal("probe did not use stored key", err)
+	}
+	input.APIKey = "draft-key"
+	resolved, err = service.resolveProbe(input)
+	if err != nil || resolved.APIKey != "draft-key" {
+		t.Fatal("probe did not use draft key", err)
+	}
+	input.APIKey = ""
 	input.Status, input.ID = false, active.ID
 	if err := service.Update(input); err != nil {
 		t.Fatal(err)

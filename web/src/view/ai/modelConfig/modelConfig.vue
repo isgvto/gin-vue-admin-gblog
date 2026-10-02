@@ -71,9 +71,10 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" prop="remark" min-width="120" show-overflow-tooltip />
-      <el-table-column label="操作" width="160" fixed="right">
+      <el-table-column label="操作" width="230" fixed="right">
         <template #default="{ row }">
           <el-button type="primary" size="small" @click="openEditDialog(row)">编辑</el-button>
+          <el-button size="small" :loading="testingId === row.id" :disabled="testingId !== null" @click="testSaved(row)">测试</el-button>
           <el-popconfirm title="确定删除该模型配置吗？" @confirm="remove(row.id)">
             <template #reference>
               <el-button type="danger" size="small" :disabled="row.isDefault">删除</el-button>
@@ -119,7 +120,7 @@
           <div v-if="providerHint" class="provider-hint">{{ providerHint }}</div>
         </el-form-item>
         <el-form-item v-if="needBaseUrl" label="Base URL" prop="baseUrl">
-          <el-input v-model="form.baseUrl" :placeholder="baseUrlPlaceholder" />
+          <el-input v-model="form.baseUrl" :placeholder="baseUrlPlaceholder" @blur="autoLoadProviderModels" />
         </el-form-item>
         <el-form-item label="API Key" prop="apiKey">
           <el-input
@@ -128,10 +129,16 @@
             show-password
             clearable
             :placeholder="form.id ? '留空表示不修改' : 'sk-...'"
+            @blur="autoLoadProviderModels"
           />
         </el-form-item>
         <el-form-item label="模型标识" prop="model">
-          <el-input v-model="form.model" placeholder="如 deepseek-chat / ep-xxx / gemini-2.0-flash" />
+          <el-select v-model="form.model" filterable allow-create default-first-option class="full-width" placeholder="读取后选择，或手动输入模型 / ep-xxx">
+            <el-option v-for="item in providerModels" :key="item.id" :label="item.name === item.id ? item.id : `${item.name} (${item.id})`" :value="item.id" />
+          </el-select>
+          <el-button size="small" :loading="loadingModels" @click="loadProviderModels">读取供应商模型列表</el-button>
+          <div class="provider-hint">列表不代表模型一定可调用，选择后请测试连接。</div>
+          <div class="provider-hint">测试连接会发送一次简短请求，供应商可能计费。</div>
         </el-form-item>
         <el-form-item label="温度" prop="temperature">
           <el-slider v-model="form.temperature" :min="0" :max="2" :step="0.1" show-input />
@@ -148,6 +155,7 @@
         </el-form-item>
       </el-form>
       <template #footer>
+        <el-button :loading="testingDraft" @click="testDraft">测试连接</el-button>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="submitting" @click="submit">保存</el-button>
       </template>
@@ -162,7 +170,9 @@
     updateModelConfig,
     deleteModelConfig,
     setDefaultModelConfig,
-    getModelProviders
+    getModelProviders,
+    getProviderModels,
+    testModelConnection
   } from '@/api/ai/modelConfig'
   import { ElMessage } from 'element-plus'
 
@@ -172,6 +182,11 @@
       return {
         loading: false,
         submitting: false,
+        testingId: null,
+        testingDraft: false,
+        loadingModels: false,
+        providerModels: [],
+        modelListRequest: 0,
         modelList: [],
         total: 0,
         providers: [],
@@ -220,7 +235,53 @@
       this.getProviders()
       this.getData()
     },
+    watch: {
+      'form.provider': 'invalidateProviderModels',
+      'form.baseUrl': 'invalidateProviderModels',
+      'form.apiKey': 'invalidateProviderModels'
+    },
     methods: {
+      autoLoadProviderModels() {
+        if (this.loadingModels || this.providerModels.length || !(this.form.apiKey || this.form.id)) return
+        if (this.form.provider === 'openai' && !this.form.baseUrl) return
+        this.loadProviderModels()
+      },
+      invalidateProviderModels() {
+        this.modelListRequest++
+        this.providerModels = []
+      },
+      async loadProviderModels() {
+        const request = ++this.modelListRequest
+        this.loadingModels = true
+        try {
+          const res = await getProviderModels({ ...this.form })
+          if (request !== this.modelListRequest) return
+          this.providerModels = res.data || []
+          if (!this.providerModels.length) ElMessage.info('未返回可用模型，请手动输入模型标识')
+        } catch (_) {
+          // 请求层展示供应商错误，保留手动输入。
+        } finally {
+          this.loadingModels = false
+        }
+      },
+      async testDraft() {
+        this.testingDraft = true
+        try {
+          const res = await testModelConnection({ ...this.form })
+          ElMessage.success(res.msg)
+        } catch (_) {
+          // 请求层展示连接错误。
+        } finally { this.testingDraft = false }
+      },
+      async testSaved(row) {
+        this.testingId = row.id
+        try {
+          const res = await testModelConnection({ ...row, apiKey: '' })
+          ElMessage.success(res.msg)
+        } catch (_) {
+          // 请求层展示连接错误。
+        } finally { this.testingId = null }
+      },
       createEmptyForm() {
         return {
           id: 0,
@@ -267,12 +328,16 @@
       },
       providerChanged() {
         this.form.baseUrl = ''
+        this.form.model = ''
+        this.$nextTick(() => this.autoLoadProviderModels())
       },
       openCreateDialog() {
+        this.invalidateProviderModels()
         this.form = this.createEmptyForm()
         this.dialogVisible = true
       },
       openEditDialog(row) {
+        this.invalidateProviderModels()
         this.form = {
           id: row.id,
           isDefault: row.isDefault,

@@ -100,6 +100,11 @@ func (i *initMenuAuthority) InitializeData(ctx context.Context) (next context.Co
 	if err = db.Model(&authorities[2]).Association("SysBaseMenus").Replace(menu9528); err != nil {
 		return next, errors.Wrap(err, "为测试角色分配菜单失败")
 	}
+	// Apply after assigning existing feature permissions; new folders inherit only
+	// the roles that already have one of their children.
+	if err = system.OrganizeMenuLayout(db); err != nil {
+		return next, err
+	}
 
 	return next, nil
 }

@@ -3,10 +3,11 @@
     <div v-if="!aiEnabled" class="ai-disabled-tip">
       <el-empty description="AI 功能不可用" :image-size="72" />
       <div class="tip-text">{{ disabledReason }}</div>
-      <el-button size="small" class="retry-btn" @click="checkStatus">重新检测</el-button>
+      <el-button size="small" class="retry-btn" :loading="checkingStatus" @click="checkStatus(true)">重新检测</el-button>
     </div>
 
     <template v-else>
+      <el-button size="small" :loading="checkingStatus" :disabled="streaming || chapterBusy" @click="checkStatus(true)">重新检测连接</el-button>
       <div class="writing-modes" role="group" aria-label="写作方式">
         <el-button size="small" :type="!chapterMode ? 'primary' : 'default'" :aria-pressed="!chapterMode"
                    :disabled="streaming || chapterBusy || editorDiffOpen" @click="chapterMode = false">快捷写作</el-button>
@@ -222,23 +223,28 @@
   })
 
   let statusCheck = null
+  const checkingStatus = ref(false)
   checkStatus()
-  function checkStatus() {
-    if (!statusCheck) statusCheck = loadStatus().finally(() => { statusCheck = null })
+  function checkStatus(checkConnection = false) {
+    if (!statusCheck) {
+      checkingStatus.value = true
+      statusCheck = loadStatus(checkConnection).finally(() => { statusCheck = null; checkingStatus.value = false })
+    }
     return statusCheck
   }
-  async function loadStatus() {
+  async function loadStatus(checkConnection) {
     disabledReason.value = ''
     try {
-      const res = await getAiStatus()
+      const res = await getAiStatus(checkConnection)
       if (res.data?.quotaError) {
         aiEnabled.value = false
         disabledReason.value = res.data.quotaError
       } else if (res.data?.enabled) {
         aiEnabled.value = true
+        if (checkConnection) ElMessage.success('模型连接正常，已收到有效响应')
       } else {
         aiEnabled.value = false
-        disabledReason.value = '未配置默认模型：请在「AI 模型配置」中将一个启用中的模型设为默认'
+        disabledReason.value = res.data?.reason || '未配置默认模型：请在「AI 模型配置」中将一个启用中的模型设为默认'
       }
     } catch (error) {
       aiEnabled.value = false

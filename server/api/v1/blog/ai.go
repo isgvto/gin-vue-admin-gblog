@@ -13,6 +13,7 @@ import (
 	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
 	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	modelService "github.com/isgvto/gin-vue-admin-gblog/server/service/ai"
 	blogService "github.com/isgvto/gin-vue-admin-gblog/server/service/blog"
 	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 	"go.uber.org/zap"
@@ -23,7 +24,13 @@ type AiApi struct{}
 // Status 探测 AI 是否可用 + 当日剩余额度。
 func (a *AiApi) Status(c *gin.Context) {
 	ok, name := aiService.Available()
+	if c.Query("checkConnection") == "true" {
+		ok, name = modelService.Factory().CheckConnection(c.Request.Context())
+	}
 	data := gin.H{"enabled": ok, "model": name}
+	if !ok {
+		data["reason"] = name
+	}
 	if userID := utils.GetUserID(c); userID != 0 {
 		remain, err := aiService.QuotaStatus(c.Request.Context(), userID)
 		if err != nil {

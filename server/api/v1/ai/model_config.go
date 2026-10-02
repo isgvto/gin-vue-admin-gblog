@@ -89,3 +89,30 @@ func (a *ModelConfigApi) SetDefault(c *gin.Context) {
 func (a *ModelConfigApi) Providers(c *gin.Context) {
 	response.OkWithData(modelConfigService.Providers(), c)
 }
+
+func (a *ModelConfigApi) TestConnection(c *gin.Context) {
+	var req aiReq.AiModelConfigUpsert
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := modelConfigService.TestConnection(c.Request.Context(), req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithMessage("连接成功，模型已返回有效响应", c)
+}
+
+func (a *ModelConfigApi) ProviderModels(c *gin.Context) {
+	var req aiReq.AiModelConfigUpsert
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	models, err := modelConfigService.ListProviderModels(c.Request.Context(), req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithData(models, c)
+}

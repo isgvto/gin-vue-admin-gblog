@@ -11,7 +11,7 @@ async function requestAi(url, payload, signal) {
   return result
 }
 
-export const getAiStatus = () => requestAi('status')
+export const getAiStatus = (checkConnection = false) => requestAi(checkConnection ? 'status?checkConnection=true' : 'status')
 export const generateSummary = (payload, signal) => requestAi('summary', payload, signal)
 export const suggestTags = (payload, signal) => requestAi('suggest-tags', payload, signal)
 

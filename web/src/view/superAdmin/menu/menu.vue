@@ -5,10 +5,18 @@
         <el-button type="primary" icon="plus" @click="addMenu(0)">
           新增根菜单
         </el-button>
+        <el-input v-model="menuSearch" placeholder="搜索菜单名称或路由" clearable style="width: 240px" />
+        <el-select v-model="visibilityFilter" style="width: 150px">
+          <el-option label="全部菜单" value="all" />
+          <el-option label="显示菜单" value="visible" />
+          <el-option label="隐藏菜单" value="hidden" />
+        </el-select>
+        <el-button @click="expandMenus = !expandMenus">{{ expandMenus ? '收起分类' : '展开分类' }}</el-button>
       </div>
+      <p class="text-sm text-gray-500 mb-4">按功能目录维护菜单；隐藏菜单保持原设置，搜索结果会保留上级目录。</p>
 
       <!-- 由于此处菜单跟左侧列表一一对应所以不需要分页 pageSize默认999 -->
-      <el-table :data="tableData" row-key="ID">
+      <el-table :key="`${expandMenus}-${menuSearch}-${visibilityFilter}`" :data="filteredMenuTree" row-key="ID" :default-expand-all="expandMenus || !!menuSearch || visibilityFilter === 'hidden'">
         <el-table-column align="left" label="ID" min-width="100" prop="ID" />
         <el-table-column
           align="left"
@@ -562,7 +570,7 @@
   import icon from '@/view/superAdmin/menu/icon.vue'
   import WarningBar from '@/components/warningBar/warningBar.vue'
   import { canRemoveAuthorityBtnApi } from '@/api/authorityBtn'
-  import { reactive, ref, nextTick } from 'vue'
+  import { reactive, ref, nextTick, computed } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { QuestionFilled, InfoFilled, Delete } from '@element-plus/icons-vue'
   import { toDoc } from '@/utils/doc'
@@ -587,6 +595,20 @@
   })
 
   const tableData = ref([])
+  const menuSearch = ref('')
+  const visibilityFilter = ref('all')
+  const expandMenus = ref(false)
+  const filteredMenuTree = computed(() => {
+    const query = menuSearch.value.trim().toLowerCase()
+    const filter = (items) => items.flatMap((item) => {
+      const children = filter(item.children || [])
+      const matchesText = !query || [item.meta?.title, item.name, item.path].some((value) => String(value || '').toLowerCase().includes(query))
+      const matchesVisibility = visibilityFilter.value === 'all' || item.hidden === (visibilityFilter.value === 'hidden')
+      if (!children.length && !(matchesText && matchesVisibility)) return []
+      return [{ ...item, children }]
+    })
+    return filter(tableData.value)
+  })
   // 查询
   const getTableData = async () => {
     const table = await getMenuList()
