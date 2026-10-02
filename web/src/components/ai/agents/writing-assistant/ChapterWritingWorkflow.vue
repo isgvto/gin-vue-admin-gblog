@@ -56,13 +56,13 @@
         <p v-if="notice" class="field-help" role="status">{{ notice }}</p>
         <p v-if="current.error" class="workflow-error" role="status">{{ current.error }}</p>
         <div v-if="busy || (!current.ready && current.output)" class="chapter-preview">
-          <div v-if="current.output" v-html="renderSafeMarkdown(current.output)" />
+          <div v-if="current.output" v-mermaid="current.output" v-html="renderSafeMarkdown(current.output)" />
           <span v-else>正在生成本章…</span>
         </div>
         <template v-if="current.ready && !busy">
           <label class="field-label" for="chapter-draft">{{ current.adopted ? '采纳时的草稿' : '本章草稿（可直接修改 Markdown）' }}</label>
           <el-input id="chapter-draft" v-model="current.draft" type="textarea" :rows="10" :maxlength="16000" :disabled="current.adopted || blocked" />
-          <details class="draft-preview"><summary>预览本章</summary><div class="chapter-preview" v-html="renderSafeMarkdown(chapterMarkdown(current))" /></details>
+          <details class="draft-preview"><summary>预览本章</summary><div class="chapter-preview" v-mermaid="chapterMarkdown(current)" v-html="renderSafeMarkdown(chapterMarkdown(current))" /></details>
           <el-button v-if="!current.adopted" type="success" :disabled="blocked || !current.draft.trim() || activeIndex !== nextIndex" @click="adopt">
             采纳本章到正文末尾
           </el-button>
@@ -79,6 +79,7 @@
   import { streamAiChat } from '@/api/blog/ai'
   import { useAiStore } from '@/pinia/modules/ai'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
+  import { vMermaid } from '@/utils/mermaid'
   import { chapterMarkdown, chapterOwnerError, chapterPayload, parseChapterOutline } from './chapterWorkflow.js'
   import { writingTones } from './writingPreferences.js'
 

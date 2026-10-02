@@ -38,6 +38,7 @@
     "install": "^0.13.0",
     "marked": "14.1.1",
     "marked-highlight": "^2.1.4",
+    "mermaid": "^11.17.2",
     "mitt": "^3.0.1",
     "npm": "^11.3.0",
     "nprogress": "^0.2.0",

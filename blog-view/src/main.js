@@ -21,6 +21,7 @@ import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
 //directive
 import './util/directive'
+import './util/mermaid'
 
 console.log(
 	'%c GBlog %c By Guitu %c https://github.com/LZMclear',

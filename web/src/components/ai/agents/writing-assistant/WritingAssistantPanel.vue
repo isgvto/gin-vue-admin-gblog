@@ -119,7 +119,7 @@
               <el-button size="small" :disabled="!hasEditor" @click="applyTitle(title)">采用标题</el-button>
             </div>
           </div>
-          <div v-else-if="resultText" class="result-body" v-html="renderedResult" />
+          <div v-else-if="resultText" class="result-body" v-mermaid="renderedResult" v-html="renderedResult" />
           <div v-else-if="streaming" class="streaming-hint">
             {{ streamingHint }}<span class="cursor">▌</span>
           </div>
@@ -165,6 +165,7 @@
 <script setup>
   import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
+  import { vMermaid } from '@/utils/mermaid'
   import { ElMessage } from 'element-plus'
   import { useAiStore } from '@/pinia/modules/ai'
   import { streamAiChat, getAiStatus, generateSummary, suggestTags } from '@/api/blog/ai'

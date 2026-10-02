@@ -58,8 +58,8 @@
         />
       </div>
       <div v-if="previewVisible || aiDiffActive" class="preview-pane">
-        <div v-if="aiDiffActive" class="markdown-preview" v-html="mergedPreviewHtml" />
-        <div v-else-if="value" class="markdown-preview" v-html="previewHtml" />
+        <div v-if="aiDiffActive" class="markdown-preview" v-mermaid="mergedPreviewHtml" v-html="mergedPreviewHtml" />
+        <div v-else-if="value" class="markdown-preview" v-mermaid="previewHtml" v-html="previewHtml" />
         <div v-else class="preview-empty">Markdown 预览</div>
       </div>
     </div>
@@ -76,6 +76,7 @@
 <script setup>
   import { computed, getCurrentInstance, nextTick, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
+  import { vMermaid } from '@/utils/mermaid'
   import { appendDocumentSnapshot, applySnapshot, captureEditorSnapshot, snapshotError, sourceOffsetToTextarea, textareaOffsetToSource, undoSnapshot } from './editorSnapshot'
   import {
     ChatLineSquare,

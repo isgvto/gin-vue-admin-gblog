@@ -51,6 +51,7 @@
 							<div
 								class="typo js-toc-content m-padded-tb-small match-braces rainbow-braces"
 								v-viewer
+								v-mermaid="doc.content"
 								:class="{'m-big-fontsize':bigFontSize}"
 								v-html="doc.content"
 							></div>
