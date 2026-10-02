@@ -1,6 +1,6 @@
 services:
   gva-gbserver:
-    image: gvto/gva-server:v4.0.2
+    image: gvto/gva-server:v4.1.0
     container_name: gva-gbserver
     restart: unless-stopped
     ports:
@@ -13,7 +13,7 @@ services:
       - gva-network
 
   web:
-    image: gvto/gva-web:v4.0.2
+    image: gvto/gva-web:v4.1.0
     container_name: gva-web
     restart: unless-stopped
     ports:
