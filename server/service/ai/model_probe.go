@@ -73,12 +73,23 @@ func probeConfig(ctx context.Context, cfg *aiModel.AiModelConfig) error {
 }
 
 func (s *ModelConfigService) TestConnection(ctx context.Context, info aiReq.AiModelConfigUpsert) error {
+	if info.TestMode != "" && info.TestMode != "chat" && info.TestMode != "image" {
+		return errors.New("请选择文本或图片测试方式")
+	}
 	cfg, err := s.resolveProbe(info)
 	if err != nil {
 		return err
 	}
 	if strings.TrimSpace(cfg.Model) == "" {
 		return errors.New("请选择或填写模型标识")
+	}
+	if info.TestMode == "image" {
+		endpoint, err := resolveImageEndpoint(cfg, 180)
+		if err != nil {
+			return err
+		}
+		_, err = (&ImageService{}).GenerateWithConfig(ctx, endpoint, "一幅简洁的蓝色几何插画，无文字，用于测试图片生成接口。", "1024x1024")
+		return err
 	}
 	if info.MaxTokens <= 0 || info.Temperature < 0 || info.Temperature > 2 {
 		return errors.New("请填写有效的温度和最大输出参数")
@@ -112,7 +123,7 @@ func (s *ModelConfigService) ListProviderModels(ctx context.Context, info aiReq.
 	defer cancel()
 	base := strings.TrimRight(cfg.BaseURL, "/")
 	if cfg.Provider == "ark" && base == "" {
-		base = "https://ark.cn-beijing.volces.com/api/v3"
+		base = defaultArkBaseURL
 	}
 	if cfg.Provider == "gemini" {
 		base = "https://generativelanguage.googleapis.com/v1beta"

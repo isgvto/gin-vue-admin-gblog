@@ -21,4 +21,5 @@ type AiModelConfigUpsert struct {
 	MaxTokens   int     `json:"maxTokens"`
 	Status      bool    `json:"status"`
 	Remark      string  `json:"remark"`
+	TestMode    string  `json:"testMode,omitempty"` // Request-only: chat or image, selected by the user.
 }

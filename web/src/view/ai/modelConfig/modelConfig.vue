@@ -95,6 +95,7 @@
 
     </div>
 
+    <ImageModelSettings />
     <FeatureModelSettings ref="errorAnalysisSettings" feature="errorAnalysis" title="错误日志分析" description="指定用于分析系统错误日志的模型，独立控制启用状态。" />
     <FeatureModelSettings ref="workflowSettings" feature="workflow" title="AI 需求工作流" description="需求分析与分步骤 Prompt 共用此模型，支持历史上下文和流式对话。" :timeout-max="600" :initial-timeout="180" />
 
@@ -143,7 +144,6 @@
           </el-select>
           <el-button size="small" :loading="loadingModels" @click="loadProviderModels">读取供应商模型列表</el-button>
           <div class="provider-hint">列表不代表模型一定可调用，选择后请测试连接。</div>
-          <div class="provider-hint">测试连接会发送一次简短请求，供应商可能计费。</div>
         </el-form-item>
         <el-form-item label="温度" prop="temperature">
           <el-slider v-model="form.temperature" :min="0" :max="2" :step="0.1" show-input />
@@ -184,16 +184,18 @@
   import PageHeading from '@/components/admin/PageHeading.vue'
 
   import FeatureModelSettings from '@/components/ai/FeatureModelSettings.vue'
+  import ImageModelSettings from '@/components/ai/ImageModelSettings.vue'
 
   export default {
     name: 'AiModelConfig',
-    components: { PageHeading, FeatureModelSettings },
+    components: { PageHeading, FeatureModelSettings, ImageModelSettings },
     data() {
       return {
         loading: false,
         submitting: false,
         testingId: null,
         testingDraft: false,
+        testMode: 'chat',
         loadingModels: false,
         providerModels: [],
         modelListRequest: 0,
@@ -278,16 +280,16 @@
       async testDraft() {
         this.testingDraft = true
         try {
-          const res = await testModelConnection({ ...this.form })
+          const res = await testModelConnection({ ...this.form, testMode: this.testMode })
           ElMessage.success(res.msg)
         } catch (_) {
           // 请求层展示连接错误。
         } finally { this.testingDraft = false }
       },
-      async testSaved(row) {
+      async testSaved(row, mode = 'chat') {
         this.testingId = row.id
         try {
-          const res = await testModelConnection({ ...row, apiKey: '' })
+          const res = await testModelConnection({ ...row, apiKey: '', testMode: mode })
           ElMessage.success(res.msg)
         } catch (_) {
           // 请求层展示连接错误。
@@ -304,7 +306,7 @@
           temperature: 0.7,
           maxTokens: 4096,
           status: true,
-          remark: ''
+          remark: '',
         }
       },
       async getProviders() {
@@ -327,6 +329,7 @@
           this.total = res.data?.total || 0
           this.$refs.errorAnalysisSettings?.refreshModels()
           this.$refs.workflowSettings?.refreshModels()
+
         } finally {
           this.loading = false
         }
@@ -362,7 +365,7 @@
           temperature: row.temperature,
           maxTokens: row.maxTokens,
           status: row.status,
-          remark: row.remark || ''
+          remark: row.remark || '',
         }
         this.dialogVisible = true
       },

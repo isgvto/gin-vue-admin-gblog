@@ -45,6 +45,19 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []adapter.CasbinRule{
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/image", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/image", V2: "PUT"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/image/test", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/status", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/plan", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/generate", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/adopt", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/discard", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/status", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/plan", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/generate", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/adopt", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/discard", V2: "POST"},
 		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow", V2: "GET"},
 		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow", V2: "PUT"},
 		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow/test", V2: "POST"},

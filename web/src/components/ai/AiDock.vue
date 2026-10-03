@@ -17,7 +17,7 @@
       class="ai-dock-drawer"
     >
       <div class="ai-dock">
-        <div class="agent-tabs">
+        <div v-if="agentRegistry.length > 1" class="agent-tabs">
           <div
             v-for="agent in agentRegistry"
             :key="agent.id"

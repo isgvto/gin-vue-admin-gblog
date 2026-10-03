@@ -355,12 +355,28 @@
 
 <style scoped lang="scss">
 .markdown-editor {
+  --md-token-red: #cf222e;
+  --md-token-purple: #6f42c1;
+  --md-token-blue: #005cc5;
+  --md-token-string: #032f62;
+  --md-token-orange: #b65300;
+  --md-token-comment: #6a737d;
+  color: var(--admin-text, var(--el-text-color-primary));
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  border: 1px solid #dcdfe6;
+  border: 1px solid var(--admin-border, var(--el-border-color));
   border-radius: 6px;
-  background: #fff;
+  background: var(--admin-surface, var(--el-bg-color));
+}
+
+:global(html.dark .markdown-editor) {
+  --md-token-red: #ff9aa8;
+  --md-token-purple: #d2b5ff;
+  --md-token-blue: #9bc7ff;
+  --md-token-string: #a5d9b5;
+  --md-token-orange: #ffc58d;
+  --md-token-comment: #a6b4c6;
 }
 
 .markdown-editor.is-fullscreen {
@@ -382,11 +398,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: #f7f8fa;
+  background: var(--el-fill-color-light);
 }
 
 .markdown-toolbar {
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--admin-border, var(--el-border-color-lighter));
 }
 
 .ai-diff-banner {
@@ -395,9 +411,9 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 12px;
-  border-bottom: 1px solid #f3d19e;
-  background: #fdf6ec;
-  color: #b88230;
+  border-bottom: 1px solid var(--el-color-warning-light-5);
+  background: var(--el-color-warning-light-9);
+  color: var(--el-color-warning);
   font-size: 13px;
 
   .ai-diff-actions {
@@ -409,14 +425,14 @@
 .diff-pane {
   overflow: auto;
   padding: 10px;
-  background: #fafbfc;
+  background: var(--el-fill-color-lighter);
 }
 
 .markdown-footer {
   gap: 16px;
   justify-content: flex-end;
-  border-top: 1px solid #ebeef5;
-  color: #909399;
+  border-top: 1px solid var(--admin-border, var(--el-border-color-lighter));
+  color: var(--admin-muted, var(--el-text-color-secondary));
   font-size: 12px;
 }
 
@@ -435,7 +451,7 @@
 .markdown-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  background: #fff;
+  background: var(--admin-surface, var(--el-bg-color));
 }
 
 .editor-pane,
@@ -444,7 +460,7 @@
 }
 
 .editor-pane {
-  border-right: 1px solid #ebeef5;
+  border-right: 1px solid var(--admin-border, var(--el-border-color-lighter));
 }
 
 .editor-pane.is-alone {
@@ -461,14 +477,18 @@
   border: 0;
   outline: none;
   resize: none;
-  color: #24292f;
-  background: #fff;
+  color: var(--admin-text, var(--el-text-color-primary));
+  background: var(--admin-surface, var(--el-bg-color));
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 14px;
   line-height: 1.75;
 }
 
 /* 光标落点提示当前块，提升“正在编辑哪一段”的反馈 */
+.markdown-textarea::placeholder {
+  color: var(--el-text-color-placeholder);
+}
+
 .markdown-textarea:focus {
   border: 0;
   box-shadow: none;
@@ -476,7 +496,7 @@
 
 .preview-pane {
   overflow: auto;
-  background: #fff;
+  background: var(--admin-surface, var(--el-bg-color));
 }
 
 .preview-empty {
@@ -484,12 +504,12 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #c0c4cc;
+  color: var(--el-text-color-placeholder);
 }
 
 .markdown-preview {
   padding: 18px 22px;
-  color: #24292f;
+  color: var(--admin-text, var(--el-text-color-primary));
   font-size: 16px;
   line-height: 1.7;
   text-align: justify;
@@ -502,7 +522,7 @@
   :deep(h5),
   :deep(h6) {
     margin: 1.4em 0 0.8em;
-    color: #1f2328;
+    color: var(--admin-text, var(--el-text-color-primary));
     font-weight: 600;
     line-height: 1.3;
     text-align: left;
@@ -511,13 +531,13 @@
   :deep(h1) {
     margin-top: 0.6em;
     padding-bottom: 0.3em;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--admin-border, var(--el-border-color-lighter));
     font-size: 1.9em;
   }
 
   :deep(h2) {
     padding-bottom: 0.3em;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--admin-border, var(--el-border-color-lighter));
     font-size: 1.5em;
   }
 
@@ -580,26 +600,26 @@
     height: 1px;
     margin: 2em 0;
     border: 0;
-    background: #e7e9ee;
+    background: var(--el-border-color);
   }
 
   :deep(a) {
-    color: #0969da;
+    color: var(--el-color-primary);
     text-decoration: none;
   }
 
   :deep(a:hover) {
-    color: #0550ae;
+    color: var(--el-color-primary-light-3);
     text-decoration: underline;
   }
 
   :deep(blockquote) {
     margin: 1em 0;
     padding: 0.8em 1.25em;
-    border-left: 4px solid #0969da;
+    border-left: 4px solid var(--el-color-primary);
     border-radius: 6px;
-    background: #f6f8fa;
-    color: #57606a;
+    background: var(--el-fill-color-light);
+    color: var(--el-text-color-secondary);
   }
 
   :deep(blockquote) :deep(p:last-child),
@@ -611,20 +631,20 @@
   :deep(pre) {
     overflow: auto;
     padding: 14px;
-    border: 1px solid #eceff2;
+    border: 1px solid var(--el-border-color-lighter);
     border-radius: 6px;
-    background: #f6f8fa;
+    background: var(--el-fill-color-light);
   }
 
   :deep(code) {
     margin: 0 2px;
     padding: 0.2em 0.4em;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--el-border-color-lighter);
     border-radius: 4px;
-    background: #f6f8fa;
+    background: var(--el-fill-color-light);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     font-size: 0.88em;
-    color: #cf222e;
+    color: var(--md-token-red);
   }
 
   :deep(pre code) {
@@ -632,12 +652,12 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: #24292f;
+    color: var(--admin-text, var(--el-text-color-primary));
   }
 
   :deep(.hljs) {
-    color: #24292e;
-    background: #f6f8fa;
+    color: var(--admin-text, var(--el-text-color-primary));
+    background: var(--el-fill-color-light);
   }
 
   :deep(.hljs-doctag),
@@ -647,14 +667,14 @@
   :deep(.hljs-template-variable),
   :deep(.hljs-type),
   :deep(.hljs-variable.language_) {
-    color: #d73a49;
+    color: var(--md-token-red);
   }
 
   :deep(.hljs-title),
   :deep(.hljs-title.class_),
   :deep(.hljs-title.class_.inherited__),
   :deep(.hljs-title.function_) {
-    color: #6f42c1;
+    color: var(--md-token-purple);
   }
 
   :deep(.hljs-attr),
@@ -667,24 +687,24 @@
   :deep(.hljs-selector-class),
   :deep(.hljs-selector-id),
   :deep(.hljs-variable) {
-    color: #005cc5;
+    color: var(--md-token-blue);
   }
 
   :deep(.hljs-regexp),
   :deep(.hljs-string),
   :deep(.hljs-meta .hljs-string) {
-    color: #032f62;
+    color: var(--md-token-string);
   }
 
   :deep(.hljs-built_in),
   :deep(.hljs-symbol) {
-    color: #e36209;
+    color: var(--md-token-orange);
   }
 
   :deep(.hljs-code),
   :deep(.hljs-comment),
   :deep(.hljs-formula) {
-    color: #6a737d;
+    color: var(--md-token-comment);
   }
 
   :deep(img) {
@@ -703,16 +723,16 @@
   :deep(th),
   :deep(td) {
     padding: 8px 12px;
-    border: 1px solid #dcdfe6;
+    border: 1px solid var(--admin-border, var(--el-border-color));
   }
 
   :deep(th) {
-    background: #f6f8fa;
+    background: var(--el-fill-color-light);
     font-weight: 600;
   }
 
   :deep(tbody tr:nth-child(even)) {
-    background: #fafbfc;
+    background: var(--el-fill-color-lighter);
   }
 }
 
@@ -723,7 +743,7 @@
 
   .editor-pane {
     border-right: 0;
-    border-bottom: 1px solid #ebeef5;
+    border-bottom: 1px solid var(--admin-border, var(--el-border-color-lighter));
   }
 
   .preview-pane {

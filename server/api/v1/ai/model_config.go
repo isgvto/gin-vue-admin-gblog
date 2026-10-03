@@ -100,7 +100,11 @@ func (a *ModelConfigApi) TestConnection(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	response.OkWithMessage("连接成功，模型已返回有效响应", c)
+	if req.TestMode == "image" {
+		response.OkWithMessage("图片测试成功，生图接口已返回有效图片，未上传存储", c)
+		return
+	}
+	response.OkWithMessage("文本测试成功，模型已返回有效响应", c)
 }
 
 func (a *ModelConfigApi) ProviderModels(c *gin.Context) {

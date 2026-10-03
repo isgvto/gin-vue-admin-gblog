@@ -12,6 +12,8 @@ func bizModel() error {
 		aiModel.AiModelConfig{},
 		aiModel.ErrorAnalysisConfig{},
 		aiModel.WorkflowConfig{},
+		aiModel.ImageConfig{},
+		blogModel.AiVisualTask{},
 		blogModel.About{},
 		blogModel.Blog{},
 		blogModel.BlogTag{},
@@ -32,8 +34,14 @@ func bizModel() error {
 	if err != nil {
 		return err
 	}
+	if err := migrateImageModelBinding(db); err != nil {
+		return err
+	}
 	if err := migrateErrorAnalysisAccess(db); err != nil {
 		return err
 	}
-	return migrateWorkflowAccess(db)
+	if err := migrateWorkflowAccess(db); err != nil {
+		return err
+	}
+	return migrateVisualAccess(db)
 }

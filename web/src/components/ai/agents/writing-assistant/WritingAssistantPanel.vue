@@ -1,5 +1,10 @@
 <template>
   <div class="writing-assistant">
+    <div class="assistant-sections" role="group" aria-label="助手功能">
+      <el-button :type="activeSection === 'writing' ? 'primary' : 'default'" :aria-pressed="activeSection === 'writing'" :disabled="streaming || chapterBusy || visualBusy" @click="activeSection = 'writing'">文字写作</el-button>
+      <el-button :type="activeSection === 'visual' ? 'primary' : 'default'" :aria-pressed="activeSection === 'visual'" :disabled="streaming || chapterBusy || visualBusy || editorDiffOpen" @click="activeSection = 'visual'">图示配图</el-button>
+    </div>
+    <div v-show="activeSection === 'writing'" class="writing-section">
     <div v-if="!aiEnabled" class="ai-disabled-tip">
       <el-empty description="AI 功能不可用" :image-size="72" />
       <div class="tip-text">{{ disabledReason }}</div>
@@ -7,7 +12,7 @@
     </div>
 
     <template v-else>
-      <el-button size="small" :loading="checkingStatus" :disabled="streaming || chapterBusy" @click="checkStatus(true)">重新检测连接</el-button>
+      <div class="model-status"><span><i />{{ modelName || '写作模型已就绪' }}</span><el-button link size="small" :loading="checkingStatus" :disabled="streaming || chapterBusy" @click="checkStatus(true)">检测连接</el-button></div>
       <div class="writing-modes" role="group" aria-label="写作方式">
         <el-button size="small" :type="!chapterMode ? 'primary' : 'default'" :aria-pressed="!chapterMode"
                    :disabled="streaming || chapterBusy || editorDiffOpen" @click="chapterMode = false">快捷写作</el-button>
@@ -20,7 +25,7 @@
       <!-- 快捷动作 -->
       <div class="action-grid">
         <el-button
-          v-for="action in quickActions"
+          v-for="action in quickActions.slice(0, 3)"
           :key="action.key"
           size="small"
           :disabled="action.disabled.value || streaming || editorDiffOpen"
@@ -30,7 +35,11 @@
         </el-button>
       </div>
 
-      <details class="writing-preferences" open>
+      <el-dropdown trigger="click" :disabled="streaming || editorDiffOpen" @command="key => runAction(quickActions.find(action => action.key === key))">
+        <el-button size="small" class="more-actions" :disabled="streaming || editorDiffOpen">更多操作：大纲 / 标题 / 摘要 / 标签</el-button>
+        <template #dropdown><el-dropdown-menu><el-dropdown-item v-for="action in quickActions.slice(3)" :key="action.key" :command="action.key" :disabled="action.disabled.value">{{ action.label }}</el-dropdown-item></el-dropdown-menu></template>
+      </el-dropdown>
+      <details class="writing-preferences">
         <summary>正文生成偏好 <span class="preference-summary">{{ preferenceSummary }}</span></summary>
         <div class="preference-fields">
           <div class="preference-field">
@@ -159,6 +168,8 @@
       </div>
       </template>
     </template>
+    </div>
+    <VisualAssistantPanel v-show="activeSection === 'visual'" :visible="activeSection === 'visual'" :blocked="streaming || chapterBusy || editorDiffOpen || !!aiStore.selectionAction" @busy="visualBusy = $event" />
   </div>
 </template>
 
@@ -173,6 +184,7 @@
   import { parseTitleCandidates, createWritingTask, retryTaskError } from './writingTask.js'
   import { snapshotError } from '@/components/blog/editorSnapshot.js'
   import ChapterWritingWorkflow from './ChapterWritingWorkflow.vue'
+  import VisualAssistantPanel from './VisualAssistantPanel.vue'
   import { writingTones, writingLengths, writingStrengths } from './writingPreferences.js'
 
   const aiStore = useAiStore()
@@ -182,9 +194,12 @@
   const disabledReason = ref('')
   const streaming = ref(false)
   const chapterBusy = ref(false)
+  const visualBusy = ref(false)
+  const activeSection = ref('writing')
+  const modelName = ref('')
   const chapterMode = ref(false)
   const chapterWorkflow = ref(null)
-  watch([streaming, chapterBusy], ([quick, chapter]) => { aiStore.writingBusy = quick || chapter }, { flush: 'sync' })
+  watch([streaming, chapterBusy, visualBusy], ([quick, chapter, visual]) => { aiStore.writingBusy = quick || chapter || visual }, { flush: 'sync' })
   let disposed = false
   const instruction = ref('')
   const resultText = ref('')
@@ -266,6 +281,7 @@
         disabledReason.value = res.data.quotaError
       } else if (res.data?.enabled) {
         aiEnabled.value = true
+        modelName.value = res.data.model || ''
         if (checkConnection) ElMessage.success('模型连接正常，已收到有效响应')
       } else {
         aiEnabled.value = false
@@ -684,6 +700,7 @@
     () => {
       aiStore.selectionAction = null
       chapterMode.value = false
+      activeSection.value = 'writing'
       reset()
       history.value = []
       instruction.value = ''
@@ -702,11 +719,19 @@
     if (!aiEnabled.value) return
     if (streaming.value || chapterBusy.value || editorDiffOpen.value) return ElMessage.warning('请先完成当前 AI 任务或对比')
     chapterMode.value = false
+    activeSection.value = 'writing'
     await runChatAction(request.action, request.snapshot)
   }, { immediate: true })
 </script>
 
 <style scoped lang="scss">
+.assistant-sections { display: flex; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--el-border-color-lighter); }
+.assistant-sections .el-button { flex: 1; margin: 0; height: 36px; border-radius: 8px; }
+.model-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--el-text-color-secondary); font-size: 12px; }
+.model-status span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-status i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--el-color-success); margin-right: 6px; }
+.more-actions { width: 100%; color: var(--el-text-color-secondary); }
+.writing-section { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .writing-modes { display: flex; gap: 8px; }
 .writing-modes .el-button { flex: 1; margin: 0; }
 .writing-assistant {

@@ -1,5 +1,9 @@
 <template>
-  <ModelConfig v-if="showModelConfig" />
+  <div v-if="showWriter" class="gva-admin-shell writer-fixture">
+    <button type="button" @click="toggleTheme">切换测试主题</button>
+    <WriteBlog ref="writer" />
+  </div>
+  <ModelConfig v-else-if="showModelConfig" />
   <div v-else class="fixture">
     <MarkdownEditor ref="editor" v-model="content" :document-id="documentId" enable-ai-diff />
     <AiDock v-if="selectionFixture" />
@@ -14,23 +18,32 @@
   import WritingAssistantPanel from '../../src/components/ai/agents/writing-assistant/WritingAssistantPanel.vue'
   import AiDock from '../../src/components/ai/AiDock.vue'
   import ModelConfig from '../../src/view/ai/modelConfig/modelConfig.vue'
+  import WriteBlog from '../../src/view/blog/blog/WriteBlog.vue'
   import { useAiStore } from '../../src/pinia/modules/ai.js'
   import { renderSafeMarkdown } from '../../src/utils/safeMarkdown.js'
   import { buildSuggestionPatch, cursorContext } from '../../src/components/ai/agents/writing-assistant/suggestion.js'
   import { titleFillError } from '../../src/components/ai/agents/writing-assistant/writingTask.js'
 
   const editor = ref()
+  const writer = ref()
+  const showWriter = new URLSearchParams(window.location.search).has('writer')
+  function toggleTheme() { const dark = !document.documentElement.classList.contains('dark'); document.documentElement.classList.toggle('dark', dark); document.documentElement.classList.toggle('light', !dark) }
   const showModelConfig = new URLSearchParams(window.location.search).has('models')
   const selectionFixture = new URLSearchParams(window.location.search).has('selection')
   const chapterFixture = new URLSearchParams(window.location.search).has('chapters')
   const content = ref('前文\n\n选中内容\n\n后文')
   const documentId = ref('article-a')
   const description = ref('原摘要')
+  const cover = ref('')
   const title = ref('回归测试文章')
   const suggestion = ref(null)
   const metadataForm = ref({ cate: 9, tagList: [3] })
   const store = useAiStore()
   onMounted(() => {
+    if (showWriter) {
+      Object.assign(writer.value.form, { title: '文章编辑 · 主题预览', description: '## 文章摘要\n\n检查编辑区与预览区在明暗主题下的阅读效果。', content: '# 正文标题\n\n普通段落与 **强调文字**，以及 `行内代码`。\n\n> 引用内容应保持清晰可读。\n\n```js\n// 代码高亮预览\nconst title = "Hello";\nfunction greet() { return title; }\n```\n\n| 项目 | 状态 |\n| --- | --- |\n| 暗色背景 | 已适配 |\n| 编辑预览 | 清晰 |' })
+      return
+    }
     if (showModelConfig) return
     store.registerContext('editor', {
       getSelection: () => editor.value.getSelection(),
@@ -38,6 +51,9 @@
       captureSelection: () => editor.value.captureSelection(),
       applySelectionSnapshot: (snapshot, text) => editor.value.applySelectionSnapshot(snapshot, text),
       getFullText: () => content.value,
+      getDescription: () => description.value,
+      getCover: () => cover.value,
+      fillCover: (url, expected) => { if (cover.value !== expected) return { ok: false, message: '封面已改变' }; cover.value = url; return { ok: true } },
       getCursorContext: () => cursorContext(content.value, editor.value.getSelection().start),
       insertAtCursor: (text) => editor.value.insertAtCursor(text),
       appendChapter: (text, expected) => editor.value.appendChapter(text, expected),

@@ -44,6 +44,14 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []sysModel.SysApi{
+		{ApiGroup: "AI 配图", Method: "GET", Path: "/ai/modelConfig/image", Description: "读取图片模型配置"},
+		{ApiGroup: "AI 配图", Method: "PUT", Path: "/ai/modelConfig/image", Description: "保存图片模型配置"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/ai/modelConfig/image/test", Description: "测试独立图片模型"},
+		{ApiGroup: "AI 配图", Method: "GET", Path: "/blog/ai/visual/status", Description: "配图状态"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/plan", Description: "推荐配图方案"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/generate", Description: "生成配图预览"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/adopt", Description: "采用配图并上传"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/discard", Description: "丢弃配图预览"},
 		{ApiGroup: "AI 功能", Method: "GET", Path: "/ai/modelConfig/workflow", Description: "读取需求工作流模型分配"},
 		{ApiGroup: "AI 功能", Method: "PUT", Path: "/ai/modelConfig/workflow", Description: "保存需求工作流模型分配"},
 		{ApiGroup: "AI 功能", Method: "POST", Path: "/ai/modelConfig/workflow/test", Description: "测试需求工作流模型"},

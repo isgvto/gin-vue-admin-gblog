@@ -16,10 +16,10 @@
           <el-option v-for="model in models" :key="model.id" :value="model.id" :label="`${model.name} · ${model.model}`" />
         </el-select>
       </el-form-item>
-      <el-form-item label="分析超时（秒）"><el-input-number v-model="form.timeoutSeconds" :min="10" :max="timeoutMax" :step="10" /></el-form-item>
-      <div class="settings-actions"><el-button :loading="testing" :disabled="saving || missingModel" @click="test">测试示例</el-button><el-button type="primary" native-type="submit" :loading="saving" :disabled="testing">保存分配</el-button></div>
+      <el-form-item :label="timeoutLabel"><el-input-number v-model="form.timeoutSeconds" :min="10" :max="timeoutMax" :step="10" /></el-form-item>
+      <div class="settings-actions"><el-button v-if="showTest" :loading="testing" :disabled="saving || missingModel" @click="test">测试示例</el-button><el-button type="primary" native-type="submit" :loading="saving" :disabled="testing">保存分配</el-button></div>
     </el-form>
-    <p class="settings-note">本功能会将提交的内容发送至所选供应商，测试也会产生一次模型请求。指定模型失效时会提示错误，不会自动切换到其他供应商。测试使用当前选择，保存后才对该功能生效。</p>
+    <p class="settings-note">{{ note }}</p>
     <el-dialog v-model="resultVisible" :title="`${title} · 示例测试`" width="min(820px, 94vw)">
       <el-tag>{{ resultModel }}</el-tag>
       <pre class="analysis-result">{{ result }}</pre>
@@ -37,7 +37,10 @@ const props = defineProps({
   title: { type: String, required: true },
   description: { type: String, required: true },
   timeoutMax: { type: Number, default: 180 },
-  initialTimeout: { type: Number, default: 60 }
+  initialTimeout: { type: Number, default: 60 },
+  showTest: { type: Boolean, default: true },
+  timeoutLabel: { type: String, default: '分析超时（秒）' },
+  note: { type: String, default: '本功能会将提交的内容发送至所选供应商，测试也会产生一次模型请求。指定模型失效时会提示错误，不会自动切换到其他供应商。测试使用当前选择，保存后才对该功能生效。' }
 })
 const headingId = computed(() => `feature-model-${props.feature}`)
 const form = ref({ enabled: false, modelId: 0, timeoutSeconds: props.initialTimeout })

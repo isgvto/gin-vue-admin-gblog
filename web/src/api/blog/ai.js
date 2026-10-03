@@ -5,7 +5,8 @@ import { consumeAiStream } from './aiStream.js'
 async function requestAi(url, payload, signal) {
   const result = await service({
     url: `/blog/ai/${url}`, method: payload ? 'POST' : 'GET',
-    data: payload, signal, donNotShowLoading: true, silentError: true
+    data: payload, signal, donNotShowLoading: true, silentError: true,
+    ...(url === 'visual/generate' ? { timeout: 15 * 60 * 1000 } : {})
   })
   if (result?.code !== 0) throw new Error(result?.msg || 'AI 请求失败')
   return result
@@ -14,6 +15,11 @@ async function requestAi(url, payload, signal) {
 export const getAiStatus = (checkConnection = false) => requestAi(checkConnection ? 'status?checkConnection=true' : 'status')
 export const generateSummary = (payload, signal) => requestAi('summary', payload, signal)
 export const suggestTags = (payload, signal) => requestAi('suggest-tags', payload, signal)
+export const getVisualStatus = () => requestAi('visual/status')
+export const planVisual = (payload, signal) => requestAi('visual/plan', payload, signal)
+export const generateVisual = (payload, signal) => requestAi('visual/generate', payload, signal)
+export const adoptVisual = (payload, signal) => requestAi('visual/adopt', payload, signal)
+export const discardVisual = (id) => requestAi('visual/discard', { id })
 
 export function streamAiChat(payload, handlers = {}) {
   const controller = new AbortController()

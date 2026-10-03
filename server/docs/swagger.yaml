@@ -15,6 +15,23 @@ definitions:
     required:
     - id
     type: object
+  ai.ImageConfigInput:
+    properties:
+      apiKey:
+        type: string
+      baseUrl:
+        type: string
+      clearKey:
+        type: boolean
+      enabled:
+        type: boolean
+      model:
+        type: string
+      provider:
+        type: string
+      timeoutSeconds:
+        type: integer
+    type: object
   ai.WorkflowChatRequest:
     properties:
       conversation_id:
@@ -48,6 +65,62 @@ definitions:
       content:
         type: string
       role:
+        type: string
+    type: object
+  blog.VisualAdoptRequest:
+    properties:
+      id:
+        type: string
+      png:
+        type: string
+    type: object
+  blog.VisualPlan:
+    properties:
+      kind:
+        type: string
+      mermaid:
+        type: string
+      prompt:
+        type: string
+      reason:
+        type: string
+    type: object
+  blog.VisualRequest:
+    properties:
+      instruction:
+        type: string
+      kind:
+        type: string
+      prompt:
+        type: string
+      size:
+        type: string
+      source:
+        type: string
+      summary:
+        type: string
+      title:
+        type: string
+    type: object
+  blog.VisualResult:
+    properties:
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      fileId:
+        type: integer
+      id:
+        type: string
+      kind:
+        type: string
+      mermaid:
+        type: string
+      preview:
+        type: string
+      prompt:
+        type: string
+      url:
         type: string
     type: object
   common.JSONMap:
@@ -2350,6 +2423,65 @@ paths:
       summary: 使用当前分配进行示例错误分析
       tags:
       - AI模型配置
+  /ai/modelConfig/image:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取图片生成模型配置
+      tags:
+      - AiModelConfig
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 图片模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.ImageConfigInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 保存图片生成模型配置
+      tags:
+      - AiModelConfig
+  /ai/modelConfig/image/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 图片模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.ImageConfigInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 测试独立图片模型配置
+      tags:
+      - AiModelConfig
   /ai/modelConfig/workflow:
     get:
       produces:
@@ -3709,6 +3841,122 @@ paths:
       summary: 用户登录
       tags:
       - Base
+  /blog/ai/visual/adopt:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 预览ID；图示需附导出的PNG
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualAdoptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 采用配图并上传
+      tags:
+      - BlogAI
+  /blog/ai/visual/discard:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 预览ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualAdoptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 丢弃配图预览
+      tags:
+      - BlogAI
+  /blog/ai/visual/generate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 已确认的配图类型和要求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog.VisualResult'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 生成图示或配图预览
+      tags:
+      - BlogAI
+  /blog/ai/visual/plan:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 文章与配图要求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog.VisualPlan'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 推荐图示或配图方案
+      tags:
+      - BlogAI
+  /blog/ai/visual/status:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取配图能力状态
+      tags:
+      - BlogAI
   /casbin/UpdateCasbin:
     post:
       consumes:
