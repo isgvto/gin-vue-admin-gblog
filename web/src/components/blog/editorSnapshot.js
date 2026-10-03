@@ -90,3 +90,12 @@ export function appendDocumentSnapshot(state, expected, text) {
     start: state.content.length, end: state.content.length
   } }
 }
+
+export function insertDocumentSnapshot(state, expected, text) {
+  if (!state?.active || !expected || state.editorId !== expected.editorId || state.documentId !== expected.documentId || state.content !== expected.content || state.revision !== expected.revision) return { ok: false, message: '正文或文章已变化，请重新选择位置并生成' }
+  const pos = expected.cursor
+  if (!Number.isInteger(pos) || pos < 0 || pos > state.content.length || typeof text !== 'string' || !text.trim()) return { ok: false, message: '插入位置或内容无效' }
+  const newline = state.content.includes('\r\n') ? '\r\n' : '\n'
+  const content = state.content.slice(0, pos) + text.trim().replace(/\r\n?|\n/g, newline) + newline + state.content.slice(pos)
+  return { ok: true, content, undo: { editorId: state.editorId, documentId: state.documentId, before: state.content, after: content, start: pos, end: pos } }
+}

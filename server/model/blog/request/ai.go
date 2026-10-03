@@ -21,6 +21,7 @@ type AiChatRequest struct {
 	CursorOffset  *int               `json:"cursorOffset,omitempty"`
 	Title         string             `json:"title"`
 	Instruction   string             `json:"instruction"`
+	Catalog       string             `json:"catalog,omitempty"`
 	History       []AiChatMessage    `json:"history"`
 	Outline       []AiOutlineSection `json:"outline,omitempty"`
 	ChapterIndex  *int               `json:"chapterIndex,omitempty"`

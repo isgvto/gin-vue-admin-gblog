@@ -301,11 +301,14 @@
         return {
           getEditorState: () => this.$refs.contentEditorRef?.getEditorState?.(),
           captureSelection: () => this.$refs.contentEditorRef?.captureSelection?.(),
+          selectSnapshot: snapshot => this.$refs.contentEditorRef?.selectSnapshot?.(snapshot),
           applySelectionSnapshot: (snapshot, text) => this.$refs.contentEditorRef?.applySelectionSnapshot?.(snapshot, text),
           getSelection: () =>
             this.$refs.contentEditorRef?.getSelection?.() || { text: '', start: 0, end: 0 },
           replaceSelection: (text) => this.$refs.contentEditorRef?.replaceSelection?.(text),
           insertAtCursor: (text) => this.$refs.contentEditorRef?.insertAtCursor?.(text),
+          insertAiAt: (text, expected) => this.$refs.contentEditorRef?.insertAiAt?.(text, expected),
+          getTaxonomy: () => ({ categories: this.categoryList, tags: this.tagList }),
           appendChapter: (text, expected) => this.$refs.contentEditorRef?.appendChapter?.(text, expected),
           getFullText: () => this.form.content || '',
           getCursorContext: () => {

@@ -36,16 +36,15 @@
     </div>
 
     <div v-if="aiDiffActive" class="ai-diff-banner">
-      <span class="ai-diff-tip">{{ diffConflict || 'AI 润色对比中：逐块选择采用或保留，右侧预览全文效果' }}</span>
+      <span class="ai-diff-tip">{{ diffConflict || '点击采用立即替换，保留原文立即结束这一处；全部处理后自动退出对比' }}</span>
       <div class="ai-diff-actions">
-        <el-button type="primary" size="small" :disabled="Boolean(diffConflict)" @click="applyAiDiff">应用修改</el-button>
-        <el-button size="small" @click="cancelAiDiff">取消</el-button>
+        <el-button size="small" :disabled="aiStore.diff.applying" @click="cancelAiDiff">结束对比</el-button>
       </div>
     </div>
 
     <div class="markdown-body" :style="{ minHeight: editorHeight }">
       <div v-if="aiDiffActive" class="editor-pane diff-pane">
-        <ParagraphDiff :blocks="aiStore.diff.blocks" @change="aiStore.setDiffChoice" />
+        <ParagraphDiff :blocks="aiStore.diff.blocks" :disabled="aiStore.diff.applying || Boolean(diffConflict)" @change="resolveAiDiff" />
       </div>
       <div v-show="!aiDiffActive" class="editor-pane" :class="{ 'is-alone': !previewVisible }">
         <textarea
@@ -77,7 +76,8 @@
   import { computed, getCurrentInstance, nextTick, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
   import { vMermaid } from '@/utils/mermaid'
-  import { appendDocumentSnapshot, applySnapshot, captureEditorSnapshot, snapshotError, sourceOffsetToTextarea, textareaOffsetToSource, undoSnapshot } from './editorSnapshot'
+  import { textareaSelectionPoint } from './selectionToolbarPosition.js'
+  import { appendDocumentSnapshot, insertDocumentSnapshot, applySnapshot, captureEditorSnapshot, snapshotError, sourceOffsetToTextarea, textareaOffsetToSource, undoSnapshot } from './editorSnapshot'
   import {
     ChatLineSquare,
     CopyDocument,
@@ -133,13 +133,9 @@
   const diffConflict = computed(() => aiDiffActive.value ? snapshotError(aiStore.diff.snapshot, getEditorState()) : '')
   const mergedPreviewHtml = computed(() => renderSafeMarkdown(diffConflict.value ? value.value : aiStore.diffPreviewText))
 
-  const applyAiDiff = () => {
-    const result = aiStore.applyEditorDiff({ applySelectionSnapshot })
-    if (result.ok) {
-      ElMessage.success('已应用 AI 修改')
-    } else {
-      ElMessage.warning(result.message)
-    }
+  const resolveAiDiff = async (choice) => {
+    const result = await aiStore.setDiffChoice(choice, { applySelectionSnapshot, getEditorState })
+    if (!result.ok) ElMessage.warning(result.message)
   }
 
   const cancelAiDiff = () => {
@@ -198,6 +194,19 @@
       sourceOffsetToTextarea(value.value, start), sourceOffsetToTextarea(value.value, end)
     )
   })
+  const selectSnapshot = async (snapshot) => {
+    const state = getEditorState()
+    const message = snapshotError(snapshot, state)
+    if (message) return { ok: false, message }
+    await restoreSelection(snapshot.start, snapshot.end)
+    const el = textareaRef.value
+    if (el) {
+      const point = textareaSelectionPoint(el, true)
+      if (point) el.scrollTop += point.y - el.getBoundingClientRect().top - el.clientHeight / 2
+      el.scrollIntoView({ block: 'center' })
+    }
+    return { ok: true }
+  }
   const applySelectionSnapshot = (snapshot, text) => {
     const result = applySnapshot(getEditorState(), snapshot, text)
     if (!result.ok) return result
@@ -215,7 +224,15 @@
     if (!result.ok) return result
     aiUndoHistory.value = [...aiUndoHistory.value.slice(-19), result.undo]
     value.value = result.content
-    return { ok: true }
+    return { ok: true, range: { start: result.undo.start, end: result.undo.start + result.content.length - result.undo.before.length } }
+  }
+  const insertAiAt = (text, expected) => {
+    if (aiStore.diff.active) return { ok: false, message: '请先完成当前对比' }
+    const result = insertDocumentSnapshot(getEditorState(), expected, text)
+    if (!result.ok) return result
+    aiUndoHistory.value = [...aiUndoHistory.value.slice(-19), result.undo]
+    value.value = result.content
+    return { ok: true, range: { start: result.undo.start, end: result.undo.start + result.content.length - result.undo.before.length } }
   }
   const canUndoAi = computed(() => undoResult.value.ok)
   const undoHint = computed(() => undoResult.value.message || '恢复应用前的正文和选区')
@@ -345,8 +362,10 @@
     getSelection,
     getEditorState,
     captureSelection,
+    selectSnapshot,
     applySelectionSnapshot,
     appendChapter,
+    insertAiAt,
     replaceSelection,
     insertAtCursor,
     getFullText

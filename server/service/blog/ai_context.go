@@ -93,7 +93,7 @@ func chatContext(req *AiChatRequest) (string, AiContextInfo) {
 			return string(runes[len(runes)-limit:]), info
 		}
 		return string(runes), info
-	case aiActionCustom:
+	case aiActionCustom, aiActionConversation:
 		if strings.TrimSpace(req.Selection) != "" {
 			budget := limit - utf8.RuneCountInString(req.Selection)
 			background, info := articleContext(req.Content, max(0, budget))

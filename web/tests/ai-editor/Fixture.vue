@@ -94,6 +94,7 @@
       getSelection: () => editor.value.getSelection(),
       getEditorState: () => editor.value.getEditorState(),
       captureSelection: () => editor.value.captureSelection(),
+      selectSnapshot: snapshot => editor.value.selectSnapshot(snapshot),
       applySelectionSnapshot: (snapshot, text) => editor.value.applySelectionSnapshot(snapshot, text),
       getFullText: () => content.value,
       getDescription: () => description.value,
@@ -101,6 +102,8 @@
       fillCover: (url, expected) => { if (cover.value !== expected) return { ok: false, message: '封面已改变' }; cover.value = url; return { ok: true } },
       getCursorContext: () => cursorContext(content.value, editor.value.getSelection().start),
       insertAtCursor: (text) => editor.value.insertAtCursor(text),
+      insertAiAt: (text, expected) => editor.value.insertAiAt(text, expected),
+      getTaxonomy: () => ({ categories: [{ id: 1, categoryName: '技术' }], tags: [{ id: 2, tagName: 'Vue' }, { id: 3, tagName: 'Go' }] }),
       appendChapter: (text, expected) => editor.value.appendChapter(text, expected),
       fillDescription: (text) => { description.value = text; return true },
       applySuggestion: (value) => {
@@ -120,6 +123,7 @@
     window.aiEditorTest = {
       getContent: () => content.value,
       setContent: async (text) => { content.value = text; await nextTick() },
+      setDocumentId: async (id) => { documentId.value = id; await nextTick() },
       changeDocument: async () => { documentId.value = 'article-b'; await nextTick() },
       getDescription: () => description.value,
       getTitle: () => title.value,

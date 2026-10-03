@@ -6,11 +6,11 @@
         <el-radio-button value="split">分栏</el-radio-button>
       </el-radio-group>
       <div class="diff-actions">
-        <el-button size="small" @click="setAll(true)">全部采用</el-button>
-        <el-button size="small" @click="setAll(false)">全部保留原文</el-button>
+        <el-button size="small" :disabled="disabled" @click="setAll(true)">采用剩余 AI 修改</el-button>
+        <el-button size="small" :disabled="disabled" @click="setAll(false)">保留剩余原文</el-button>
       </div>
     </div>
-    <div class="diff-summary">已采纳 {{ stats.adopted }}/{{ stats.total }} 处修改</div>
+    <div class="diff-summary">剩余 {{ stats.pending }} 处待处理 · 已处理 {{ stats.total - stats.pending }}/{{ stats.total }} 处</div>
     <div v-if="blocks.some(block => block.fallback)" class="diff-summary">部分内容的段落或结构发生变化，已合并为一组供你选择。</div>
 
     <div class="diff-list">
@@ -18,46 +18,47 @@
         v-for="(block, index) in blocks"
         :key="index"
         class="diff-block"
-        :class="`is-${block.type}`"
+        :class="[ `is-${block.type}`, { 'is-reviewed': block.reviewed } ]"
       >
         <div class="block-tag">
-          {{ typeLabel(block.type) }}
+          {{ block.type !== 'equal' && block.reviewed ? (block.takeRevised ? '已采用 AI' : '已保留原文') : typeLabel(block.type) }}
         </div>
 
-        <template v-if="block.type === 'equal'">
-          <pre class="block-text">{{ block.original }}</pre>
+        <template v-if="block.type === 'equal' || block.reviewed">
+          <pre class="block-text">{{ block.takeRevised ? block.revised : block.original }}</pre>
         </template>
 
         <template v-else-if="block.type === 'modified' && viewMode === 'split'">
           <div class="split-pane">
-            <pre class="block-text original" :class="{ dimmed: block.takeRevised }">{{ block.original }}</pre>
-            <pre class="block-text revised" :class="{ dimmed: !block.takeRevised }">{{ block.revised }}</pre>
+            <pre class="block-text original">{{ block.original }}</pre>
+            <pre class="block-text revised">{{ block.revised }}</pre>
           </div>
         </template>
 
         <template v-else-if="viewMode === 'split' && (block.type === 'added' || block.type === 'removed')">
           <div class="split-pane">
-            <pre class="block-text original" :class="{ dimmed: block.takeRevised }">{{ block.original || '（无）' }}</pre>
-            <pre class="block-text revised" :class="{ dimmed: !block.takeRevised }">{{ block.revised || '（已删除）' }}</pre>
+            <pre class="block-text original">{{ block.original || '（无）' }}</pre>
+            <pre class="block-text revised">{{ block.revised || '（已删除）' }}</pre>
           </div>
         </template>
 
         <template v-else>
-          <pre v-if="block.type !== 'added'" class="block-text original" :class="{ dimmed: block.takeRevised && block.type !== 'equal' }">{{ block.original }}</pre>
-          <pre v-if="block.type !== 'removed'" class="block-text revised" :class="{ dimmed: !block.takeRevised && block.type !== 'equal' }">{{ block.revised }}</pre>
+          <pre v-if="block.type !== 'added'" class="block-text original">{{ block.original }}</pre>
+          <pre v-if="block.type !== 'removed'" class="block-text revised">{{ block.revised }}</pre>
         </template>
 
-        <div v-if="block.type !== 'equal'" class="block-actions">
+        <div v-if="block.type !== 'equal' && !block.reviewed" class="block-actions">
           <el-button
             size="small"
-            :type="block.takeRevised ? 'primary' : 'default'"
+            type="primary"
+            :disabled="disabled"
             @click="choose(index, true)"
           >
             {{ block.type === 'added' ? '采用' : '采用 AI 版' }}
           </el-button>
           <el-button
             size="small"
-            :type="!block.takeRevised ? 'primary' : 'default'"
+            :disabled="disabled"
             @click="choose(index, false)"
           >
             {{ block.type === 'removed' ? '保留' : '保留原文' }}
@@ -75,7 +76,8 @@
     blocks: {
       type: Array,
       required: true
-    }
+    },
+    disabled: Boolean
   })
 
   const emit = defineEmits(['change'])
@@ -88,7 +90,7 @@
     )
     return {
       total: selectable.length,
-      adopted: selectable.filter((b) => b.takeRevised).length
+      pending: selectable.filter((b) => !b.reviewed).length
     }
   })
 
@@ -211,13 +213,13 @@
   background: var(--el-color-success-light-9);
 }
 
-.block-text.dimmed {
-  opacity: 0.45;
-  text-decoration: line-through;
+.diff-block.is-reviewed {
+  border-color: var(--el-border-color-lighter);
 }
 
-.block-text.dimmed:empty {
-  display: none;
+.is-reviewed .block-tag {
+  background: var(--el-fill-color);
+  color: var(--el-text-color-secondary);
 }
 
 .split-pane {

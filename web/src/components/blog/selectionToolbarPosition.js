@@ -7,7 +7,7 @@ export function placeSelectionToolbar(point, viewport, size = { width: 184, heig
 }
 
 // textarea 的选区没有 DOM Range；用同样的排版测量选区活动端的位置。
-export function textareaSelectionPoint(textarea) {
+export function textareaSelectionPoint(textarea, allowOffscreen = false) {
   const style = window.getComputedStyle(textarea)
   const mirror = document.createElement('div')
   for (const property of ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'lineHeight', 'letterSpacing', 'wordSpacing', 'textTransform', 'textIndent', 'tabSize', 'padding', 'wordBreak', 'overflowWrap']) {
@@ -30,7 +30,7 @@ export function textareaSelectionPoint(textarea) {
     const height = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5
     const x = rect.left + textarea.clientLeft + markerRect.left - textarea.scrollLeft
     const y = rect.top + textarea.clientTop + markerRect.top - textarea.scrollTop
-    if (x < rect.left || x > rect.right || y + height < rect.top || y > rect.bottom) return null
+    if (!allowOffscreen && (x < rect.left || x > rect.right || y + height < rect.top || y > rect.bottom)) return null
     return { x, y, height }
   } finally {
     mirror.remove()

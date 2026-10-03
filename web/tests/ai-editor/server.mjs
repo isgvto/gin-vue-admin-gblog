@@ -129,6 +129,7 @@ const server = await createServer({
             const payload = JSON.parse(body)
             res.setHeader('Content-Type', 'text/event-stream')
             let output = `${payload.action}：${payload.selection}`
+            if (payload.action === 'conversation') output = JSON.stringify({ content: payload.selection ? '这是修改后的测试段落。' : '可以先明确文章的核心观点，再补充具体例子。', kind: payload.selection ? 'edit' : 'advice', titles: [], category: '', tags: [], newTags: [] })
             if (payload.action === 'outline') output = '# 测试文章\n\n## 背景\n- 介绍问题\n\n## 实践\n- 给出示例'
             if (payload.action === 'chapter') {
               output = `这是「${payload.outline[payload.chapterIndex].title}」的测试正文。`

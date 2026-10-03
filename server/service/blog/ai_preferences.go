@@ -18,7 +18,7 @@ var aiLengths = map[string]string{
 
 func writingPreferences(req *AiChatRequest) string {
 	switch req.Action {
-	case aiActionPolish, aiActionRewrite, aiActionContinue, aiActionCustom, aiActionChapter:
+	case aiActionPolish, aiActionRewrite, aiActionContinue, aiActionCustom, aiActionChapter, aiActionConversation:
 	default:
 		return ""
 	}
@@ -26,7 +26,7 @@ func writingPreferences(req *AiChatRequest) string {
 	if tone := aiTones[req.Tone]; tone != "" {
 		preferences = append(preferences, tone)
 	}
-	if req.Action == aiActionPolish || req.Action == aiActionRewrite || req.Action == aiActionCustom {
+	if req.Action == aiActionPolish || req.Action == aiActionRewrite || req.Action == aiActionCustom || req.Action == aiActionConversation {
 		if strength := aiEditStrengths[req.EditStrength]; strength != "" {
 			preferences = append(preferences, "修改力度："+strength)
 		}
@@ -44,6 +44,9 @@ func writingPreferences(req *AiChatRequest) string {
 	}
 	if req.Action == aiActionChapter {
 		return "\n本章写作偏好（服从作者明确指令）：" + strings.Join(preferences, "；")
+	}
+	if req.Action == aiActionConversation {
+		return "\n正文写作偏好（仅用于修改或生成正文；标题、摘要、标签、审阅和大纲不受影响；无原文时按任务需要确定篇幅；服从作者明确指令）：" + strings.Join(preferences, "；")
 	}
 	return "\n写作偏好（服从作者明确指令，续写仍不超过300字）：" + strings.Join(preferences, "；")
 }

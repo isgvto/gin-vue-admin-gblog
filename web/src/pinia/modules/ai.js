@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, markRaw, reactive, ref, shallowRef } from 'vue'
+import { computed, markRaw, nextTick, reactive, ref, shallowRef } from 'vue'
 import { diffMarkdownBlocks, applyDiffBlocks } from '../../components/ai/agents/writing-assistant/diff.js'
 import { snapshotError, replaceSnapshotRange } from '../../components/blog/editorSnapshot.js'
 
@@ -29,7 +29,8 @@ export const useAiStore = defineStore('ai', () => {
   const activeAgentId = ref('writing-assistant')
 
   // 编辑器内 diff 状态
-  const diff = reactive({ active: false, blocks: [], snapshot: null })
+  const lastDiffResolution = shallowRef(null)
+  const diff = reactive({ active: false, blocks: [], snapshot: null, applying: false, sessionId: 0 })
 
   const mergedDiffText = computed(() =>
     diff.active ? applyDiffBlocks(diff.blocks) : ''
@@ -42,34 +43,57 @@ export const useAiStore = defineStore('ai', () => {
   const openEditorDiff = (snapshot, resultText) => {
     const message = snapshotError(snapshot, contexts.editor?.getEditorState?.())
     if (message) return { ok: false, message }
-    if (diff.active) return { ok: false, message: '请先应用或取消当前对比' }
-    diff.blocks = diffMarkdownBlocks(snapshot.text, resultText)
+    if (diff.active) return { ok: false, message: '请先完成当前对比' }
+    const blocks = diffMarkdownBlocks(snapshot.text, resultText)
+    if (blocks.every(block => block.type === 'equal')) return { ok: false, message: 'AI 结果与原文一致，没有需要处理的修改' }
+    // 待处理修改始终保留原文；点击采纳时才真正写入正文。
+    diff.blocks = blocks.map(block => ({ ...block, takeRevised: false, reviewed: block.type === 'equal' }))
     diff.snapshot = snapshot
+    diff.sessionId++
     diff.active = true
     return { ok: true }
   }
 
   const closeEditorDiff = () => {
+    if (diff.active && diff.snapshot) lastDiffResolution.value = {
+      sessionId: diff.sessionId, snapshot: { ...diff.snapshot },
+      blocks: diff.blocks.map(block => ({ ...block }))
+    }
+    diff.sessionId++
     diff.active = false
     diff.blocks = []
     diff.snapshot = null
+    diff.applying = false
   }
 
-  const setDiffChoice = ({ index, takeRevised }) => {
-    const blocks = Number.isInteger(index) ? [diff.blocks[index]] : diff.blocks
-    for (const block of blocks) {
-      if (block && block.type !== 'equal') block.takeRevised = takeRevised
+  // 每次决策即时写回固定范围，再绑定更新后的正文版本，避免前一处变长导致后一处偏移。
+  const setDiffChoice = async ({ index, takeRevised }, handle = contexts.editor) => {
+    if (!diff.active || diff.applying) return { ok: false, message: '请等待当前修改完成' }
+    const message = snapshotError(diff.snapshot, handle?.getEditorState?.())
+    if (message) return { ok: false, message }
+    const blocks = diff.blocks.map((block, current) => !block.reviewed && (index === undefined || current === index)
+      ? { ...block, reviewed: true, takeRevised: Boolean(takeRevised) } : { ...block })
+    if (blocks.every((block, current) => block.reviewed === diff.blocks[current].reviewed)) return { ok: false, message: '这处修改已处理或不存在' }
+    const snapshot = diff.snapshot
+    const sessionId = diff.sessionId
+    const finalText = applyDiffBlocks(blocks)
+    diff.applying = true
+    try {
+      if (finalText !== snapshot.text) {
+        const result = handle?.applySelectionSnapshot?.(snapshot, finalText)
+        if (!result?.ok) return result || { ok: false, message: '当前编辑器无法应用修改' }
+        await nextTick()
+      }
+      if (!diff.active || diff.sessionId !== sessionId) return { ok: false, message: '对比已结束' }
+      const state = handle?.getEditorState?.()
+      if (!state?.active || state.editorId !== snapshot.editorId || state.documentId !== snapshot.documentId || state.content !== replaceSnapshotRange(snapshot, finalText)) return { ok: false, message: '正文已变化，请结束对比后重新生成' }
+      diff.blocks = blocks
+      diff.snapshot = { ...snapshot, content: state.content, revision: state.revision, text: finalText, end: snapshot.start + finalText.length }
+      if (blocks.every(block => block.reviewed)) closeEditorDiff()
+      return { ok: true }
+    } finally {
+      if (diff.sessionId === sessionId) diff.applying = false
     }
-  }
-
-  // 写回发起请求时的固定选区；失败时保留对比，不触碰正文。
-  const applyEditorDiff = (handle) => {
-    if (!diff.active) return { ok: false, message: '没有待应用的 AI 修改' }
-    const finalText = applyDiffBlocks(diff.blocks)
-    const result = handle?.applySelectionSnapshot?.(diff.snapshot, finalText)
-    if (!result?.ok) return result || { ok: false, message: '当前编辑器无法应用修改' }
-    closeEditorDiff()
-    return result
   }
 
   const registerContext = (name, handle) => {
@@ -105,12 +129,12 @@ export const useAiStore = defineStore('ai', () => {
     dockVisible,
     activeAgentId,
     diff,
+    lastDiffResolution,
     mergedDiffText,
     diffPreviewText,
     openEditorDiff,
     closeEditorDiff,
     setDiffChoice,
-    applyEditorDiff,
     registerContext,
     unregisterContext,
     hasContext,

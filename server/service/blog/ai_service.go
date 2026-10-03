@@ -15,13 +15,14 @@ import (
 )
 
 const (
-	aiActionPolish   = "polish"
-	aiActionRewrite  = "rewrite"
-	aiActionContinue = "continue"
-	aiActionOutline  = "outline"
-	aiActionTitle    = "title"
-	aiActionCustom   = "custom"
-	aiActionChapter  = "chapter"
+	aiActionPolish       = "polish"
+	aiActionRewrite      = "rewrite"
+	aiActionContinue     = "continue"
+	aiActionOutline      = "outline"
+	aiActionTitle        = "title"
+	aiActionCustom       = "custom"
+	aiActionConversation = "conversation"
+	aiActionChapter      = "chapter"
 
 	aiMaxHistoryTurns = 6
 	aiToolBlogLimit   = 5
@@ -56,7 +57,7 @@ func validateAiChatRequest(r *AiChatRequest) error {
 		if strings.TrimSpace(r.Title) == "" && strings.TrimSpace(r.Instruction) == "" && strings.TrimSpace(r.Content) == "" {
 			return fmt.Errorf("action=%s 时至少提供标题、想法或正文", r.Action)
 		}
-	case aiActionCustom:
+	case aiActionCustom, aiActionConversation:
 		if strings.TrimSpace(r.Instruction) == "" {
 			return fmt.Errorf("action=custom 时 instruction 不能为空")
 		}
@@ -88,6 +89,10 @@ func (s *AiService) buildUserMessage(req *AiChatRequest) (message string) {
 	contextText, _ := chatContext(req)
 
 	switch req.Action {
+	case aiActionConversation:
+		prefix := []rune(cursorPrefix(req))
+		data, _ := json.Marshal(map[string]any{"title": req.Title, "reference": contextText, "instruction": req.Instruction, "catalog": req.Catalog, "cursorContext": string(prefix[max(0, len(prefix)-2000):])})
+		return "本次文章材料与作者要求（JSON）：\n" + string(data)
 	case aiActionPolish, aiActionRewrite:
 		actionLabel := "润色"
 		if req.Action == aiActionRewrite {
@@ -176,8 +181,16 @@ func (s *AiService) ChatStream(ctx context.Context, req *AiChatRequest) (*schema
 		return nil, fmt.Errorf("创建 Agent 失败: %w", err)
 	}
 
-	msgs := []*schema.Message{schema.SystemMessage(s.buildSystemPrompt())}
-	msgs = append(msgs, s.trimHistory(req.History)...)
+	systemPrompt := s.buildSystemPrompt()
+	if req.Action == aiActionConversation {
+		systemPrompt = writingConversationPrompt
+	}
+	msgs := []*schema.Message{schema.SystemMessage(systemPrompt)}
+	if req.Action == aiActionConversation {
+		msgs = append(msgs, conversationHistory(req.History)...)
+	} else {
+		msgs = append(msgs, s.trimHistory(req.History)...)
+	}
 	msgs = append(msgs, schema.UserMessage(s.buildUserMessage(req)))
 	return agent.Stream(ctx, msgs)
 }

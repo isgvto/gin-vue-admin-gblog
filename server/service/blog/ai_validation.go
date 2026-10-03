@@ -22,7 +22,7 @@ func ValidateAiRequestSize(req *AiChatRequest) error {
 	if req.CursorOffset != nil && (*req.CursorOffset < 0 || *req.CursorOffset > len(utf16.Encode([]rune(req.Content)))) {
 		return fmt.Errorf("光标位置无效")
 	}
-	if (req.Action == aiActionPolish || req.Action == aiActionRewrite || req.Action == aiActionCustom) && utf8.RuneCountInString(req.Selection) > aiContextLimit() {
+	if (req.Action == aiActionPolish || req.Action == aiActionRewrite || req.Action == aiActionCustom || req.Action == aiActionConversation) && utf8.RuneCountInString(req.Selection) > aiContextLimit() {
 		return fmt.Errorf("选区超过本次 %d 字处理上限，请分段选择；原文未作修改", aiContextLimit())
 	}
 	for _, field := range []struct {
@@ -32,6 +32,7 @@ func ValidateAiRequestSize(req *AiChatRequest) error {
 		{"正文", req.Content, 200000}, {"选区", req.Selection, 200000},
 		{"光标上下文", req.CursorContext, 200000}, {"标题", req.Title, 500},
 		{"指令", req.Instruction, 8000},
+		{"分类标签目录", req.Catalog, 4000},
 		{"章节草稿", req.ChapterDraft, 8000},
 	} {
 		if utf8.RuneCountInString(field.value) > field.limit {

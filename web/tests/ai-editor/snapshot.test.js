@@ -49,16 +49,80 @@ test('CRLF、中文和 emoji 的 DOM 偏移正确映射回原文', () => {
   assert.equal(sourceOffsetToTextarea(original, end), domEnd)
 })
 
-test('Store 预览保留选区前后文，固定范围应用失败时保留对比', () => {
+test('未处理修改保留原文，单处即时采用失败不改变对比或正文', async () => {
   setActivePinia(createPinia())
   const store = useAiStore()
-  store.registerContext('editor', { getEditorState: () => state })
+  let current = { ...state }
+  const handle = { getEditorState: () => current, applySelectionSnapshot: (saved, text) => {
+    const result = applySnapshot(current, saved, text)
+    if (result.ok) current = { ...current, content: result.content, revision: current.revision + 1 }
+    return result
+  } }
+  store.registerContext('editor', handle)
   const snapshot = captureEditorSnapshot(state, { start, end })
   assert.equal(store.openEditorDiff(snapshot, 'AI').ok, true)
-  assert.equal(store.diffPreviewText, original.slice(0, start) + 'AI' + original.slice(end))
-  assert.equal(store.applyEditorDiff({}).ok, false)
+  assert.equal(store.diffPreviewText, original)
+  assert.equal((await store.setDiffChoice({ index: 0, takeRevised: true }, { getEditorState: () => current })).ok, false)
   assert.equal(store.diff.active, true)
-  assert.equal(store.applyEditorDiff({ applySelectionSnapshot: (saved, text) => applySnapshot(state, saved, text) }).ok, true)
+  assert.equal(store.diff.blocks[0].reviewed, false)
+  assert.equal((await store.setDiffChoice({ index: 0, takeRevised: true })).ok, true)
+  assert.equal(current.content, original.slice(0, start) + 'AI' + original.slice(end))
+  assert.equal(store.diff.active, false)
+})
+
+test('多处即时采用和保留按更新后的范围写回，结束对比保留已采用内容，支持逐步撤销', async () => {
+  setActivePinia(createPinia())
+  const store = useAiStore(), before = '前文\r\n\r\n甲\r\n\r\n乙😀\r\n\r\n丙\r\n\r\n后文'
+  let current = { ...state, content: before }
+  const undo = []
+  const handle = { getEditorState: () => current, applySelectionSnapshot: (saved, text) => {
+    const result = applySnapshot(current, saved, text)
+    if (result.ok) { undo.push(result.undo); current = { ...current, content: result.content, revision: current.revision + 1 } }
+    return result
+  } }
+  store.registerContext('editor', handle)
+  const from = before.indexOf('甲'), to = before.indexOf('\r\n\r\n后文')
+  store.openEditorDiff(captureEditorSnapshot(current, { start: from, end: to }), '很长的甲\r\n\r\n新版乙😀\r\n\r\n新版丙')
+  assert.equal(store.diff.blocks.length, 3)
+  assert.equal((await store.setDiffChoice({ index: 0, takeRevised: true })).ok, true)
+  assert.equal(current.content, before.replace('甲', '很长的甲'))
+  assert.equal(store.diffPreviewText, current.content)
+  assert.equal((await store.setDiffChoice({ index: 1, takeRevised: false })).ok, true)
+  assert.equal(undo.length, 1)
+  assert.equal((await store.setDiffChoice({ index: 2, takeRevised: true })).ok, true)
+  assert.equal(current.content, before.replace('甲', '很长的甲').replace('丙', '新版丙'))
+  assert.equal(store.diff.active, false)
+  for (const entry of undo.reverse()) { current = { ...current, content: undoSnapshot(current, entry).content } }
+  assert.equal(current.content, before)
+  store.openEditorDiff(captureEditorSnapshot(current, { start: from, end: to }), '新甲\r\n\r\n新乙\r\n\r\n新丙')
+  await store.setDiffChoice({ index: 0, takeRevised: true })
+  store.closeEditorDiff()
+  assert.equal(current.content, before.replace('甲', '新甲'))
+})
+
+test('全部保留不写正文，冲突拒绝单处采纳，完全删除选区后自动退出', async () => {
+  setActivePinia(createPinia())
+  const store = useAiStore()
+  let current = { ...state }, writes = 0
+  store.registerContext('editor', { getEditorState: () => current, applySelectionSnapshot: (saved, text) => {
+    const result = applySnapshot(current, saved, text)
+    if (result.ok) { writes++; current = { ...current, content: result.content, revision: current.revision + 1 } }
+    return result
+  } })
+  const snapshot = captureEditorSnapshot(current, { start, end })
+  store.openEditorDiff(snapshot, 'AI')
+  await store.setDiffChoice({ takeRevised: false })
+  assert.equal(current.content, original)
+  assert.equal(writes, 0)
+  assert.equal(store.diff.active, false)
+  store.openEditorDiff(snapshot, 'AI')
+  current = { ...current, revision: current.revision + 1 }
+  assert.equal((await store.setDiffChoice({ takeRevised: true })).ok, false)
+  assert.equal(writes, 0)
+  store.closeEditorDiff()
+  store.openEditorDiff(captureEditorSnapshot(current, { start, end }), '')
+  assert.equal((await store.setDiffChoice({ takeRevised: true })).ok, true)
+  assert.equal(current.content, original.slice(0, start) + original.slice(end))
   assert.equal(store.diff.active, false)
 })
 
