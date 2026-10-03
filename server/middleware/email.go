@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email/utils"
-	utils2 "github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/email/utils"
+	utils2 "github.com/isgvto/gin-vue-admin-gblog/server/utils"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
 	"go.uber.org/zap"
 )
 

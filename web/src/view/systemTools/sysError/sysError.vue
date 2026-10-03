@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="系统错误日志" description="查询错误记录并查看详细信息。" />
     <div class="gva-search-box">
       <el-form
         ref="elSearchFormRef"
@@ -84,7 +85,7 @@
         row-key="ID"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
 
         <el-table-column
           sortable
@@ -167,7 +168,7 @@
               class="table-button"
               @click="getSolution(scope.row.ID)"
             >
-              <el-icon><ai-gva /></el-icon>方案
+              <el-icon><ai-gva /></el-icon>{{ scope.row.solution ? '重新分析' : 'AI 分析' }}
             </el-button>
             <el-button
               type="primary"
@@ -231,8 +232,16 @@
         <el-descriptions-item label="错误内容" :span="2">
           <pre class="whitespace-pre-wrap break-words">{{ detailForm.info }}</pre>
         </el-descriptions-item>
+        <el-descriptions-item label="分析模型" :span="2">{{ detailForm.analysisModel || '尚未分析' }}</el-descriptions-item>
+        <el-descriptions-item label="分析开始">{{ detailForm.analysisStartedAt ? formatDate(detailForm.analysisStartedAt) : '—' }}</el-descriptions-item>
+        <el-descriptions-item label="分析结束">{{ detailForm.analysisCompletedAt ? formatDate(detailForm.analysisCompletedAt) : '—' }}</el-descriptions-item>
+        <el-descriptions-item v-if="detailForm.analysisError" label="失败原因" :span="2">
+          <el-alert :title="detailForm.analysisError" type="error" :closable="false" show-icon />
+        </el-descriptions-item>
         <el-descriptions-item label="解决方案" :span="2">
-          <pre class="whitespace-pre-wrap break-words">{{ detailForm.solution }}</pre>
+          <p v-if="detailForm.solutionModel">结果模型：{{ detailForm.solutionModel }} · {{ formatDate(detailForm.solutionGeneratedAt) }}</p>
+          <el-alert v-if="detailForm.solution && detailForm.status !== '处理完成'" title="以下为上一次成功的分析结果，本次分析尚未成功。" type="info" :closable="false" />
+          <pre class="analysis-solution">{{ detailForm.solution || (detailForm.status === '处理中' ? '模型正在分析，结果将自动更新…' : '暂无分析结果') }}</pre>
         </el-descriptions-item>
       </el-descriptions>
     </el-drawer>
@@ -250,7 +259,7 @@
 
   import { formatDate } from '@/utils/format'
   import { ElMessage, ElMessageBox } from 'element-plus'
-  import { ref } from 'vue'
+  import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
   import { useAppStore } from '@/pinia'
 
   defineOptions({
@@ -278,8 +287,8 @@
 
   const getSolution = async (id) => {
     const confirmed = await ElMessageBox.confirm(
-      '日志将通过 AI-PATH 传输至 GVA AI 用于错误分析，并在 GVA 官方平台短暂存储作为 AI 上下文。是否确认进行 AI 处理？（此功能仅向授权用户开放）',
-      '提示(Beta)',
+      '将使用 AI 模型配置中分配的模型分析此日志。脱敏后的日志会发送至所选供应商，可能产生调用费用。是否开始分析？',
+      '错误日志 AI 分析',
       {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
@@ -289,8 +298,8 @@
     if (!confirmed) return
     const res = await getSysErrorSolution({ id })
     if (res.code === 0) {
-      ElMessage({ type: 'success', message: res.msg || '处理已提交，1分钟后完成' })
-      getTableData()
+      ElMessage({ type: 'success', message: res.msg || '分析任务已提交，结果将自动更新' })
+      await getTableData()
     }
   }
   // 搜索
@@ -330,6 +339,29 @@
   }
 
   getTableData()
+
+  let pollTimer
+  let polling = false
+  const startPolling = () => {
+    if (pollTimer) return
+    pollTimer = setInterval(async () => {
+      if (polling || (!tableData.value.some(row => row.status === '处理中') && detailForm.value.status !== '处理中')) return
+      polling = true
+      try {
+        await getTableData()
+        if (detailShow.value && detailForm.value.ID) {
+          const response = await findSysError({ ID: detailForm.value.ID })
+          if (response.code === 0) detailForm.value = response.data
+        }
+      } catch (_) { stopPolling() }
+      finally { polling = false }
+    }, 3000)
+  }
+  const stopPolling = () => { clearInterval(pollTimer); pollTimer = undefined }
+  onMounted(startPolling)
+  onActivated(() => { startPolling(); getTableData() })
+  onDeactivated(stopPolling)
+  onUnmounted(stopPolling)
 
   // ============== 表格控制部分结束 ===============
 
@@ -455,3 +487,7 @@
   }
   const defaultLevelLabel = '一般错误'
 </script>
+
+<style scoped>
+.analysis-solution { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.85; text-align: left; margin: 12px 0; }
+</style>

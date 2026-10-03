@@ -1,11 +1,12 @@
 <template>
   <div
-    class="relative h-full bg-white text-slate-700 dark:text-slate-300 dark:bg-slate-900 shadow dark:shadow-gray-700"
+    class="admin-sidebar relative h-full bg-white text-slate-700 dark:text-slate-300 dark:bg-slate-900 shadow dark:shadow-gray-700"
     :class="isCollapse ? '' : '  px-2'"
     :style="{
       width: layoutSideWidth + 'px'
     }"
   >
+    <div v-if="!isCollapse" class="admin-sidebar-caption">后台管理</div>
     <el-scrollbar>
       <el-menu
         :collapse="isCollapse"
@@ -25,7 +26,7 @@
       </el-menu>
     </el-scrollbar>
     <div
-      class="absolute bottom-8 right-2 w-8 h-8 bg-gray-50 dark:bg-slate-800 flex items-center justify-center rounded cursor-pointer"
+      class="admin-collapse absolute bottom-8 right-2 w-8 h-8 bg-gray-50 dark:bg-slate-800 flex items-center justify-center rounded cursor-pointer"
       :class="isCollapse ? 'right-0 left-0 mx-auto' : 'right-2'"
       @click="toggleCollapse"
     >

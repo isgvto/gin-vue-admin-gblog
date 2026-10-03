@@ -1,9 +1,9 @@
 package blog
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	blogResp "github.com/flipped-aurora/gin-vue-admin/server/model/blog/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	blogResp "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/response"
 )
 
 type SiteService struct{}

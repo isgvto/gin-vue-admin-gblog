@@ -1,12 +1,13 @@
 package system
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"gorm.io/gorm"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"gorm.io/gorm"
 )
 
 // SysAutoCodeHistory 自动迁移代码记录,用于回滚,重放使用

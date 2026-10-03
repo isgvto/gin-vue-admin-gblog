@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="登录日志" description="按账号、状态与时间查看登录记录。" />
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo">
         <el-form-item label="用户名">
@@ -34,7 +35,7 @@
         row-key="ID"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="left" label="ID" prop="ID" width="80" />
         <el-table-column align="left" label="用户名" prop="username" width="150" />
         <el-table-column align="left" label="登录IP" prop="ip" width="150" />

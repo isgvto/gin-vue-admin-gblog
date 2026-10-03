@@ -2,11 +2,12 @@ package system
 
 import (
 	"errors"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"gorm.io/gorm"
 	"strconv"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"gorm.io/gorm"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -37,7 +38,7 @@ func (menuService *MenuService) getMenuTreeMap(authorityId uint) (treeMap map[ui
 		MenuIds = append(MenuIds, SysAuthorityMenus[i].MenuId)
 	}
 
-	err = global.GVA_DB.Where("id in (?)", MenuIds).Order("sort").Preload("Parameters").Find(&baseMenu).Error
+	err = global.GVA_DB.Scopes(excludeAIPageDrawingMenu).Where("id in (?)", MenuIds).Order("sort").Preload("Parameters").Find(&baseMenu).Error
 	if err != nil {
 		return
 	}
@@ -195,7 +196,7 @@ func (menuService *MenuService) getBaseMenuTreeMap(authorityID uint) (treeMap ma
 
 	var allMenus []system.SysBaseMenu
 	treeMap = make(map[uint][]system.SysBaseMenu)
-	db := global.GVA_DB.Order("sort").Preload("MenuBtn").Preload("Parameters")
+	db := global.GVA_DB.Scopes(excludeAIPageDrawingMenu).Order("sort").Preload("MenuBtn").Preload("Parameters")
 
 	// 当开启了严格的树角色并且父角色不为0时需要进行菜单筛选
 	if global.GVA_CONFIG.System.UseStrictAuth && parentAuthorityID != 0 {
@@ -301,7 +302,7 @@ func (menuService *MenuService) GetMenuAuthority(info *request.GetAuthorityId) (
 		MenuIds = append(MenuIds, SysAuthorityMenus[i].MenuId)
 	}
 
-	err = global.GVA_DB.Where("id in (?) ", MenuIds).Order("sort").Find(&baseMenu).Error
+	err = global.GVA_DB.Scopes(excludeAIPageDrawingMenu).Where("id in (?) ", MenuIds).Order("sort").Find(&baseMenu).Error
 
 	for i := range baseMenu {
 		menus = append(menus, system.SysMenu{
@@ -383,7 +384,7 @@ func (menuService *MenuService) UserAuthorityDefaultRouter(user *system.SysUser)
 		return
 	}
 	var am system.SysBaseMenu
-	err = global.GVA_DB.First(&am, "name = ? and id in (?)", user.Authority.DefaultRouter, menuIds).Error
+	err = global.GVA_DB.Scopes(excludeAIPageDrawingMenu).First(&am, "name = ? and id in (?)", user.Authority.DefaultRouter, menuIds).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		user.Authority.DefaultRouter = "404"
 	}

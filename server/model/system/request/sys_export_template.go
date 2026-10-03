@@ -1,9 +1,10 @@
 package request
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"time"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
 )
 
 type SysExportTemplateSearch struct {

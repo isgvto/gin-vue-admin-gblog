@@ -1,5 +1,5 @@
 <template>
-  <div class="state-page">
+  <div class="admin-page admin-page--cards state-page">
     <!-- 顶部标题栏 -->
     <div class="page-header">
       <div class="page-title">
@@ -30,6 +30,8 @@
         <div class="runtime-value">{{ item.value }}</div>
       </div>
     </div>
+
+    <DatabaseStatus v-if="state.database" :database="state.database" />
 
     <el-row :gutter="16" class="card-row">
       <!-- CPU -->
@@ -170,6 +172,7 @@
     Setting
   } from '@element-plus/icons-vue'
   import { getSystemState } from '@/api/system'
+  import DatabaseStatus from '@/components/system/DatabaseStatus.vue'
 
   defineOptions({
     name: 'State'
@@ -217,6 +220,7 @@
   }
 
   const reload = async () => {
+    if (refreshing.value) return
     try {
       refreshing.value = true
       const { data } = await getSystemState()

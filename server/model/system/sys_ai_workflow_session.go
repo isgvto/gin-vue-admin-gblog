@@ -1,8 +1,8 @@
 package system
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	common "github.com/flipped-aurora/gin-vue-admin/server/model/common"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	common "github.com/isgvto/gin-vue-admin-gblog/server/model/common"
 )
 
 type AIWorkflowMessage struct {
@@ -21,8 +21,8 @@ type SysAIWorkflowSession struct {
 	Tab            string              `json:"tab" gorm:"column:tab;size:32;index;comment:会话类型"`
 	Title          string              `json:"title" gorm:"column:title;size:255;comment:会话标题"`
 	Summary        string              `json:"summary" gorm:"column:summary;type:text;comment:摘要"`
-	ConversationID string              `json:"conversationId" gorm:"column:conversation_id;size:255;comment:Dify会话ID"`
-	MessageID      string              `json:"messageId" gorm:"column:message_id;size:255;comment:Dify消息ID"`
+	ConversationID string              `json:"conversationId" gorm:"column:conversation_id;size:255;comment:本地会话标识"`
+	MessageID      string              `json:"messageId" gorm:"column:message_id;size:255;comment:模型响应标识"`
 	CurrentNodeID  string              `json:"currentNodeId" gorm:"column:current_node_id;size:64;comment:当前选中节点ID"`
 	Settings       common.JSONMap      `json:"settings" gorm:"column:settings;type:longtext;comment:页面设置"`
 	FormData       common.JSONMap      `json:"formData" gorm:"column:form_data;type:longtext;comment:表单数据"`

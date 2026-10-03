@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	aiModel "github.com/flipped-aurora/gin-vue-admin/server/model/ai"
-	aiReq "github.com/flipped-aurora/gin-vue-admin/server/model/ai/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
+	aiReq "github.com/isgvto/gin-vue-admin-gblog/server/model/ai/request"
 	"gorm.io/gorm"
 )
 
@@ -83,6 +83,12 @@ func (s *ModelConfigService) validate(info *aiReq.AiModelConfigUpsert) error {
 	if info.Provider == "openai" && info.BaseURL == "" {
 		return errors.New("OpenAI 兼容供应商必须填写 BaseURL")
 	}
+	if info.Temperature < 0 || info.Temperature > 2 {
+		return errors.New("温度必须在 0 到 2 之间")
+	}
+	if info.MaxTokens <= 0 {
+		return errors.New("最大输出 token 必须大于 0")
+	}
 	return nil
 }
 
@@ -103,7 +109,7 @@ func (s *ModelConfigService) Create(info aiReq.AiModelConfigUpsert) error {
 		if info.Status {
 			// 首个启用配置自动成为默认，保证开箱可用
 			var count int64
-			if err := tx.Model(&aiModel.AiModelConfig{}).Count(&count).Error; err != nil {
+			if err := tx.Model(&aiModel.AiModelConfig{}).Where("is_default = ? AND status = ?", true, true).Count(&count).Error; err != nil {
 				return err
 			}
 			record.IsDefault = count == 0
@@ -127,6 +133,14 @@ func (s *ModelConfigService) Update(info aiReq.AiModelConfigUpsert) error {
 	if err := global.GVA_DB.First(&record, info.ID).Error; err != nil {
 		return errors.New("配置不存在")
 	}
+	if record.IsDefault && !info.Status {
+		return errors.New("默认模型不可停用，请先将其他模型设为默认")
+	}
+	if !info.Status {
+		if err := ensureNotBoundToErrorAnalysis(record.ID, true); err != nil {
+			return err
+		}
+	}
 	updates := map[string]any{
 		"name": info.Name, "provider": info.Provider, "base_url": info.BaseURL,
 		"model": info.Model, "temperature": info.Temperature,
@@ -143,12 +157,18 @@ func (s *ModelConfigService) Update(info aiReq.AiModelConfigUpsert) error {
 }
 
 func (s *ModelConfigService) Delete(id uint) error {
+	if id == 0 {
+		return errors.New("无效的配置 ID")
+	}
 	var record aiModel.AiModelConfig
 	if err := global.GVA_DB.First(&record, id).Error; err != nil {
 		return errors.New("配置不存在")
 	}
 	if record.IsDefault {
 		return errors.New("默认模型不可删除，请先将其他模型设为默认")
+	}
+	if err := ensureNotBoundToErrorAnalysis(id, false); err != nil {
+		return err
 	}
 	if err := global.GVA_DB.Delete(&record).Error; err != nil {
 		return err
@@ -158,6 +178,9 @@ func (s *ModelConfigService) Delete(id uint) error {
 }
 
 func (s *ModelConfigService) SetDefault(id uint) error {
+	if id == 0 {
+		return errors.New("无效的配置 ID")
+	}
 	err := global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		var record aiModel.AiModelConfig
 		if err := tx.First(&record, id).Error; err != nil {

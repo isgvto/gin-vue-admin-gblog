@@ -1,28 +1,25 @@
 <template>
-  <div class="model-config-page">
-    <el-form inline>
-      <el-form-item>
-        <el-button type="primary" size="small" icon="Plus" @click="openCreateDialog">
-          新增模型
-        </el-button>
-      </el-form-item>
-      <el-form-item>
+  <div class="admin-page admin-page--list model-config-page">
+    <PageHeading title="AI 模型配置" description="管理供应商、访问凭据与默认模型，验证模型连接是否可用。">
+      <el-button type="primary" icon="Plus" @click="openCreateDialog">新增模型</el-button>
+    </PageHeading>
+    <div class="gva-table-box">
+    <el-form inline class="admin-filter-form" @submit.prevent="getData">
+      <el-form-item label="名称">
         <el-input
           v-model="queryInfo.name"
           placeholder="按名称搜索"
           clearable
-          size="small"
           style="width: 200px"
           @keyup.enter="getData"
           @clear="getData"
         />
       </el-form-item>
-      <el-form-item>
+      <el-form-item label="供应商">
         <el-select
           v-model="queryInfo.provider"
-          placeholder="供应商"
+          placeholder="全部供应商"
           clearable
-          size="small"
           style="width: 180px"
           @change="getData"
         >
@@ -36,26 +33,26 @@
       </el-form-item>
     </el-form>
 
-    <el-table v-loading="loading" :data="modelList" border stripe>
-      <el-table-column label="名称" prop="name" min-width="140" />
-      <el-table-column label="供应商" width="150">
+    <el-table v-loading="loading" :data="modelList">
+      <el-table-column label="名称" prop="name" min-width="130" />
+      <el-table-column label="供应商" width="130">
         <template #default="{ row }">{{ providerLabel(row.provider) }}</template>
       </el-table-column>
-      <el-table-column label="模型" prop="model" min-width="140" />
-      <el-table-column label="API Key" width="120">
+      <el-table-column label="模型" prop="model" min-width="130" />
+      <el-table-column label="API Key" width="110">
         <template #default="{ row }">
           <span v-if="row.hasKey">****{{ row.keyTail }}</span>
           <el-tag v-else type="danger" size="small">未配置</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="90">
+      <el-table-column label="状态" width="80" align="center">
         <template #default="{ row }">
           <el-tag :type="row.status ? 'success' : 'info'" size="small">
             {{ row.status ? '启用' : '停用' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="默认" width="90">
+      <el-table-column label="默认" width="90" align="center">
         <template #default="{ row }">
           <el-tag v-if="row.isDefault" type="warning" size="small">默认</el-tag>
           <el-button
@@ -63,6 +60,7 @@
             link
             type="primary"
             size="small"
+            :disabled="!row.status"
             @click="setDefault(row.id)"
           >
             设为默认
@@ -70,12 +68,13 @@
         </template>
       </el-table-column>
       <el-table-column label="备注" prop="remark" min-width="120" show-overflow-tooltip />
-      <el-table-column label="操作" width="160" fixed="right">
+      <el-table-column label="操作" width="180" :fixed="compactTable ? false : 'right'" align="center">
         <template #default="{ row }">
-          <el-button type="primary" size="small" @click="openEditDialog(row)">编辑</el-button>
+          <el-button type="primary" link @click="openEditDialog(row)">编辑</el-button>
+          <el-button link type="primary" :loading="testingId === row.id" :disabled="testingId !== null" @click="testSaved(row)">测试</el-button>
           <el-popconfirm title="确定删除该模型配置吗？" @confirm="remove(row.id)">
             <template #reference>
-              <el-button type="danger" size="small">删除</el-button>
+              <el-button type="danger" link :disabled="row.isDefault">删除</el-button>
             </template>
           </el-popconfirm>
         </template>
@@ -94,11 +93,18 @@
       @current-change="handleCurrentChange"
     />
 
+    </div>
+
+    <ImageModelSettings />
+    <FeatureModelSettings ref="errorAnalysisSettings" feature="errorAnalysis" title="错误日志分析" description="指定用于分析系统错误日志的模型，独立控制启用状态。" />
+    <FeatureModelSettings ref="workflowSettings" feature="workflow" title="AI 需求工作流" description="需求分析与分步骤 Prompt 共用此模型，支持历史上下文和流式对话。" :timeout-max="600" :initial-timeout="180" />
+
     <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
       :title="form.id ? '编辑模型' : '新增模型'"
-      width="560px"
+      width="min(640px, 94vw)"
+      class="admin-config-dialog"
       :close-on-click-modal="false"
       @closed="resetForm"
     >
@@ -118,19 +124,26 @@
           <div v-if="providerHint" class="provider-hint">{{ providerHint }}</div>
         </el-form-item>
         <el-form-item v-if="needBaseUrl" label="Base URL" prop="baseUrl">
-          <el-input v-model="form.baseUrl" :placeholder="baseUrlPlaceholder" />
+          <el-input autocomplete="off" name="ai-config-base-url" v-model="form.baseUrl" :placeholder="baseUrlPlaceholder" @blur="autoLoadProviderModels" />
         </el-form-item>
         <el-form-item label="API Key" prop="apiKey">
           <el-input
             v-model="form.apiKey"
             type="password"
+            autocomplete="new-password"
+            name="ai-config-api-key"
             show-password
             clearable
             :placeholder="form.id ? '留空表示不修改' : 'sk-...'"
+            @blur="autoLoadProviderModels"
           />
         </el-form-item>
         <el-form-item label="模型标识" prop="model">
-          <el-input v-model="form.model" placeholder="如 deepseek-chat / ep-xxx / gemini-2.0-flash" />
+          <el-select v-model="form.model" filterable allow-create default-first-option class="full-width" placeholder="读取后选择，或手动输入模型 / ep-xxx">
+            <el-option v-for="item in providerModels" :key="item.id" :label="item.name === item.id ? item.id : `${item.name} (${item.id})`" :value="item.id" />
+          </el-select>
+          <el-button size="small" :loading="loadingModels" @click="loadProviderModels">读取供应商模型列表</el-button>
+          <div class="provider-hint">列表不代表模型一定可调用，选择后请测试连接。</div>
         </el-form-item>
         <el-form-item label="温度" prop="temperature">
           <el-slider v-model="form.temperature" :min="0" :max="2" :step="0.1" show-input />
@@ -139,13 +152,15 @@
           <el-input-number v-model="form.maxTokens" :min="256" :max="65536" :step="256" />
         </el-form-item>
         <el-form-item label="启用" prop="status">
-          <el-switch v-model="form.status" />
+          <el-switch v-model="form.status" :disabled="form.isDefault" />
+          <span v-if="form.isDefault" class="provider-hint">请先将其他模型设为默认，再停用此模型</span>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" :rows="2" />
         </el-form-item>
       </el-form>
       <template #footer>
+        <el-button :loading="testingDraft" @click="testDraft">测试连接</el-button>
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="submitting" @click="submit">保存</el-button>
       </template>
@@ -160,16 +175,30 @@
     updateModelConfig,
     deleteModelConfig,
     setDefaultModelConfig,
-    getModelProviders
+    getModelProviders,
+    getProviderModels,
+    testModelConnection
   } from '@/api/ai/modelConfig'
   import { ElMessage } from 'element-plus'
+  import { useAppStore } from '@/pinia'
+  import PageHeading from '@/components/admin/PageHeading.vue'
+
+  import FeatureModelSettings from '@/components/ai/FeatureModelSettings.vue'
+  import ImageModelSettings from '@/components/ai/ImageModelSettings.vue'
 
   export default {
     name: 'AiModelConfig',
+    components: { PageHeading, FeatureModelSettings, ImageModelSettings },
     data() {
       return {
         loading: false,
         submitting: false,
+        testingId: null,
+        testingDraft: false,
+        testMode: 'chat',
+        loadingModels: false,
+        providerModels: [],
+        modelListRequest: 0,
         modelList: [],
         total: 0,
         providers: [],
@@ -201,6 +230,7 @@
       }
     },
     computed: {
+      compactTable() { return useAppStore().device === 'mobile' },
       currentProvider() {
         return this.providers.find((p) => p.value === this.form.provider)
       },
@@ -218,7 +248,53 @@
       this.getProviders()
       this.getData()
     },
+    watch: {
+      'form.provider': 'invalidateProviderModels',
+      'form.baseUrl': 'invalidateProviderModels',
+      'form.apiKey': 'invalidateProviderModels'
+    },
     methods: {
+      autoLoadProviderModels() {
+        if (this.loadingModels || this.providerModels.length || !(this.form.apiKey || this.form.id)) return
+        if (this.form.provider === 'openai' && !this.form.baseUrl) return
+        this.loadProviderModels()
+      },
+      invalidateProviderModels() {
+        this.modelListRequest++
+        this.providerModels = []
+      },
+      async loadProviderModels() {
+        const request = ++this.modelListRequest
+        this.loadingModels = true
+        try {
+          const res = await getProviderModels({ ...this.form })
+          if (request !== this.modelListRequest) return
+          this.providerModels = res.data || []
+          if (!this.providerModels.length) ElMessage.info('未返回可用模型，请手动输入模型标识')
+        } catch (_) {
+          // 请求层展示供应商错误，保留手动输入。
+        } finally {
+          this.loadingModels = false
+        }
+      },
+      async testDraft() {
+        this.testingDraft = true
+        try {
+          const res = await testModelConnection({ ...this.form, testMode: this.testMode })
+          ElMessage.success(res.msg)
+        } catch (_) {
+          // 请求层展示连接错误。
+        } finally { this.testingDraft = false }
+      },
+      async testSaved(row, mode = 'chat') {
+        this.testingId = row.id
+        try {
+          const res = await testModelConnection({ ...row, apiKey: '', testMode: mode })
+          ElMessage.success(res.msg)
+        } catch (_) {
+          // 请求层展示连接错误。
+        } finally { this.testingId = null }
+      },
       createEmptyForm() {
         return {
           id: 0,
@@ -230,7 +306,7 @@
           temperature: 0.7,
           maxTokens: 4096,
           status: true,
-          remark: ''
+          remark: '',
         }
       },
       async getProviders() {
@@ -251,6 +327,9 @@
           const res = await getModelConfigList(this.queryInfo)
           this.modelList = (res.data?.list || []).map(row => ({ ...row, id: row.id ?? row.ID }))
           this.total = res.data?.total || 0
+          this.$refs.errorAnalysisSettings?.refreshModels()
+          this.$refs.workflowSettings?.refreshModels()
+
         } finally {
           this.loading = false
         }
@@ -265,14 +344,19 @@
       },
       providerChanged() {
         this.form.baseUrl = ''
+        this.form.model = ''
+        this.$nextTick(() => this.autoLoadProviderModels())
       },
       openCreateDialog() {
+        this.invalidateProviderModels()
         this.form = this.createEmptyForm()
         this.dialogVisible = true
       },
       openEditDialog(row) {
+        this.invalidateProviderModels()
         this.form = {
           id: row.id,
+          isDefault: row.isDefault,
           name: row.name,
           provider: row.provider,
           baseUrl: row.baseUrl,
@@ -281,7 +365,7 @@
           temperature: row.temperature,
           maxTokens: row.maxTokens,
           status: row.status,
-          remark: row.remark || ''
+          remark: row.remark || '',
         }
         this.dialogVisible = true
       },
@@ -323,8 +407,7 @@
 
 <style scoped lang="scss">
 .model-config-page {
-  padding: 16px;
-  background: #fff;
+  min-width: 0;
 }
 
 .pagination {

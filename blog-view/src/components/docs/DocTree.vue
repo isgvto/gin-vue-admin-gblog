@@ -3,6 +3,12 @@
 		<li v-for="(node, index) in nodes" :key="nodeKey(node, index)">
 			<div
 				class="doc-tree-item"
+				role="button"
+				tabindex="0"
+				:aria-expanded="isDir(node) ? String(!isCollapsed(node, index)) : null"
+				:aria-current="node.path === activePath ? 'page' : null"
+				@keydown.enter.prevent="handleClick(node, index)"
+				@keydown.space.prevent="handleClick(node, index)"
 				:class="{active: node.path && node.path === activePath, folder: isDir(node), collapsed: isDir(node) && isCollapsed(node, index)}"
 				@click="handleClick(node, index)"
 			>
@@ -92,11 +98,11 @@
 	.doc-tree-item {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		min-height: 32px;
-		padding: 6px 9px;
+		gap: 7px;
+		min-height: 34px;
+		padding: 6px 10px;
 		border-radius: 4px;
-		color: #4b5563;
+		color: #64748b;
 		cursor: pointer;
 		line-height: 1.35;
 		transition: background-color .16s ease, color .16s ease, transform .16s ease;
@@ -114,8 +120,9 @@
 
 	.doc-tree-item:not(.folder):hover,
 	.doc-tree-item.active {
-		background: #eff6ff;
-		color: #2563eb;
+		background: #f1f6ff;
+		color: #3568d4;
+		box-shadow: inset 3px 0 0 #4f7df0;
 	}
 
 	.doc-tree-item:not(.folder):hover {
@@ -131,4 +138,5 @@
 		flex: 0 0 auto;
 		margin: 0 !important;
 	}
+	.doc-tree-item:focus-visible { outline: 2px solid #3568d4; outline-offset: 2px; }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div id="userLayout" class="w-full h-full relative">
+  <div id="userLayout" class="admin-page admin-page--auth w-full h-full relative">
     <div
       class="rounded-lg flex items-center justify-evenly w-full h-full md:w-screen md:h-screen md:bg-[#194bfb] bg-white"
     >
@@ -103,20 +103,11 @@
 
     <BottomInfo class="left-0 right-0 absolute bottom-3 mx-auto w-full z-20">
       <div class="links items-center justify-center gap-2 hidden md:flex">
-        <a href="https://www.gin-vue-admin.com/" target="_blank">
-          <img src="@/assets/docs.png" class="w-8 h-8" alt="文档" />
-        </a>
-        <a href="https://support.qq.com/product/371961" target="_blank">
-          <img src="@/assets/kefu.png" class="w-8 h-8" alt="客服" />
-        </a>
         <a
-          href="https://github.com/flipped-aurora/gin-vue-admin"
+          href="https://github.com/LZMclear/gin-vue-admin-gblog"
           target="_blank"
         >
           <img src="@/assets/github.png" class="w-8 h-8" alt="github" />
-        </a>
-        <a href="https://space.bilibili.com/322210472" target="_blank">
-          <img src="@/assets/video.png" class="w-8 h-8" alt="视频站" />
         </a>
       </div>
     </BottomInfo>

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 type upstreamEnvelope[T any] struct {

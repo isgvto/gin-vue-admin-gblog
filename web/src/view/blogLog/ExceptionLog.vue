@@ -1,12 +1,14 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="博客异常日志" description="查询异常信息并查看请求上下文。" />
+    <section class="gva-table-box">
 		<!--搜索-->
 		<el-form inline>
 			<el-form-item label="操作时间">
 				<DateTimeRangePicker :date="queryInfo.date" :setDate="setDate"/>
 			</el-form-item>
 			<el-form-item>
-				<el-button type="primary" size="small" icon="el-icon-search" @click="search">搜索</el-button>
+				<el-button type="primary" size="small" icon="Search" @click="search">搜索</el-button>
 			</el-form-item>
 		</el-form>
 
@@ -23,21 +25,21 @@
 					</el-form>
 				</template>
 			</el-table-column>
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
+			<el-table-column label="序号" type="index" width="70" align="center"></el-table-column>
 			<el-table-column label="请求方式" prop="method" width="80"></el-table-column>
-			<el-table-column label="描述" prop="description"></el-table-column>
-			<el-table-column label="IP" prop="ip"></el-table-column>
-			<el-table-column label="IP来源" prop="ipSource" show-overflow-tooltip></el-table-column>
-			<el-table-column label="操作系统" prop="os"></el-table-column>
-			<el-table-column label="浏览器" prop="browser" show-overflow-tooltip></el-table-column>
+			<el-table-column label="描述" prop="description" min-width="220" show-overflow-tooltip></el-table-column>
+			<el-table-column label="IP" prop="ip" min-width="140" show-overflow-tooltip></el-table-column>
+			<el-table-column label="IP来源" prop="ipSource" show-overflow-tooltip min-width="180"></el-table-column>
+			<el-table-column label="操作系统" prop="os" min-width="130" show-overflow-tooltip></el-table-column>
+			<el-table-column label="浏览器" prop="browser" show-overflow-tooltip min-width="110"></el-table-column>
 			<el-table-column label="操作时间" width="170">
 				<template v-slot="scope">{{ blogDateFormat(scope.row.createTime) }}</template>
 			</el-table-column>
-			<el-table-column label="操作" width="200">
+			<el-table-column label="操作" width="200" align="center">
 				<template v-slot="scope">
-					<el-button type="warning" icon="el-icon-view" size="small" @click="showDetail(scope.row.error)">查看详情</el-button>
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteLogById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-button type="warning" icon="View" size="small" @click="showDetail(scope.row.error)">查看详情</el-button>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteLogById(scope.row.id)">
+						<template #reference><el-button size="small" type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -50,7 +52,7 @@
 		</el-pagination>
 
 		<!-- 异常信息 -->
-		<el-dialog title="异常信息" append-to-body top="20px" width="80%" v-model="detailDialogVisible" destroy-on-close>
+		<el-dialog title="异常信息" append-to-body top="20px" width="min(760px, 94vw)" v-model="detailDialogVisible" destroy-on-close>
 			<div class="match-braces rainbow-braces">
 				<pre>
 					<code class="language-java">{{ detail }}</code>
@@ -60,7 +62,9 @@
 				<el-button @click="detailDialogVisible=false">关 闭</el-button>
 			</template>
 		</el-dialog>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

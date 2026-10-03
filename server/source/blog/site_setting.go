@@ -3,8 +3,8 @@ package blog
 import (
 	"context"
 
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )

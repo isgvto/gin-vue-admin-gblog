@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	systemModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	systemModel "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 )
 
 type blogAccessContext struct {

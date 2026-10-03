@@ -1,5 +1,7 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-form admin-about-page">
+    <AdminPageHeading title="关于页面" description="编辑个人介绍、页面内容和音乐信息。" />
+    <section class="gva-form-box">
 		<el-form :model="form" :rules="formRules" ref="formRef" label-position="top">
 			<el-form-item label="标题" prop="title" style="width: 50%">
 				<el-input v-model="form.title" placeholder="请输入标题"></el-input>
@@ -23,10 +25,12 @@
 			</el-form-item>
 
 			<el-form-item style="text-align: right;">
-				<el-button type="primary" icon="el-icon-check" @click="submit">保存</el-button>
+				<el-button type="primary" icon="Check" @click="submit">保存</el-button>
 			</el-form-item>
 		</el-form>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

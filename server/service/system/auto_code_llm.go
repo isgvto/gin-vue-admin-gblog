@@ -8,11 +8,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common"
-	commonResp "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils/request"
 	"github.com/goccy/go-json"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common"
+	commonResp "github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils/request"
 )
 
 func (s *AutoCodeService) LLMAuto(ctx context.Context, llm common.JSONMap) (interface{}, error) {
@@ -89,6 +89,15 @@ func (s *AutoCodeService) LLMAutoStream(ctx context.Context, llm common.JSONMap)
 }
 
 func buildLLMAutoPath(llm common.JSONMap) (string, error) {
+	modeValue, _ := llm["mode"].(string)
+	if strings.TrimSpace(modeValue) == "analysisChat" || strings.TrimSpace(modeValue) == "workflowPromptChat" {
+		return "", errors.New("AI 需求工作流已迁移到模型配置，请使用受保护的 aiWorkflowChat 接口")
+	}
+	// 页面绘制已移除；共享接口仍供代码生成、字典和导出模板等功能使用。
+	if strings.TrimSpace(fmt.Sprintf("%v", llm["mode"])) == "createWeb" {
+		return "", errors.New("AI页面绘制功能已移除")
+	}
+
 	if global.GVA_CONFIG.AutoCode.AiPath == "" {
 		return "", errors.New("请先前往插件市场个人中心获取 AiPath 并填写到 config.yaml 中")
 	}

@@ -1,6 +1,151 @@
 definitions:
+  ai.ErrorAnalysisConfig:
+    properties:
+      enabled:
+        type: boolean
+      modelId:
+        type: integer
+      timeoutSeconds:
+        type: integer
+    type: object
+  ai.ErrorAnalysisRequest:
+    properties:
+      id:
+        type: integer
+    required:
+    - id
+    type: object
+  ai.ImageConfigInput:
+    properties:
+      apiKey:
+        type: string
+      baseUrl:
+        type: string
+      clearKey:
+        type: boolean
+      enabled:
+        type: boolean
+      model:
+        type: string
+      provider:
+        type: string
+      timeoutSeconds:
+        type: integer
+    type: object
+  ai.WorkflowChatRequest:
+    properties:
+      conversation_id:
+        type: string
+      history:
+        items:
+          $ref: '#/definitions/ai.WorkflowTurn'
+        type: array
+      inputs:
+        $ref: '#/definitions/common.JSONMap'
+      mode:
+        type: string
+      query:
+        type: string
+      response_mode:
+        type: string
+      sessionId:
+        type: integer
+    type: object
+  ai.WorkflowConfig:
+    properties:
+      enabled:
+        type: boolean
+      modelId:
+        type: integer
+      timeoutSeconds:
+        type: integer
+    type: object
+  ai.WorkflowTurn:
+    properties:
+      content:
+        type: string
+      role:
+        type: string
+    type: object
+  blog.VisualAdoptRequest:
+    properties:
+      id:
+        type: string
+      png:
+        type: string
+    type: object
+  blog.VisualPlan:
+    properties:
+      kind:
+        type: string
+      mermaid:
+        type: string
+      prompt:
+        type: string
+      reason:
+        type: string
+    type: object
+  blog.VisualRequest:
+    properties:
+      instruction:
+        type: string
+      kind:
+        type: string
+      prompt:
+        type: string
+      size:
+        type: string
+      source:
+        type: string
+      summary:
+        type: string
+      title:
+        type: string
+    type: object
+  blog.VisualResult:
+    properties:
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      fileId:
+        type: integer
+      id:
+        type: string
+      kind:
+        type: string
+      mermaid:
+        type: string
+      preview:
+        type: string
+      prompt:
+        type: string
+      url:
+        type: string
+    type: object
   common.JSONMap:
     additionalProperties: true
+    type: object
+  config.AI:
+    properties:
+      api-key:
+        type: string
+      base-url:
+        type: string
+      context-limit:
+        type: integer
+      daily-limit:
+        type: integer
+      enable:
+        type: boolean
+      max-tokens:
+        type: integer
+      model:
+        type: string
+      provider:
+        type: string
+      temperature:
+        type: number
     type: object
   config.AliyunOSS:
     properties:
@@ -470,6 +615,10 @@ definitions:
     type: object
   config.Server:
     properties:
+      ai:
+        allOf:
+        - $ref: '#/definitions/config.AI'
+        description: AI配置（模型配置页未配置时的兜底）
       aliyun-oss:
         $ref: '#/definitions/config.AliyunOSS'
       autocode:
@@ -495,7 +644,7 @@ definitions:
           $ref: '#/definitions/config.DiskList'
         type: array
       email:
-        $ref: '#/definitions/github_com_flipped-aurora_gin-vue-admin_server_config.Email'
+        $ref: '#/definitions/github_com_isgvto_gin-vue-admin-gblog_server_config.Email'
       excel:
         $ref: '#/definitions/config.Excel'
       hua-wei-obs:
@@ -830,7 +979,7 @@ definitions:
         description: 文件地址
         type: string
     type: object
-  github_com_flipped-aurora_gin-vue-admin_server_config.Email:
+  github_com_isgvto_gin-vue-admin-gblog_server_config.Email:
     properties:
       from:
         description: 发件人  你自己要发邮件的邮箱
@@ -1918,6 +2067,16 @@ definitions:
       ID:
         description: 主键ID
         type: integer
+      analysisCompletedAt:
+        type: string
+      analysisError:
+        type: string
+      analysisModel:
+        type: string
+      analysisModelId:
+        type: integer
+      analysisStartedAt:
+        type: string
       createdAt:
         description: 创建时间
         type: string
@@ -1931,6 +2090,10 @@ definitions:
         type: string
       solution:
         description: 解决方案
+        type: string
+      solutionGeneratedAt:
+        type: string
+      solutionModel:
         type: string
       status:
         description: 处理状态：未处理/处理中/处理完成
@@ -2201,6 +2364,183 @@ info:
   title: Gin-Vue-Admin Swagger API接口文档
   version: v2.9.1
 paths:
+  /ai/modelConfig/errorAnalysis:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 读取错误分析模型分配
+      tags:
+      - AI模型配置
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 错误分析配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.ErrorAnalysisConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 保存错误分析模型分配
+      tags:
+      - AI模型配置
+  /ai/modelConfig/errorAnalysis/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 待测试的错误分析配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.ErrorAnalysisConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 使用当前分配进行示例错误分析
+      tags:
+      - AI模型配置
+  /ai/modelConfig/image:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取图片生成模型配置
+      tags:
+      - AiModelConfig
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 图片模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.ImageConfigInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 保存图片生成模型配置
+      tags:
+      - AiModelConfig
+  /ai/modelConfig/image/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 图片模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.ImageConfigInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 测试独立图片模型配置
+      tags:
+      - AiModelConfig
+  /ai/modelConfig/workflow:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 读取需求工作流模型分配
+      tags:
+      - AI模型配置
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 功能模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.WorkflowConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 保存需求工作流模型分配
+      tags:
+      - AI模型配置
+  /ai/modelConfig/workflow/test:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 待测试的功能模型配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.WorkflowConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 测试需求工作流模型
+      tags:
+      - AI模型配置
   /api/createApi:
     post:
       consumes:
@@ -2965,6 +3305,29 @@ paths:
       summary: 增加方法
       tags:
       - AddFunc
+  /autoCode/aiWorkflowChat:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 本轮问题和上下文
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/ai.WorkflowChatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 使用配置的模型进行需求分析或工作流对话
+      tags:
+      - AI需求工作流
   /autoCode/createPackage:
     post:
       consumes:
@@ -3478,6 +3841,122 @@ paths:
       summary: 用户登录
       tags:
       - Base
+  /blog/ai/visual/adopt:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 预览ID；图示需附导出的PNG
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualAdoptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 采用配图并上传
+      tags:
+      - BlogAI
+  /blog/ai/visual/discard:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 预览ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualAdoptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 丢弃配图预览
+      tags:
+      - BlogAI
+  /blog/ai/visual/generate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 已确认的配图类型和要求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog.VisualResult'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 生成图示或配图预览
+      tags:
+      - BlogAI
+  /blog/ai/visual/plan:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 文章与配图要求
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/blog.VisualRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog.VisualPlan'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 推荐图示或配图方案
+      tags:
+      - BlogAI
+  /blog/ai/visual/status:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取配图能力状态
+      tags:
+      - BlogAI
   /casbin/UpdateCasbin:
     post:
       consumes:
@@ -5390,15 +5869,16 @@ paths:
       tags:
       - SysError
   /sysError/getSysErrorSolution:
-    get:
+    post:
       consumes:
       - application/json
       parameters:
       - description: 错误日志ID
-        in: query
-        name: id
+        in: body
+        name: data
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/ai.ErrorAnalysisRequest'
       produces:
       - application/json
       responses:
@@ -5413,7 +5893,7 @@ paths:
               type: object
       security:
       - ApiKeyAuth: []
-      summary: 根据ID触发处理：标记为处理中，1分钟后自动改为处理完成
+      summary: 根据ID触发异步模型分析
       tags:
       - SysError
   /sysError/updateSysError:

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 	"go.uber.org/zap"
 )
 

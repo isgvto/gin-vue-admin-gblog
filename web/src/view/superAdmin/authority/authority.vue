@@ -1,5 +1,6 @@
 <template>
-  <div class="authority">
+  <div class="admin-page admin-page--list authority">
+    <AdminPageHeading title="角色管理" description="管理角色结构与菜单、接口授权。" />
     <warning-bar title="注：右上角头像下拉可切换角色" />
     <div class="gva-table-box">
       <div class="gva-btn-list">
@@ -20,7 +21,7 @@
           min-width="180"
           prop="authorityName"
         />
-        <el-table-column align="left" label="操作" width="560">
+        <el-table-column align="left" label="操作" min-width="280">
           <template #default="scope">
             <el-button
               icon="setting"
@@ -183,8 +184,8 @@
         @select="handleSelect"
         @select-all="handleSelectAll"
       >
-        <el-table-column type="selection" width="55" />
-        <el-table-column label="ID" prop="ID" width="80" sortable="custom" />
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="ID" prop="ID" width="80" sortable="custom" align="center" />
         <el-table-column label="用户名" prop="userName" min-width="120" />
         <el-table-column label="昵称" prop="nickName" min-width="120" />
       </el-table>

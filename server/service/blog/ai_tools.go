@@ -6,7 +6,7 @@ import (
 
 	"github.com/cloudwego/eino/components/tool"
 	toolutils "github.com/cloudwego/eino/components/tool/utils"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 	"go.uber.org/zap"
 )
 

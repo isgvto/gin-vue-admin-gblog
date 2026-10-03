@@ -81,7 +81,7 @@
 <style scoped>
 	.article-list {
 		display: grid;
-		gap: 18px;
+		gap: 16px;
 	}
 
 	.article-item {
@@ -89,17 +89,18 @@
 		display: grid;
 		grid-template-columns: 220px minmax(0, 1fr);
 		gap: 22px;
-		padding: 18px;
+		padding: 16px;
 		overflow: hidden;
 		border: 1px solid #e5e7eb;
-		border-radius: 8px;
+		border-radius: 10px;
 		background: #fff;
+		box-shadow: 0 2px 8px rgba(15, 23, 42, .025);
 		transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
 	}
 
 	.article-item:hover {
 		border-color: #bfdbfe;
-		box-shadow: 0 14px 34px rgba(37, 99, 235, .1);
+		box-shadow: 0 10px 26px rgba(37, 99, 235, .09);
 		transform: translateY(-1px);
 	}
 
@@ -184,8 +185,8 @@
 
 	.article-category a {
 		display: inline-flex;
-		padding: 7px 12px;
-		border-radius: 6px;
+		padding: 5px 10px;
+		border-radius: 999px;
 		background: #eff6ff;
 		color: #2563eb;
 		font-size: 13px;
@@ -194,7 +195,7 @@
 
 	.article-title {
 		margin: 14px 0 10px;
-		font-size: 25px;
+		font-size: 24px;
 		line-height: 1.28;
 		letter-spacing: 0;
 	}
@@ -210,7 +211,7 @@
 	.article-meta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 14px;
+		gap: 12px;
 		margin-bottom: 10px;
 		color: #667085;
 		font-size: 14px;
@@ -240,7 +241,7 @@
 		overflow: hidden;
 		color: #4b5563;
 		font-size: 15px;
-		line-height: 1.75;
+		line-height: 1.65;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 	}
@@ -278,9 +279,9 @@
 		align-items: center;
 		justify-content: center;
 		gap: 4px;
-		padding: 8px 13px;
+		padding: 7px 12px;
 		border: 1px solid #60a5fa;
-		border-radius: 6px;
+		border-radius: 999px;
 		color: #2563eb;
 		font-size: 14px;
 		font-weight: 700;
@@ -310,7 +311,7 @@
 		.article-cover,
 		.article-cover img,
 		.article-cover-placeholder {
-			min-height: 190px;
+			min-height: 176px;
 		}
 
 		.article-bottom {

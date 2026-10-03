@@ -2,12 +2,14 @@ package initialize
 
 import (
 	"context"
+
 	adapter "github.com/casbin/gorm-adapter/v3"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/example"
-	sysModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/announcement/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/example"
+	sysModel "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/announcement/model"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"gorm.io/gorm"
 )
 
@@ -37,6 +39,11 @@ func (e *ensureTables) MigrateTable(ctx context.Context) (context.Context, error
 		return ctx, system.ErrMissingDBContext
 	}
 	tables := []interface{}{
+		aiModel.AiModelConfig{},
+		aiModel.ErrorAnalysisConfig{},
+		aiModel.WorkflowConfig{},
+		aiModel.ImageConfig{},
+		blogModel.AiVisualTask{},
 		sysModel.SysApi{},
 		sysModel.SysUser{},
 		sysModel.SysBaseMenu{},

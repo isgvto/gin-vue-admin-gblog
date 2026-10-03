@@ -1,6 +1,6 @@
 <template>
 	<!--私密文章密码对话框-->
-	<el-dialog title="请输入受保护文章密码" width="30%" :visible.sync="blogPasswordDialogVisible"
+	<el-dialog title="请输入受保护文章密码" width="30%" custom-class="blog-password-dialog" :visible.sync="blogPasswordDialogVisible"
 	           :lock-scroll="false" :before-close="blogPasswordDialogClosed" @opened="focusPasswordInput">
 		<!--内容主体-->
 		<el-form :model="blogPasswordForm" :rules="formRules" ref="formRef" label-width="80px">
@@ -9,6 +9,8 @@
 					ref="passwordInput"
 					v-model="blogPasswordForm.password"
 					show-password
+					autocomplete="current-password"
+					inputmode="text"
 					@keyup.native.enter="submitBlogPassword"
 				></el-input>
 			</el-form-item>
@@ -85,6 +87,69 @@
 	}
 </script>
 
-<style scoped>
+<style>
+	.blog-password-dialog {
+		max-width: 420px;
+		border-radius: 10px;
+		overflow: hidden;
+	}
 
+	.blog-password-dialog .el-dialog__header {
+		padding: 20px 24px 12px;
+		border-bottom: 1px solid #f0f2f5;
+	}
+
+	.blog-password-dialog .el-dialog__body {
+		padding: 24px;
+	}
+
+	.blog-password-dialog .el-dialog__footer {
+		padding: 12px 24px 20px;
+		border-top: 1px solid #f0f2f5;
+	}
+
+	.blog-password-dialog .el-form-item {
+		margin-bottom: 0;
+	}
+
+	.blog-password-dialog .el-input,
+	.blog-password-dialog .el-input__inner {
+		width: 100%;
+	}
+
+	@media screen and (max-width: 600px) {
+		.blog-password-dialog.el-dialog {
+			width: calc(100% - 28px) !important;
+			margin: 12vh auto 0 !important;
+		}
+
+		.blog-password-dialog .el-dialog__header {
+			padding: 18px 18px 12px;
+		}
+
+		.blog-password-dialog .el-dialog__body {
+			padding: 18px 18px 12px;
+		}
+
+		.blog-password-dialog .el-dialog__footer {
+			padding: 10px 18px 16px;
+		}
+
+		.blog-password-dialog .el-form-item__label {
+			display: block;
+			float: none;
+			width: auto !important;
+			padding: 0 0 7px;
+			line-height: 1.4;
+			text-align: left;
+		}
+
+		.blog-password-dialog .el-form-item__content {
+			margin-left: 0 !important;
+		}
+
+		.blog-password-dialog .el-button {
+			min-width: 72px;
+		}
+	}
 </style>

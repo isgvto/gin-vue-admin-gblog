@@ -1,7 +1,8 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--cards">
+    <AdminPageHeading title="站点设置" description="分组维护站点资料、文档站与显示设置。" />
 		<el-row :gutter="20">
-			<el-col :span="12">
+			<el-col :xs="24" :lg="12">
 				<el-card>
 					<template #header>
 						<span>基础设置</span>
@@ -13,26 +14,26 @@
 					</el-form>
 				</el-card>
 			</el-col>
-			<el-col :span="12">
+			<el-col :xs="24" :lg="12">
 				<el-card>
 					<template #header>
 						<span>资料卡</span>
 					</template>
 					<el-form label-position="right" label-width="100px">
 						<el-form-item :label="item.nameZh" v-for="item in typeMap.type2" :key="item.id || item.key || item.nameEn">
-							<div v-if="item.nameEn=='favorite'">
+							<div v-if="item.nameEn=='favorite'" class="admin-favorite-row">
 								<el-col :span="20">
 									<el-input v-model="item.value" size="small"></el-input>
 								</el-col>
 								<el-col :span="4">
-									<el-button type="danger" size="small" icon="el-icon-delete" @click="deleteFavorite(item)">删除</el-button>
+									<el-button type="danger" size="small" icon="Delete" @click="deleteFavorite(item)">删除</el-button>
 								</el-col>
 							</div>
-							<div v-else>
+							<div v-else class="admin-setting-field">
 								<el-input v-model="item.value" size="small"></el-input>
 							</div>
 						</el-form-item>
-						<el-button type="primary" size="small" icon="el-icon-plus" @click="addFavorite">添加自定义</el-button>
+						<el-button type="primary" size="small" icon="Plus" @click="addFavorite">添加自定义</el-button>
 					</el-form>
 				</el-card>
 			</el-col>
@@ -43,7 +44,7 @@
 				<template #header>
 					<div class="card-header">
 						<span>文档站设置</span>
-						<el-button type="success" size="small" icon="el-icon-refresh" :loading="syncingDocs" @click="handleSyncDocs">同步文档</el-button>
+						<el-button type="success" size="small" icon="Refresh" :loading="syncingDocs" @click="handleSyncDocs">同步文档</el-button>
 					</div>
 				</template>
 				<el-form label-position="right" label-width="130px">
@@ -76,15 +77,15 @@
 						<el-input v-model="badge.value.color" size="small"></el-input>
 					</el-form-item>
 					<el-form-item>
-						<el-button type="danger" size="small" icon="el-icon-delete" @click="deleteBadge(badge)">删除</el-button>
+						<el-button type="danger" size="small" icon="Delete" @click="deleteBadge(badge)">删除</el-button>
 					</el-form-item>
 				</el-form>
-				<el-button type="primary" size="small" icon="el-icon-plus" @click="addBadge">添加 badge</el-button>
+				<el-button type="primary" size="small" icon="Plus" @click="addBadge">添加 badge</el-button>
 			</el-card>
 		</el-row>
 
 		<div style="text-align: right;margin-top: 30px">
-			<el-button type="primary" icon="el-icon-check" @click="submit">保存</el-button>
+			<el-button type="primary" icon="Check" @click="submit">保存</el-button>
 		</div>
 	</div>
 </template>

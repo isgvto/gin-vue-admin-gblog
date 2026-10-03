@@ -3,10 +3,11 @@ package initialize
 import (
 	"fmt"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils/plugin"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/email"
+	emailConfig "github.com/isgvto/gin-vue-admin-gblog/server/plugin/email/config"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils/plugin"
 )
 
 func PluginInit(group *gin.RouterGroup, Plugin ...plugin.Plugin) {
@@ -22,15 +23,13 @@ func bizPluginV1(group ...*gin.RouterGroup) {
 	private := group[0]
 	public := group[1]
 	//  添加跟角色挂钩权限的插件 示例 本地示例模式于在线仓库模式注意上方的import 可以自行切换 效果相同
-	PluginInit(private, email.CreateEmailPlug(
-		global.GVA_CONFIG.Email.To,
-		global.GVA_CONFIG.Email.From,
-		global.GVA_CONFIG.Email.Host,
-		global.GVA_CONFIG.Email.Secret,
-		global.GVA_CONFIG.Email.Nickname,
-		global.GVA_CONFIG.Email.Port,
-		global.GVA_CONFIG.Email.IsSSL,
-		global.GVA_CONFIG.Email.IsLoginAuth,
-	))
+	PluginInit(private, email.CreateEmailPlugWithConfigProvider(func() emailConfig.Email {
+		cfg := global.GVA_CONFIG.Email
+		return emailConfig.Email{
+			To: cfg.To, From: cfg.From, Host: cfg.Host, Secret: cfg.Secret,
+			Nickname: cfg.Nickname, Port: cfg.Port,
+			IsSSL: cfg.IsSSL, IsLoginAuth: cfg.IsLoginAuth,
+		}
+	}))
 	holder(public, private)
 }

@@ -1,5 +1,6 @@
 <template>
-  <div class="gva-form-box">
+  <div class="admin-page admin-page--workspace gva-form-box">
+    <AdminPageHeading title="安装插件" description="上传插件包并查看安装内容。" />
     <el-upload
       drag
       :action="`${getBaseUrl()}/autoCode/installPlugin`"
@@ -50,7 +51,7 @@
               {{ typeMap[scope.row.pluginType] || '未知类型' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" align="center">
           <template #default="scope">
             <el-button type="primary" link icon="delete" @click="deletePlugin(scope.row)">删除</el-button>
           </template>

@@ -72,3 +72,21 @@ export function undoSnapshot(state, entry) {
   }
   return { ok: true, content: entry.before, start: entry.start, end: entry.end }
 }
+
+// 章节采纳只追加到当前正文末尾，并复用 AI 撤销历史；不依赖光标或选区。
+export function appendDocumentSnapshot(state, expected, text) {
+  if (!state?.active || !expected || state.editorId !== expected.editorId || state.documentId !== expected.documentId) {
+    return { ok: false, message: '文章已切换，请重新确认大纲' }
+  }
+  if (state.revision !== expected.revision || state.content !== expected.content) {
+    return { ok: false, message: '正文刚刚发生变化，请重新点击采纳' }
+  }
+  if (typeof text !== 'string' || !text.trim()) return { ok: false, message: '章节内容不能为空' }
+  const newline = state.content.includes('\r\n') ? '\r\n' : '\n'
+  const separator = !state.content || /(?:\r?\n){2}$/.test(state.content) ? '' : /\r?\n$/.test(state.content) ? newline : newline + newline
+  const content = state.content + separator + text.trim().replace(/\r\n?|\n/g, newline) + newline
+  return { ok: true, content, undo: {
+    editorId: state.editorId, documentId: state.documentId, before: state.content, after: content,
+    start: state.content.length, end: state.content.length
+  } }
+}

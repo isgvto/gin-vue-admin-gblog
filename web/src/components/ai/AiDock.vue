@@ -1,12 +1,13 @@
 <template>
   <div>
     <!-- 顶部栏 AI 按钮 -->
-    <div class="ai-entry" @click="openDock()">
-      <el-badge is-dot :hidden="!anyAgentAvailable">
-        <el-icon :size="20"><MagicStick /></el-icon>
-      </el-badge>
-      <span v-if="!isMobile" class="ai-entry-text">AI</span>
-    </div>
+    <el-tooltip content="AI 助手" placement="bottom" effect="dark">
+      <button type="button" class="ai-entry" aria-label="AI 助手" @click="openDock()">
+        <el-badge is-dot :hidden="!anyAgentAvailable">
+          <el-icon :size="16"><MagicStick /></el-icon>
+        </el-badge>
+      </button>
+    </el-tooltip>
 
     <!-- 统一 AI 抽屉 -->
     <el-drawer
@@ -17,7 +18,7 @@
       class="ai-dock-drawer"
     >
       <div class="ai-dock">
-        <div class="agent-tabs">
+        <div v-if="agentRegistry.length > 1" class="agent-tabs">
           <div
             v-for="agent in agentRegistry"
             :key="agent.id"
@@ -66,22 +67,33 @@
 
 <style scoped lang="scss">
 .ai-entry {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 100%;
-  padding: 0 12px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--admin-border, var(--el-border-color));
+  border-radius: 8px;
+  background: transparent;
   cursor: pointer;
-  color: #64748b;
+  color: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  :deep(.el-badge) {
+    display: inline-flex;
+  }
 
   &:hover {
     color: var(--el-color-primary);
+    background: var(--admin-selected, var(--el-color-primary-light-9));
   }
-}
 
-.ai-entry-text {
-  font-weight: 600;
-  font-size: 14px;
+  &:focus-visible {
+    outline: 2px solid var(--el-color-primary);
+    outline-offset: 2px;
+  }
 }
 
 .ai-dock {

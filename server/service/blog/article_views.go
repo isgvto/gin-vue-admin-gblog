@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

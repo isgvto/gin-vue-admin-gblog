@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 )
 
 type exportedDictionary struct {

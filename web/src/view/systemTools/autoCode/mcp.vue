@@ -1,5 +1,6 @@
 <template>
-  <div class="gva-form-box">
+  <div class="admin-page admin-page--workspace gva-form-box">
+    <AdminPageHeading title="MCP 服务管理" description="配置 MCP 服务与相关工具。" />
     <el-form :model="form" ref="formRef" label-width="100px" :rules="rules">
       <el-form-item label="工具名称" prop="name">
         <el-input v-model="form.name" placeholder="例:CurrentTime" />
@@ -30,7 +31,7 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="默认值" width="300">
+          <el-table-column label="默认值" min-width="280">
             <template #default="scope">
               <el-input :disabled="scope.row.type === 'object'" v-model="scope.row.default" />
             </template>
@@ -40,7 +41,7 @@
               <el-checkbox v-model="scope.row.required" />
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="80">
+          <el-table-column label="操作" width="80" align="center">
             <template #default="scope">
               <el-button type="text" @click="removeParam(scope.$index)">删除</el-button>
             </template>
@@ -60,7 +61,7 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="80">
+          <el-table-column label="操作" width="80" align="center">
             <template #default="scope">
               <el-button type="text" @click="removeResponse(scope.$index)">删除</el-button>
             </template>

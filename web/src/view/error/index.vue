@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--auth">
     <div class="w-full h-screen bg-gray-50 flex items-center justify-center">
       <div class="flex flex-col items-center text-2xl gap-4">
         <img class="w-1/3" src="../../assets/404.png" />
@@ -9,10 +9,10 @@
         </p>
         <p>
           项目地址：<a
-            href="https://github.com/flipped-aurora/gin-vue-admin"
+            href="https://github.com/isgvto/gin-vue-admin-gblog"
             target="_blank"
             class="text-blue-600"
-            >https://github.com/flipped-aurora/gin-vue-admin</a
+            >https://github.com/isgvto/gin-vue-admin-gblog</a
           >
         </p>
         <el-button @click="toDashboard">返回首页</el-button>

@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 	"go.uber.org/zap"
 )
 
@@ -27,6 +27,9 @@ type AwsS3 struct{}
 //@return: string, string, error
 
 func (*AwsS3) UploadFile(file *multipart.FileHeader) (string, string, error) {
+	return (&AwsS3{}).UploadFileWithContext(context.Background(), file)
+}
+func (*AwsS3) UploadFileWithContext(ctx context.Context, file *multipart.FileHeader) (string, string, error) {
 	client := newS3Client()
 	uploader := manager.NewUploader(client)
 
@@ -39,7 +42,7 @@ func (*AwsS3) UploadFile(file *multipart.FileHeader) (string, string, error) {
 	}
 	defer f.Close() // 创建文件 defer 关闭
 
-	_, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+	_, err := uploader.Upload(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(global.GVA_CONFIG.AwsS3.Bucket),
 		Key:         aws.String(filename),
 		Body:        f,

@@ -6,7 +6,8 @@ import (
 	"net/smtp"
 	"strings"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/plugin/email/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/email/config"
+	"github.com/isgvto/gin-vue-admin-gblog/server/plugin/email/global"
 
 	"github.com/jordan-wright/email"
 )
@@ -19,7 +20,7 @@ import (
 
 func Email(To, subject string, body string) error {
 	to := strings.Split(To, ",")
-	return send(to, subject, body)
+	return send(global.GetConfig(), to, subject, body)
 }
 
 //@author: [SliverHorn](https://github.com/SliverHorn)
@@ -29,11 +30,12 @@ func Email(To, subject string, body string) error {
 //@return: error
 
 func ErrorToEmail(subject string, body string) error {
-	to := strings.Split(global.GlobalConfig.To, ",")
+	cfg := global.GetConfig()
+	to := strings.Split(cfg.To, ",")
 	if to[len(to)-1] == "" { // 判断切片的最后一个元素是否为空,为空则移除
 		to = to[:len(to)-1]
 	}
-	return send(to, subject, body)
+	return send(cfg, to, subject, body)
 }
 
 //@author: [maplepie](https://github.com/maplepie)
@@ -43,8 +45,9 @@ func ErrorToEmail(subject string, body string) error {
 //@return: error
 
 func EmailTest(subject string, body string) error {
-	to := []string{global.GlobalConfig.To}
-	return send(to, subject, body)
+	cfg := global.GetConfig()
+	to := []string{cfg.To}
+	return send(cfg, to, subject, body)
 }
 
 //@author: [maplepie](https://github.com/maplepie)
@@ -53,14 +56,14 @@ func EmailTest(subject string, body string) error {
 //@param: subject string, body string
 //@return: error
 
-func send(to []string, subject string, body string) error {
-	from := global.GlobalConfig.From
-	nickname := global.GlobalConfig.Nickname
-	secret := global.GlobalConfig.Secret
-	host := global.GlobalConfig.Host
-	port := global.GlobalConfig.Port
-	isSSL := global.GlobalConfig.IsSSL
-	isLoginAuth := global.GlobalConfig.IsLoginAuth
+func send(cfg config.Email, to []string, subject string, body string) error {
+	from := cfg.From
+	nickname := cfg.Nickname
+	secret := cfg.Secret
+	host := cfg.Host
+	port := cfg.Port
+	isSSL := cfg.IsSSL
+	isLoginAuth := cfg.IsLoginAuth
 
 	var auth smtp.Auth
 	if isLoginAuth {

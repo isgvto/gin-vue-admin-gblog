@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="h-full">
+  <div class="admin-page admin-page--workspace h-full">
     <warning-bar
         href="https://plugin.gin-vue-admin.com/license"
         title="此功能仅在开发阶段使用，用户构建本项目内的skills技能库。"
@@ -221,7 +221,7 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="操作" width="180">
+                  <el-table-column label="操作" width="180" align="center">
                     <template #default="scope">
                       <el-button type="primary" link icon="Edit" @click="openScriptEditor(scope.row.name)">编辑</el-button>
                       <el-button type="primary" link @click="insertFileSnippet('script', scope.row.name)">调用</el-button>
@@ -248,7 +248,7 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="操作" width="180">
+                  <el-table-column label="操作" width="180" align="center">
                     <template #default="scope">
                       <el-button type="primary" link icon="Edit" @click="openResourceEditor(scope.row.name)">编辑</el-button>
                       <el-button type="primary" link @click="insertFileSnippet('resource', scope.row.name)">引用</el-button>
@@ -275,7 +275,7 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="操作" width="180">
+                  <el-table-column label="操作" width="180" align="center">
                     <template #default="scope">
                       <el-button type="primary" link icon="Edit" @click="openReferenceEditor(scope.row.name)">编辑</el-button>
                       <el-button type="primary" link @click="insertFileSnippet('reference', scope.row.name)">引用</el-button>
@@ -302,7 +302,7 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column label="操作" width="180">
+                  <el-table-column label="操作" width="180" align="center">
                     <template #default="scope">
                       <el-button type="primary" link icon="Edit" @click="openTemplateEditor(scope.row.name)">编辑</el-button>
                       <el-button type="primary" link @click="insertFileSnippet('template', scope.row.name)">引用</el-button>
@@ -487,7 +487,7 @@
         <el-table-column label="简介" prop="resume" min-width="240" show-overflow-tooltip />
         <el-table-column label="版本" prop="actVersion" width="100" />
         <el-table-column label="下载量" prop="downloadCount" width="90" />
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right" align="center">
           <template #default="{ row }">
             <el-button
               v-if="row.money === 0"

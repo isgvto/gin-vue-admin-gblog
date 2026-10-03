@@ -3,11 +3,11 @@ package ai
 import (
 	"strconv"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	aiReq "github.com/flipped-aurora/gin-vue-admin/server/model/ai/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiReq "github.com/isgvto/gin-vue-admin-gblog/server/model/ai/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service"
 	"go.uber.org/zap"
 )
 
@@ -88,4 +88,35 @@ func (a *ModelConfigApi) SetDefault(c *gin.Context) {
 
 func (a *ModelConfigApi) Providers(c *gin.Context) {
 	response.OkWithData(modelConfigService.Providers(), c)
+}
+
+func (a *ModelConfigApi) TestConnection(c *gin.Context) {
+	var req aiReq.AiModelConfigUpsert
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := modelConfigService.TestConnection(c.Request.Context(), req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if req.TestMode == "image" {
+		response.OkWithMessage("图片测试成功，生图接口已返回有效图片，未上传存储", c)
+		return
+	}
+	response.OkWithMessage("文本测试成功，模型已返回有效响应", c)
+}
+
+func (a *ModelConfigApi) ProviderModels(c *gin.Context) {
+	var req aiReq.AiModelConfigUpsert
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	models, err := modelConfigService.ListProviderModels(c.Request.Context(), req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithData(models, c)
 }

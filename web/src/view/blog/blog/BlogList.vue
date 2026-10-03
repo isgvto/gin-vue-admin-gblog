@@ -1,53 +1,53 @@
 ﻿<template>
-	<div>
-		<!--搜索-->
-		<el-row>
-			<el-col :span="8">
-				<el-input placeholder="请输入标题" v-model="queryInfo.title" :clearable="true" @clear="search" @keyup.enter="search" size="small" style="min-width: 500px">
-					<template #prepend>
-						<el-select v-model="queryInfo.categoryId" placeholder="请选择分类" :clearable="true" @change="search" style="width: 160px">
-							<el-option :label="item.categoryName" :value="item.id" v-for="item in categoryList" :key="item.id"></el-option>
-						</el-select>
-					</template>
-					<template #append>
-						<el-button icon="el-icon-search" @click="search"></el-button>
-					</template>
-				</el-input>
-			</el-col>
-		</el-row>
+	<div class="admin-page admin-page--list">
+		<PageHeading title="文章管理" description="管理文章内容、分类与可见性，集中查看发布和更新状态。">
+      <el-button type="primary" icon="Plus" @click="goBlogEditPage()">新建文章</el-button>
+    </PageHeading>
+    <div class="gva-table-box">
+      <el-form inline class="admin-filter-form" @submit.prevent="search">
+        <el-form-item label="标题">
+          <el-input placeholder="搜索文章标题" v-model="queryInfo.title" clearable @clear="search" @keyup.enter="search" />
+        </el-form-item>
+        <el-form-item label="分类">
+          <el-select v-model="queryInfo.categoryId" placeholder="全部分类" clearable @change="search">
+            <el-option v-for="item in categoryList" :key="item.id" :label="item.categoryName" :value="item.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item><el-button icon="Search" @click="search">查询</el-button><el-button @click="resetSearch">重置</el-button></el-form-item>
+      </el-form>
 
 		<el-table :data="blogList">
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
-			<el-table-column label="标题" prop="title" show-overflow-tooltip width="300"></el-table-column>
-			<el-table-column label="分类" prop="category.categoryName" width="150"></el-table-column>
-			<el-table-column label="置顶" width="80">
+			<el-table-column label="序号" type="index" width="70" align="center"></el-table-column>
+			<el-table-column label="标题" prop="title" show-overflow-tooltip min-width="220"></el-table-column>
+			<el-table-column label="分类" prop="category.categoryName" width="100"></el-table-column>
+			<el-table-column label="置顶" width="60" align="center">
 				<template v-slot="scope">
-					<el-switch v-model="scope.row.top" @change="blogTopChanged(scope.row)"></el-switch>
+					<el-switch size="small" :aria-label="`置顶 ${scope.row.title}`" v-model="scope.row.top" @change="blogTopChanged(scope.row)"></el-switch>
 				</template>
 			</el-table-column>
-			<el-table-column label="推荐" width="80">
+			<el-table-column label="推荐" width="60" align="center">
 				<template v-slot="scope">
-					<el-switch v-model="scope.row.recommend" @change="blogRecommendChanged(scope.row)"></el-switch>
+					<el-switch size="small" :aria-label="`推荐 ${scope.row.title}`" v-model="scope.row.recommend" @change="blogRecommendChanged(scope.row)"></el-switch>
 				</template>
 			</el-table-column>
 			<el-table-column label="可见性" width="100">
 				<template v-slot="scope">
-					<el-link icon="el-icon-edit" :underline="false" @click="editBlogVisibility(scope.row)">
+					<el-link icon="Edit" :underline="false" @click="editBlogVisibility(scope.row)">
 						{{ scope.row.published ? (scope.row.password !== '' ? '密码保护' : '公开') : '私密' }}
 					</el-link>
 				</template>
 			</el-table-column>
-			<el-table-column label="创建时间" width="170">
-				<template v-slot="scope">{{ blogDateFormat(scope.row.createTime) }}</template>
-			</el-table-column>
-			<el-table-column label="最近更新" width="170">
-				<template v-slot="scope">{{ blogDateFormat(scope.row.updateTime) }}</template>
-			</el-table-column>
-			<el-table-column label="操作" width="200">
+			<el-table-column label="更新时间" width="160">
+        <template #default="{ row }">
+          <div class="admin-date-cell">{{ blogDateFormat(row.updateTime) }}</div>
+          <div class="admin-date-cell admin-secondary-text">创建 {{ blogDateFormat(row.createTime) }}</div>
+        </template>
+      </el-table-column>
+			<el-table-column label="操作" width="140" :fixed="compactTable ? false : 'right'" align="center">
 				<template v-slot="scope">
-					<el-button type="primary" icon="el-icon-edit" size="small" @click="goBlogEditPage(scope.row.id)">编辑</el-button>
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteBlogById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-button type="primary" link icon="Edit" @click="goBlogEditPage(scope.row.id)">编辑</el-button>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteBlogById(scope.row.id)">
+						<template #reference><el-button link type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -59,8 +59,10 @@
 		               layout="total, sizes, prev, pager, next, jumper" background>
 		</el-pagination>
 
+    </div>
+
 		<!--编辑可见性状态对话框-->
-		<el-dialog title="博客可见性" width="30%" v-model="dialogVisible">
+		<el-dialog title="文章可见性" width="min(620px, 94vw)" class="admin-config-dialog" v-model="dialogVisible">
 			<!--内容主体-->
 			<el-form label-width="50px" @submit.prevent>
 				<el-form-item>
@@ -100,6 +102,8 @@
 </template>
 
 <script>
+  import { useAppStore } from '@/pinia'
+  import PageHeading from '@/components/admin/PageHeading.vue'
 	import {
 		getDataByQuery,
 		deleteBlogById as removeBlog,
@@ -110,7 +114,7 @@
 
 	export default {
 		name: 'BlogArticleList',
-		components: {},
+		components: { PageHeading },
 		data() {
 			return {
 				queryInfo: {
@@ -135,6 +139,7 @@
 				}
 			}
 		},
+    computed: { compactTable() { return useAppStore().device === 'mobile' } },
 		created() {
 			this.getData()
 		},
@@ -146,6 +151,11 @@
 					this.total = res.data.blogs.total
 				})
 			},
+      resetSearch() {
+        this.queryInfo.title = ''
+        this.queryInfo.categoryId = null
+        this.search()
+      },
 			search() {
 				this.queryInfo.pageNum = 1
 				this.queryInfo.pageSize = 10
@@ -211,7 +221,7 @@
 				this.getData()
 			},
 			goBlogEditPage(id) {
-				this.$router.push(`/layout/gblog/edit/${id}`)
+				this.$router.push(id ? `/layout/gblog/edit/${id}` : '/layout/gblog/edit')
 			},
 			deleteBlogById(id) {
 				this.$confirm('此操作将永久删除该博客<strong style="color: red">及其所有评论</strong>，是否删除?<br>建议将博客置为<strong style="color: red">私密</strong>状态！', '提示', {

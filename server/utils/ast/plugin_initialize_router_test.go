@@ -1,9 +1,10 @@
 package ast
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"path/filepath"
 	"testing"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 func TestPluginInitializeRouter_Injection(t *testing.T) {
@@ -28,7 +29,7 @@ func TestPluginInitializeRouter_Injection(t *testing.T) {
 			fields: fields{
 				Type:                 TypePluginInitializeRouter,
 				Path:                 filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "router.go"),
-				ImportPath:           `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/router"`,
+				ImportPath:           `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/router"`,
 				AppName:              "Router",
 				GroupName:            "User",
 				PackageName:          "router",
@@ -43,7 +44,7 @@ func TestPluginInitializeRouter_Injection(t *testing.T) {
 			fields: fields{
 				Type:                 TypePluginInitializeRouter,
 				Path:                 filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "router.go"),
-				ImportPath:           `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/router"`,
+				ImportPath:           `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/router"`,
 				AppName:              "Router",
 				GroupName:            "U中文",
 				PackageName:          "router",
@@ -102,7 +103,7 @@ func TestPluginInitializeRouter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:                 TypePluginInitializeRouter,
 				Path:                 filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "router.go"),
-				ImportPath:           `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/router"`,
+				ImportPath:           `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/router"`,
 				AppName:              "Router",
 				GroupName:            "User",
 				PackageName:          "router",
@@ -117,7 +118,7 @@ func TestPluginInitializeRouter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:                 TypePluginInitializeRouter,
 				Path:                 filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "router.go"),
-				ImportPath:           `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/router"`,
+				ImportPath:           `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/router"`,
 				AppName:              "Router",
 				GroupName:            "U中文",
 				PackageName:          "router",

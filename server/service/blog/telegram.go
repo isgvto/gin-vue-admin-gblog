@@ -1,6 +1,6 @@
 package blog
 
-import "github.com/flipped-aurora/gin-vue-admin/server/model/common"
+import "github.com/isgvto/gin-vue-admin-gblog/server/model/common"
 
 type TelegramService struct{}
 

@@ -1,14 +1,15 @@
 package example
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/example"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/example/request"
-	exampleRes "github.com/flipped-aurora/gin-vue-admin/server/model/example/response"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/example"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/example/request"
+	exampleRes "github.com/isgvto/gin-vue-admin-gblog/server/model/example/response"
+	"go.uber.org/zap"
 )
 
 type FileUploadAndDownloadApi struct{}

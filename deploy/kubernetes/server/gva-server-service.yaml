@@ -4,7 +4,7 @@ metadata:
   name: gva-server
   annotations:
     flipped-aurora/gin-vue-admin: backend
-    github: "https://github.com/flipped-aurora/gin-vue-admin.git"
+    github: "https://github.com/isgvto/gin-vue-admin-gblog.git"
     app.kubernetes.io/version: 0.0.1
   labels:
     app: gva-server

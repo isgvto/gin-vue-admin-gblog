@@ -3,8 +3,8 @@ package system
 import (
 	"context"
 
-	. "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	. "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -53,16 +53,17 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 
 	// 定义所有菜单
 	allMenus := []SysBaseMenu{
-		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "dashboard", Name: "dashboard", Component: "view/dashboard/index.vue", Sort: 1, Meta: Meta{Title: "仪表盘", Icon: "odometer"}},
-		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "about", Name: "about", Component: "view/about/index.vue", Sort: 9, Meta: Meta{Title: "关于我们", Icon: "info-filled"}},
+		{MenuLevel: 0, Hidden: true, ParentId: 0, Path: "dashboard", Name: "dashboard", Component: "view/dashboard/index.vue", Sort: 1, Meta: Meta{Title: "仪表盘", Icon: "odometer"}},
+		{MenuLevel: 0, Hidden: true, ParentId: 0, Path: "about", Name: "about", Component: "view/about/index.vue", Sort: 9, Meta: Meta{Title: "关于我们", Icon: "info-filled"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "admin", Name: "superAdmin", Component: "view/superAdmin/index.vue", Sort: 3, Meta: Meta{Title: "超级管理员", Icon: "user"}},
 		{MenuLevel: 0, Hidden: true, ParentId: 0, Path: "person", Name: "person", Component: "view/person/person.vue", Sort: 4, Meta: Meta{Title: "个人信息", Icon: "message"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "example", Name: "example", Component: "view/example/index.vue", Sort: 7, Meta: Meta{Title: "示例文件", Icon: "management"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "systemTools", Name: "systemTools", Component: "view/systemTools/index.vue", Sort: 5, Meta: Meta{Title: "编程辅助", Icon: "tools"}},
-		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "https://www.gin-vue-admin.com", Name: "https://www.gin-vue-admin.com", Component: "/", Sort: 0, Meta: Meta{Title: "官方网站", Icon: "customer-gva"}},
+		{MenuLevel: 0, Hidden: true, ParentId: 0, Path: "https://www.gin-vue-admin.com", Name: "https://www.gin-vue-admin.com", Component: "/", Sort: 0, Meta: Meta{Title: "官方网站", Icon: "customer-gva"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "state", Name: "state", Component: "view/system/state.vue", Sort: 8, Meta: Meta{Title: "服务器状态", Icon: "cloudy"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "plugin", Name: "plugin", Component: "view/routerHolder.vue", Sort: 6, Meta: Meta{Title: "插件系统", Icon: "cherry"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "gblog", Name: "gblog", Component: "view/routerHolder.vue", Sort: 2, Meta: Meta{Title: "GBlog", Icon: "idea"}},
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "ai", Name: "ai", Component: "view/routerHolder.vue", Sort: 3, Meta: Meta{Title: "AI 与集成", Icon: "magic-stick"}},
 	}
 
 	// 先创建父级菜单（ParentId = 0 的菜单）
@@ -78,6 +79,7 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 
 	// 定义子菜单，并设置正确的ParentId
 	childMenus := []SysBaseMenu{
+		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["ai"], Path: "modelConfig", Name: "modelConfig", Component: "view/ai/modelConfig/modelConfig.vue", Sort: 1, Meta: Meta{Title: "AI 模型配置", Icon: "chat-dot-square"}},
 		// superAdmin子菜单
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["superAdmin"], Path: "authority", Name: "authority", Component: "view/superAdmin/authority/authority.vue", Sort: 1, Meta: Meta{Title: "角色管理", Icon: "avatar"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["superAdmin"], Path: "menu", Name: "menu", Component: "view/superAdmin/menu/menu.vue", Sort: 2, Meta: Meta{Title: "菜单管理", Icon: "tickets", KeepAlive: true}},
@@ -108,7 +110,6 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["systemTools"], Path: "mcpTest", Name: "mcpTest", Component: "view/systemTools/autoCode/mcpTest.vue", Sort: 6, Meta: Meta{Title: "Mcp Tools管理", Icon: "partly-cloudy"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["systemTools"], Path: "mcpTool", Name: "mcpTool", Component: "view/systemTools/autoCode/mcp.vue", Sort: 7, Meta: Meta{Title: "Mcp Tools模板", Icon: "magnet"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["systemTools"], Path: "skills", Name: "skills", Component: "view/systemTools/skills/index.vue", Sort: 8, Meta: Meta{Title: "Skills管理", Icon: "document"}},
-		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["systemTools"], Path: "picture", Name: "picture", Component: "view/systemTools/autoCode/picture.vue", Sort: 9, Meta: Meta{Title: "AI页面绘制", Icon: "picture-filled"}},
 
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["plugin"], Path: "https://plugin.gin-vue-admin.com/", Name: "https://plugin.gin-vue-admin.com/", Component: "https://plugin.gin-vue-admin.com/", Sort: 0, Meta: Meta{Title: "插件市场", Icon: "shop"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["plugin"], Path: "installPlugin", Name: "installPlugin", Component: "view/systemTools/installPlugin/index.vue", Sort: 1, Meta: Meta{Title: "插件安装", Icon: "box"}},
@@ -131,7 +132,7 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "blogVisitLog", Name: "blogVisitLog", Component: "view/blogLog/VisitLog.vue", Sort: 12, Meta: Meta{Title: "访问日志", Icon: "search"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "blogVisitorStats", Name: "blogVisitorStats", Component: "view/blogStatistics/Visitor.vue", Sort: 13, Meta: Meta{Title: "访客统计", Icon: "trend-charts"}},
 		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "commentList", Name: "commentList", Component: "view/blog/comment/CommentList.vue", Sort: 14, Meta: Meta{Title: "评论管理", Icon: "chat-round"}},
-		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "gdashboard", Name: "gdashboard", Component: "view/blog/dashboard.vue", Sort: 15, Meta:Meta{Title: "GDashboard", Icon: "pie-chart"}},
+		{MenuLevel: 1, Hidden: false, ParentId: menuNameMap["gblog"], Path: "gdashboard", Name: "gdashboard", Component: "view/blog/dashboard.vue", Sort: 15, Meta: Meta{Title: "GDashboard", Icon: "pie-chart"}},
 	}
 
 	// 创建子菜单
