@@ -11,6 +11,7 @@ import { useUserStore } from '../../src/pinia/modules/user'
 
 const testPinia = createPinia()
 const app = createApp(Fixture).use(testPinia).use(ElementPlus)
+app.config.globalProperties.$GIN_VUE_ADMIN = { appName: 'GBlog' }
 if (new URLSearchParams(window.location.search).has('profile')) {
   useUserStore(testPinia).ResetUserInfo({userName:'fixture',nickName:'个人主页预览',headerImg:'',phone:'',email:'',githubUsername:'demo',authority:{authorityName:'管理员'}})
 }

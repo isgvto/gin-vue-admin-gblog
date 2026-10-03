@@ -3,24 +3,11 @@
     class="admin-header flex justify-between fixed top-0 left-0 right-0 z-10 h-16 bg-white text-slate-700 dark:text-slate-300 dark:bg-slate-900 shadow dark:shadow-gray-700 items-center px-2"
   >
     <div class="flex items-center cursor-pointer flex-1">
-      <div
-        class="flex items-center justify-center cursor-pointer"
-        :class="isMobile ? '' : 'min-w-48'"
-        @click="router.push({ path: '/' })"
-      >
-        <Logo />
-        <div
-          v-if="!isMobile"
-          class="inline-flex font-bold text-2xl ml-2"
-          :class="
-            (config.side_mode === 'head' ||
-              config.side_mode === 'combination') &&
-            'min-w-fit'
-          "
-        >
-          {{ $GIN_VUE_ADMIN.appName }}
-        </div>
-      </div>
+      <AdminBrand
+        :name="$GIN_VUE_ADMIN.appName"
+        :compact="isMobile"
+        @navigate="router.push({ path: '/' })"
+      />
 
       <el-breadcrumb
         v-show="!isMobile"
@@ -104,7 +91,7 @@
   import { setUserAuthority } from '@/api/user'
   import { fmtTitle } from '@/utils/fmtRouterTitle'
   import gvaAside from '@/view/layout/aside/index.vue'
-  import Logo from '@/components/logo/index.vue'
+  import AdminBrand from './AdminBrand.vue'
   import AiDock from '@/components/ai/AiDock.vue'
 
   const userStore = useUserStore()
