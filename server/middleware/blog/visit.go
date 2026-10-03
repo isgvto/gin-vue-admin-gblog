@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	commonResp "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	commonResp "github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 	"gorm.io/gorm"
 )
 

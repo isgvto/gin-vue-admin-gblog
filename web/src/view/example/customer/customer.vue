@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="客户示例" description="查看示例客户资料与数据权限。" />
     <warning-bar
       title="在资源权限中将此角色的资源权限清空 或者不包含创建者的角色 即可屏蔽此客户资源的显示"
     />
@@ -16,7 +17,7 @@
         tooltip-effect="dark"
         row-key="ID"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="left" label="接入日期" width="180">
           <template #default="scope">
             <span>{{ formatDate(scope.row.CreatedAt) }}</span>

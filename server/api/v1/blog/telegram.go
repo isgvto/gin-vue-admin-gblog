@@ -1,9 +1,9 @@
 package blog
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
 )
 
 type TelegramApi struct{}

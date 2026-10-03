@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 const (

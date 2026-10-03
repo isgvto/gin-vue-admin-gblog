@@ -1,10 +1,11 @@
 package system
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/config"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"context"
+	"github.com/isgvto/gin-vue-admin-gblog/server/config"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 	"go.uber.org/zap"
 )
 
@@ -34,6 +35,10 @@ func (systemConfigService *SystemConfigService) SetSystemConfig(system system.Sy
 		global.GVA_VP.Set(k, v)
 	}
 	err = global.GVA_VP.WriteConfig()
+	if err == nil {
+		// 邮件测试可能紧接着保存请求到达，不等待文件监听器异步刷新。
+		global.GVA_CONFIG.Email = system.Config.Email
+	}
 	return err
 }
 
@@ -42,8 +47,9 @@ func (systemConfigService *SystemConfigService) SetSystemConfig(system system.Sy
 //@description: 获取服务器信息
 //@return: server *utils.Server, err error
 
-func (systemConfigService *SystemConfigService) GetServerInfo() (server *utils.Server, err error) {
+func (systemConfigService *SystemConfigService) GetServerInfo(ctx context.Context) (server *utils.Server, err error) {
 	var s utils.Server
+	s.Database = collectDatabaseStatus(ctx)
 	s.Os = utils.InitOS()
 	if s.Cpu, err = utils.InitCPU(); err != nil {
 		global.GVA_LOG.Error("func utils.InitCPU() Failed", zap.String("err", err.Error()))

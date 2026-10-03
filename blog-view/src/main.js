@@ -8,6 +8,7 @@ import './assets/css/base.css'
 import './assets/css/icon/iconfont.css'
 //typo.css
 import "./assets/css/typo.css";
+import './assets/css/fonts.css'
 //semantic-ui
 import 'semantic-ui-css/semantic.min.css'
 //element-ui
@@ -20,6 +21,7 @@ import 'viewerjs/dist/viewer.css'
 import Viewer from 'v-viewer'
 //directive
 import './util/directive'
+import './util/mermaid'
 
 console.log(
 	'%c GBlog %c By Guitu %c https://github.com/LZMclear',

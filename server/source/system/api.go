@@ -3,8 +3,8 @@ package system
 import (
 	"context"
 
-	sysModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	sysModel "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -44,6 +44,21 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []sysModel.SysApi{
+		{ApiGroup: "AI 配图", Method: "GET", Path: "/ai/modelConfig/image", Description: "读取图片模型配置"},
+		{ApiGroup: "AI 配图", Method: "PUT", Path: "/ai/modelConfig/image", Description: "保存图片模型配置"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/ai/modelConfig/image/test", Description: "测试独立图片模型"},
+		{ApiGroup: "AI 配图", Method: "GET", Path: "/blog/ai/visual/status", Description: "配图状态"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/plan", Description: "推荐配图方案"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/generate", Description: "生成配图预览"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/adopt", Description: "采用配图并上传"},
+		{ApiGroup: "AI 配图", Method: "POST", Path: "/blog/ai/visual/discard", Description: "丢弃配图预览"},
+		{ApiGroup: "AI 功能", Method: "GET", Path: "/ai/modelConfig/workflow", Description: "读取需求工作流模型分配"},
+		{ApiGroup: "AI 功能", Method: "PUT", Path: "/ai/modelConfig/workflow", Description: "保存需求工作流模型分配"},
+		{ApiGroup: "AI 功能", Method: "POST", Path: "/ai/modelConfig/workflow/test", Description: "测试需求工作流模型"},
+		{ApiGroup: "AI 功能", Method: "POST", Path: "/autoCode/aiWorkflowChat", Description: "AI 需求工作流对话"},
+		{ApiGroup: "AI 功能", Method: "GET", Path: "/ai/modelConfig/errorAnalysis", Description: "读取错误分析模型分配"},
+		{ApiGroup: "AI 功能", Method: "PUT", Path: "/ai/modelConfig/errorAnalysis", Description: "保存错误分析模型分配"},
+		{ApiGroup: "AI 功能", Method: "POST", Path: "/ai/modelConfig/errorAnalysis/test", Description: "测试错误分析模型"},
 		{ApiGroup: "jwt", Method: "POST", Path: "/jwt/jsonInBlacklist", Description: "jwt加入黑名单(退出，必选)"},
 
 		{ApiGroup: "登录日志", Method: "DELETE", Path: "/sysLoginLog/deleteLoginLog", Description: "删除登录日志"},
@@ -61,6 +76,8 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "系统用户", Method: "PUT", Path: "/user/setUserInfo", Description: "设置用户信息"},
 		{ApiGroup: "系统用户", Method: "PUT", Path: "/user/setSelfInfo", Description: "设置自身信息(必选)"},
 		{ApiGroup: "系统用户", Method: "GET", Path: "/user/getUserInfo", Description: "获取自身信息(必选)"},
+		{ApiGroup: "系统用户", Method: "GET", Path: "/user/github", Description: "读取自己的 GitHub 展示数据"},
+		{ApiGroup: "系统用户", Method: "PUT", Path: "/user/github", Description: "设置自己的 GitHub 展示账号"},
 		{ApiGroup: "系统用户", Method: "POST", Path: "/user/setUserAuthorities", Description: "设置权限组"},
 		{ApiGroup: "系统用户", Method: "POST", Path: "/user/changePassword", Description: "修改密码（建议选择)"},
 		{ApiGroup: "系统用户", Method: "POST", Path: "/user/setUserAuthority", Description: "修改用户角色(必选)"},
@@ -233,7 +250,7 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "错误日志", Method: "PUT", Path: "/sysError/updateSysError", Description: "更新错误日志"},
 		{ApiGroup: "错误日志", Method: "GET", Path: "/sysError/findSysError", Description: "根据ID获取错误日志"},
 		{ApiGroup: "错误日志", Method: "GET", Path: "/sysError/getSysErrorList", Description: "获取错误日志列表"},
-		{ApiGroup: "错误日志", Method: "GET", Path: "/sysError/getSysErrorSolution", Description: "触发错误处理(异步)"},
+		{ApiGroup: "错误日志", Method: "POST", Path: "/sysError/getSysErrorSolution", Description: "触发错误处理(异步)"},
 
 		{ApiGroup: "公告", Method: "POST", Path: "/info/createInfo", Description: "新建公告"},
 		{ApiGroup: "公告", Method: "DELETE", Path: "/info/deleteInfo", Description: "删除公告"},
@@ -262,7 +279,7 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "版本控制", Method: "DELETE", Path: "/sysVersion/deleteSysVersionByIds", Description: "批量删除版本"},
 
 		//初始化gblog相关api
-		
+
 		{ApiGroup: "gblog", Method: "GET", Path: "/admin/blogs", Description: "博客列表"},
 		{ApiGroup: "gblog", Method: "GET", Path: "/admin/categoryAndTag", Description: "种类和标签"},
 		{ApiGroup: "gblog", Method: "GET", Path: "/admin/categories", Description: "获取类别列表"},

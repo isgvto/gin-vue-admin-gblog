@@ -122,7 +122,7 @@
 }
 
 .gva-theme-font {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--admin-font);
 }
 
 .gva-theme-card-bg {

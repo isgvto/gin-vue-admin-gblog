@@ -1,5 +1,7 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-form">
+    <AdminPageHeading title="编辑动态" description="编写动态内容并设置发布时间与可见性。" />
+    <section class="gva-form-box">
 		<el-form :model="form" label-position="top">
 			<el-form-item label="动态内容" prop="content">
 				<mavon-editor v-model="form.content"/>
@@ -18,7 +20,9 @@
 				<el-button type="primary" @click="submit(true)">发布动态</el-button>
 			</el-form-item>
 		</el-form>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

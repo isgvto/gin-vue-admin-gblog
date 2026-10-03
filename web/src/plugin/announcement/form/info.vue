@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--legacy-form">
+    <AdminPageHeading title="公告编辑" description="编辑公告标题、作者和正文。" />
     <div class="gva-form-box">
       <el-form
         :model="formData"

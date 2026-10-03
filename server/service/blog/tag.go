@@ -4,10 +4,10 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
-	blogResp "github.com/flipped-aurora/gin-vue-admin/server/model/blog/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
+	blogResp "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/response"
 )
 
 type TagService struct{}

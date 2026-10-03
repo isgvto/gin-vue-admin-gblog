@@ -142,14 +142,13 @@ export const useRouterStore = defineStore('router', () => {
     let topActive = sessionStorage.getItem('topActive')
     // 初始化菜单内容，防止重复添加
     topMenu.value = [];
+    Object.keys(menuMap).forEach((key) => delete menuMap[key])
     asyncRouters.value[0]?.children.forEach((item) => {
       if (item.hidden) return
       menuMap[item.name] = item
       topMenu.value.push({ ...item, children: [] })
     })
-    if (!topActive || topActive === 'undefined' || topActive === 'null') {
-      topActive = findTopActive(menuMap, route.name);
-    }
+    topActive = findTopActive(menuMap, route.name) || (menuMap[topActive] ? topActive : topMenu.value[0]?.name)
     setLeftMenu(topActive)
   })
 

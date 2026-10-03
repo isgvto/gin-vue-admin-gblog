@@ -1,15 +1,17 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="标签管理" description="维护标签名称、颜色与内容归类。" />
+    <section class="gva-table-box">
 		<!--添加-->
 		<el-row :gutter="10">
 			<el-col :span="6">
-				<el-button type="primary" size="small" icon="el-icon-plus" @click="addDialogVisible=true">添加标签</el-button>
+				<el-button type="primary" size="small" icon="Plus" @click="addDialogVisible=true">添加标签</el-button>
 			</el-col>
 		</el-row>
 
 		<el-table :data="tagList">
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
-			<el-table-column label="名称" prop="tagName" width="300"></el-table-column>
+			<el-table-column label="序号" type="index" width="100" align="center"></el-table-column>
+			<el-table-column label="名称" prop="tagName" min-width="280"></el-table-column>
 			<el-table-column label="颜色">
 				<template v-slot="scope">
 					<div class="tag-color-view" v-if="scope.row.color">
@@ -20,11 +22,11 @@
 					<span v-else class="tag-color-empty">未设置</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作">
+			<el-table-column label="操作" align="center">
 				<template v-slot="scope">
-					<el-button type="primary" icon="el-icon-edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteTagById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-button type="primary" icon="Edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteTagById(scope.row.id)">
+						<template #reference><el-button size="small" type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -37,7 +39,7 @@
 		</el-pagination>
 
 		<!--添加标签对话框-->
-		<el-dialog title="添加标签" width="50%" v-model="addDialogVisible" :close-on-click-modal="false" @close="addDialogClosed">
+		<el-dialog title="添加标签" width="min(760px, 94vw)" v-model="addDialogVisible" :close-on-click-modal="false" @close="addDialogClosed">
 			<!--内容主体-->
 			<el-form :model="addForm" :rules="formRules" ref="addFormRef" label-width="80px">
 				<el-form-item label="标签名称" prop="tagName">
@@ -63,7 +65,7 @@
 		</el-dialog>
 
 		<!--编辑标签对话框-->
-		<el-dialog title="编辑标签" width="50%" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
+		<el-dialog title="编辑标签" width="min(760px, 94vw)" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
 			<!--内容主体-->
 			<el-form :model="editForm" :rules="formRules" ref="editFormRef" label-width="80px">
 				<el-form-item label="标签名称" prop="tagName">
@@ -87,7 +89,9 @@
 				<el-button type="primary" @click="editTag">确 定</el-button>
 			</template>
 		</el-dialog>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

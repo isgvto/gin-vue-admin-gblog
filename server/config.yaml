@@ -1,3 +1,13 @@
+ai:
+    enable: true
+    provider: openai
+    base-url: https://api.deepseek.com/v1
+    api-key: ""
+    model: deepseek-chat
+    temperature: 0.7
+    max-tokens: 4096
+    context-limit: 8000
+    daily-limit: 200
 aliyun-oss:
     endpoint: yourEndpoint
     access-key-id: yourAccessKeyId
@@ -9,7 +19,7 @@ autocode:
     web: web/src
     root: E:\Gvto\桌面\gin-vue-admin-gblog
     server: server
-    module: github.com/flipped-aurora/gin-vue-admin/server
+    module: github.com/isgvto/gin-vue-admin-gblog/server
     ai-path: ""
 aws-s3:
     bucket: xxxxx-10005608
@@ -18,7 +28,7 @@ aws-s3:
     secret-id: your-secret-id
     secret-key: your-secret-key
     base-url: https://gin.vue.admin
-    path-prefix: github.com/flipped-aurora/gin-vue-admin/server
+    path-prefix: github.com/isgvto/gin-vue-admin-gblog/server
     s3-force-path-style: false
     disable-ssl: false
 captcha:
@@ -67,14 +77,14 @@ db-list:
 disk-list:
     - mount-point: /
 email:
-    to: xxx@qq.com
-    from: xxx@163.com
+    to: 3135679861@qq.com
+    from: lz13526112262@163.com
     host: smtp.163.com
     secret: xxx
     nickname: test
     port: 465
     is-ssl: true
-    is-loginauth: false
+    is-loginauth: true
 excel:
     dir: ./resource/excel/
 hua-wei-obs:
@@ -238,15 +248,15 @@ system:
     use-strict-auth: false
     disable-auto-migrate: false
 tencent-cos:
-    bucket: xxxxx-10005608
-    region: ap-shanghai
+    bucket: gblog-1316762285
+    region: ap-beijing
     secret-id: your-secret-id
     secret-key: your-secret-key
-    base-url: https://gin.vue.admin
-    path-prefix: github.com/flipped-aurora/gin-vue-admin/server
+    base-url: https://gblog-1316762285.cos.ap-beijing.myqcloud.com
+    path-prefix: content-image
 zap:
     level: info
-    prefix: '[github.com/flipped-aurora/gin-vue-admin/server]'
+    prefix: '[github.com/isgvto/gin-vue-admin-gblog/server]'
     format: console
     director: log
     encode-level: LowercaseColorLevelEncoder
@@ -254,15 +264,4 @@ zap:
     show-line: true
     log-in-console: true
     retention-day: -1
-
-# ai
-ai:
-    enable: true
-    provider: openai
-    base-url: https://api.deepseek.com/v1
-    api-key: ""
-    model: deepseek-chat
-    temperature: 0.7
-    max-tokens: 4096
-    context-limit: 8000
-    daily-limit: 200
+#

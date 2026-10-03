@@ -1,8 +1,9 @@
 package system
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"time"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 type SysApiToken struct {

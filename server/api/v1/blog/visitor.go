@@ -1,11 +1,11 @@
 package blog
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
-	commonReq "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
+	commonReq "github.com/isgvto/gin-vue-admin-gblog/server/model/common/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
 	"go.uber.org/zap"
 )
 

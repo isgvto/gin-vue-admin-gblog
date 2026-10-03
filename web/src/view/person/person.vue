@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container">
+  <div class="admin-page admin-page--cards profile-container">
     <!-- 顶部个人信息卡片 -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm mb-8">
       <!-- 顶部背景图 -->
@@ -49,29 +49,7 @@
                   </div>
                 </div>
 
-                <div
-                  class="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8 text-gray-500 dark:text-gray-400"
-                >
-                  <div class="flex items-center gap-2">
-                    <el-icon><location /></el-icon>
-                    <span>中国·北京市·朝阳区</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <el-icon><office-building /></el-icon>
-                    <span>北京翻转极光科技有限公司</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <el-icon><user /></el-icon>
-                    <span>技术部·前端事业群</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex gap-4 mt-4">
-                <el-button type="primary" plain icon="message">
-                  发送消息
-                </el-button>
-                <el-button icon="share"> 分享主页 </el-button>
+                <p class="text-gray-500 dark:text-gray-400">{{ userStore.userInfo.authority?.authorityName || '当前账号' }} · {{ userStore.userInfo.userName }}</p>
               </div>
             </div>
           </div>
@@ -139,98 +117,8 @@
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-xl p-6 profile-card">
-          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-            <el-icon class="text-blue-500"><medal /></el-icon>
-            技能特长
-          </h2>
-          <div class="flex flex-wrap gap-2">
-            <el-tag effect="plain" type="success">GoLang</el-tag>
-            <el-tag effect="plain" type="warning">JavaScript</el-tag>
-            <el-tag effect="plain" type="danger">Vue</el-tag>
-            <el-tag effect="plain" type="info">Gorm</el-tag>
-            <el-button link class="text-sm">
-              <el-icon><plus /></el-icon>
-              添加技能
-            </el-button>
-          </div>
-        </div>
       </div>
-
-      <!-- 右侧内容区 -->
-      <div class="lg:col-span-8">
-        <div class="bg-white dark:bg-slate-800 rounded-xl p-6 profile-card">
-          <el-tabs class="custom-tabs">
-            <el-tab-pane>
-              <template #label>
-                <div class="flex items-center gap-2">
-                  <el-icon><data-line /></el-icon>
-                  数据统计
-                </div>
-              </template>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 py-6">
-                <div class="stat-card">
-                  <div
-                    class="text-2xl lg:text-4xl font-bold text-blue-500 mb-2"
-                  >
-                    138
-                  </div>
-                  <div class="text-gray-500 text-sm">项目参与</div>
-                </div>
-                <div class="stat-card">
-                  <div
-                    class="text-2xl lg:text-4xl font-bold text-green-500 mb-2"
-                  >
-                    2.3k
-                  </div>
-                  <div class="text-gray-500 text-sm">代码提交</div>
-                </div>
-                <div class="stat-card">
-                  <div
-                    class="text-2xl lg:text-4xl font-bold text-purple-500 mb-2"
-                  >
-                    95%
-                  </div>
-                  <div class="text-gray-500 text-sm">任务完成</div>
-                </div>
-                <div class="stat-card">
-                  <div
-                    class="text-2xl lg:text-4xl font-bold text-yellow-500 mb-2"
-                  >
-                    12
-                  </div>
-                  <div class="text-gray-500 text-sm">获得勋章</div>
-                </div>
-              </div>
-            </el-tab-pane>
-            <el-tab-pane>
-              <template #label>
-                <div class="flex items-center gap-2">
-                  <el-icon><calendar /></el-icon>
-                  近期动态
-                </div>
-              </template>
-              <div class="py-6">
-                <el-timeline>
-                  <el-timeline-item
-                    v-for="(activity, index) in activities"
-                    :key="index"
-                    :type="activity.type"
-                    :timestamp="activity.timestamp"
-                    :hollow="true"
-                    class="pb-6"
-                  >
-                    <h3 class="text-base font-medium mb-1">
-                      {{ activity.title }}
-                    </h3>
-                    <p class="text-gray-500 text-sm">{{ activity.content }}</p>
-                  </el-timeline-item>
-                </el-timeline>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
-      </div>
+      <div class="lg:col-span-8"><GitHubProfile /></div>
     </div>
 
     <!-- 弹窗 -->
@@ -362,6 +250,7 @@
   import { ElMessage } from 'element-plus'
   import { useUserStore } from '@/pinia/modules/user'
   import SelectImage from '@/components/selectImage/selectImage.vue'
+  import GitHubProfile from './components/GitHubProfile.vue'
   defineOptions({
     name: 'Person'
   })
@@ -522,33 +411,6 @@
     }
   })
 
-  // 添加活动数据
-  const activities = [
-    {
-      timestamp: '2024-01-10',
-      title: '完成项目里程碑',
-      content: '成功完成第三季度主要项目开发任务，获得团队一致好评',
-      type: 'primary'
-    },
-    {
-      timestamp: '2024-01-11',
-      title: '代码审核完成',
-      content: '完成核心模块代码审核，提出多项改进建议并获采纳',
-      type: 'success'
-    },
-    {
-      timestamp: '2024-01-12',
-      title: '技术分享会',
-      content: '主持团队技术分享会，分享前端性能优化经验',
-      type: 'warning'
-    },
-    {
-      timestamp: '2024-01-13',
-      title: '新功能上线',
-      content: '成功上线用户反馈的新特性，显著提升用户体验',
-      type: 'danger'
-    }
-  ]
 </script>
 
 <style lang="scss">

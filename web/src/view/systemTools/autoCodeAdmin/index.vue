@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="生成历史" description="查看已生成模块与代码记录。" />
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button type="primary" icon="plus" @click="goAutoCode(null)">
@@ -7,7 +8,7 @@
         </el-button>
       </div>
       <el-table :data="tableData">
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="left" label="id" width="60" prop="ID" />
         <el-table-column align="left" label="日期" width="180">
           <template #default="scope">

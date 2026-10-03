@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--legacy-form">
+    <AdminPageHeading title="邮件管理" description="编写邮件内容并发送测试邮件。" />
     <warning-bar
       title="需要提前配置email配置文件，为防止不必要的垃圾邮件，在线体验功能不开放此功能体验。"
     />
@@ -13,15 +14,15 @@
         <el-form-item label="目标邮箱">
           <el-input v-model="form.to" />
         </el-form-item>
-        <el-form-item label="邮件">
-          <el-input v-model="form.subject" />
+        <el-form-item label="主题">
+          <el-input v-model="form.subject" placeholder="请输入邮件主题" />
         </el-form-item>
         <el-form-item label="邮件内容">
-          <el-input v-model="form.body" type="textarea" />
+          <el-input v-model="form.body" type="textarea" :rows="6" />
         </el-form-item>
         <el-form-item>
           <el-button @click="sendTestEmail">发送测试邮件</el-button>
-          <el-button @click="sendEmail">发送邮件</el-button>
+          <el-button type="primary" @click="sendEmail">发送邮件</el-button>
         </el-form-item>
       </el-form>
     </div>

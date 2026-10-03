@@ -3,8 +3,8 @@ package system
 import (
 	"context"
 
-	sysModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	sysModel "github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -99,6 +99,11 @@ func (i *initMenuAuthority) InitializeData(ctx context.Context) (next context.Co
 
 	if err = db.Model(&authorities[2]).Association("SysBaseMenus").Replace(menu9528); err != nil {
 		return next, errors.Wrap(err, "为测试角色分配菜单失败")
+	}
+	// Apply after assigning existing feature permissions; new folders inherit only
+	// the roles that already have one of their children.
+	if err = system.OrganizeMenuLayout(db); err != nil {
+		return next, err
 	}
 
 	return next, nil

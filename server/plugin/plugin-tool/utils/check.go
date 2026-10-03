@@ -1,16 +1,17 @@
 package utils
 
 import (
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
 )
 
 var (
@@ -135,4 +136,3 @@ func GetPluginData(pluginName string) ([]system.SysApi, []system.SysBaseMenu, []
 	defer rw.Unlock()
 	return ApiMap[pluginName], MenuMap[pluginName], DictMap[pluginName]
 }
-

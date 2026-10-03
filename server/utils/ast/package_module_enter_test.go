@@ -1,9 +1,10 @@
 package ast
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"path/filepath"
 	"testing"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 func TestPackageModuleEnter_Rollback(t *testing.T) {
@@ -28,7 +29,7 @@ func TestPackageModuleEnter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:        TypePackageRouterModuleEnter,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "router", "example", "enter.go"),
-				ImportPath:  `api "github.com/flipped-aurora/gin-vue-admin/server/api/v1"`,
+				ImportPath:  `api "github.com/isgvto/gin-vue-admin-gblog/server/api/v1"`,
 				StructName:  "FileUploadAndDownloadRouter",
 				AppName:     "ApiGroupApp",
 				GroupName:   "ExampleApiGroup",
@@ -43,7 +44,7 @@ func TestPackageModuleEnter_Rollback(t *testing.T) {
 			fields: fields{
 				Type:        TypePackageApiModuleEnter,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "api", "v1", "example", "enter.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/service"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/service"`,
 				StructName:  "FileUploadAndDownloadApi",
 				AppName:     "ServiceGroupApp",
 				GroupName:   "ExampleServiceGroup",
@@ -117,7 +118,7 @@ func TestPackageModuleEnter_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePackageRouterModuleEnter,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "router", "example", "enter.go"),
-				ImportPath:  `api "github.com/flipped-aurora/gin-vue-admin/server/api/v1"`,
+				ImportPath:  `api "github.com/isgvto/gin-vue-admin-gblog/server/api/v1"`,
 				StructName:  "FileUploadAndDownloadRouter",
 				AppName:     "ApiGroupApp",
 				GroupName:   "ExampleApiGroup",
@@ -132,7 +133,7 @@ func TestPackageModuleEnter_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePackageApiModuleEnter,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "api", "v1", "example", "enter.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/service"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/service"`,
 				StructName:  "FileUploadAndDownloadApi",
 				AppName:     "ServiceGroupApp",
 				GroupName:   "ExampleServiceGroup",

@@ -3,7 +3,7 @@ package response
 import (
 	"time"
 
-	blogModel "github.com/flipped-aurora/gin-vue-admin/server/model/blog"
+	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
 )
 
 type SearchBlogItem struct {

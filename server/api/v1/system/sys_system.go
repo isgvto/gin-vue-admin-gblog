@@ -1,12 +1,12 @@
 package system
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	systemRes "github.com/isgvto/gin-vue-admin-gblog/server/model/system/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 	"go.uber.org/zap"
 )
 
@@ -79,7 +79,7 @@ func (s *SystemApi) ReloadSystem(c *gin.Context) {
 // @Success   200  {object}  response.Response{data=map[string]interface{},msg=string}  "获取服务器信息"
 // @Router    /system/getServerInfo [post]
 func (s *SystemApi) GetServerInfo(c *gin.Context) {
-	server, err := systemConfigService.GetServerInfo()
+	server, err := systemConfigService.GetServerInfo(c.Request.Context())
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

@@ -11,8 +11,8 @@ import (
 	"github.com/cloudwego/eino-ext/components/model/gemini"
 	"github.com/cloudwego/eino-ext/components/model/openai"
 	fmodel "github.com/cloudwego/eino/components/model"
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	aiModel "github.com/flipped-aurora/gin-vue-admin/server/model/ai"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
 	"go.uber.org/zap"
 	"google.golang.org/genai"
 )

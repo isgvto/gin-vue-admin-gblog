@@ -4,7 +4,7 @@ import (
 	"context"
 
 	adapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/service/system"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -45,6 +45,27 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		return ctx, system.ErrMissingDBContext
 	}
 	entities := []adapter.CasbinRule{
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/image", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/image", V2: "PUT"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/image/test", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/status", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/plan", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/generate", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/adopt", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/blog/ai/visual/discard", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/status", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/plan", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/generate", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/adopt", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/blog/ai/visual/discard", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow", V2: "PUT"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/workflow/test", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/autoCode/aiWorkflowChat", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/autoCode/aiWorkflowChat", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/errorAnalysis", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/errorAnalysis", V2: "PUT"},
+		{Ptype: "p", V0: "9528", V1: "/ai/modelConfig/errorAnalysis/test", V2: "POST"},
 		{Ptype: "p", V0: "888", V1: "/user/admin_register", V2: "POST"},
 
 		{Ptype: "p", V0: "888", V1: "/sysLoginLog/deleteLoginLog", V2: "DELETE"},
@@ -92,6 +113,8 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "888", V1: "/menu/getBaseMenuById", V2: "POST"},
 
 		{Ptype: "p", V0: "888", V1: "/user/getUserInfo", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/user/github", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/user/github", V2: "PUT"},
 		{Ptype: "p", V0: "888", V1: "/user/setUserInfo", V2: "PUT"},
 		{Ptype: "p", V0: "888", V1: "/user/setSelfInfo", V2: "PUT"},
 		{Ptype: "p", V0: "888", V1: "/user/getUserList", V2: "POST"},
@@ -234,7 +257,7 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "888", V1: "/sysError/updateSysError", V2: "PUT"},
 		{Ptype: "p", V0: "888", V1: "/sysError/findSysError", V2: "GET"},
 		{Ptype: "p", V0: "888", V1: "/sysError/getSysErrorList", V2: "GET"},
-		{Ptype: "p", V0: "888", V1: "/sysError/getSysErrorSolution", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/sysError/getSysErrorSolution", V2: "POST"},
 
 		{Ptype: "p", V0: "888", V1: "/info/createInfo", V2: "POST"},
 		{Ptype: "p", V0: "888", V1: "/info/deleteInfo", V2: "DELETE"},
@@ -361,6 +384,7 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "8881", V1: "/customer/customer", V2: "GET"},
 		{Ptype: "p", V0: "8881", V1: "/customer/customerList", V2: "GET"},
 		{Ptype: "p", V0: "8881", V1: "/user/getUserInfo", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/user/github", V2: "GET"},
 
 		{Ptype: "p", V0: "9528", V1: "/user/admin_register", V2: "POST"},
 		{Ptype: "p", V0: "9528", V1: "/api/createApi", V2: "POST"},
@@ -419,6 +443,7 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "9528", V1: "/autoCode/deleteAIWorkflowSession", V2: "POST"},
 		{Ptype: "p", V0: "9528", V1: "/autoCode/dumpAIWorkflowMarkdown", V2: "POST"},
 		{Ptype: "p", V0: "9528", V1: "/user/getUserInfo", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/user/github", V2: "GET"},
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, "Casbin 表 ("+i.InitializerName()+") 数据初始化失败!")

@@ -1,0 +1,19 @@
+.markdown-diagram {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--el-border-color-light, #e4e7ed);
+  border-radius: 8px;
+  background: #fff;
+  overflow: auto;
+}
+.markdown-diagram > img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.markdown-diagram details { margin-top: 12px; color: #606266; font-size: 12px; }
+.markdown-diagram summary { cursor: pointer; }
+.markdown-diagram details pre { white-space: pre; overflow: auto; text-align: left; }
+.mermaid-error { margin: 8px 0 16px; color: #b88230; font-size: 12px; line-height: 1.6; }

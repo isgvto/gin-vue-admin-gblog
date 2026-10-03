@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--list">
+    <AdminPageHeading title="API 管理" description="维护接口分组、请求方法与访问权限。" />
     <div class="gva-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="路径">
@@ -59,25 +60,25 @@
         @sort-change="sortChange"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" align="center" />
         <el-table-column
           align="left"
-          label="id"
-          min-width="60"
+          label="ID"
+          min-width="90"
           prop="ID"
           sortable="custom"
         />
         <el-table-column
           align="left"
           label="API路径"
-          min-width="150"
+          min-width="260"
           prop="path"
           sortable="custom"
         />
         <el-table-column
           align="left"
           label="API分组"
-          min-width="150"
+          min-width="110"
           prop="apiGroup"
           sortable="custom"
         />
@@ -91,7 +92,7 @@
         <el-table-column
           align="left"
           label="请求"
-          min-width="150"
+          min-width="140"
           prop="method"
           sortable="custom"
         >
@@ -102,7 +103,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="left" fixed="right" label="操作" :min-width="appStore.operateMinWith">
+        <el-table-column align="center" :fixed="appStore.device === 'mobile' ? false : 'right'" label="操作" min-width="260">
           <template #default="scope">
             <el-button
               icon="edit"
@@ -191,13 +192,13 @@
         <el-table-column
           align="left"
           label="API路径"
-          min-width="150"
+          min-width="260"
           prop="path"
         />
         <el-table-column
           align="left"
           label="API分组"
-          min-width="150"
+          min-width="110"
           prop="apiGroup"
         >
           <template #default="{ row }">
@@ -230,7 +231,7 @@
         <el-table-column
           align="left"
           label="请求"
-          min-width="150"
+          min-width="140"
           prop="method"
         >
           <template #default="scope">
@@ -239,7 +240,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="150" fixed="right">
+        <el-table-column label="操作" min-width="150" fixed="right" align="center">
           <template #default="{ row }">
             <el-button icon="plus" type="primary" link @click="addApiFunc(row)">
               单条新增
@@ -266,13 +267,13 @@
         <el-table-column
           align="left"
           label="API路径"
-          min-width="150"
+          min-width="260"
           prop="path"
         />
         <el-table-column
           align="left"
           label="API分组"
-          min-width="150"
+          min-width="110"
           prop="apiGroup"
         />
         <el-table-column
@@ -284,7 +285,7 @@
         <el-table-column
           align="left"
           label="请求"
-          min-width="150"
+          min-width="140"
           prop="method"
         >
           <template #default="scope">
@@ -305,13 +306,13 @@
         <el-table-column
           align="left"
           label="API路径"
-          min-width="150"
+          min-width="260"
           prop="path"
         />
         <el-table-column
           align="left"
           label="API分组"
-          min-width="150"
+          min-width="110"
           prop="apiGroup"
         />
         <el-table-column
@@ -323,7 +324,7 @@
         <el-table-column
           align="left"
           label="请求"
-          min-width="150"
+          min-width="140"
           prop="method"
         >
           <template #default="scope">
@@ -332,7 +333,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="150" fixed="right">
+        <el-table-column label="操作" min-width="150" fixed="right" align="center">
           <template #default="{ row }">
             <el-button
               icon="sunny"

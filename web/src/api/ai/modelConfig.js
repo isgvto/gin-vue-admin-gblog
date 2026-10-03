@@ -50,3 +50,19 @@ export function getModelProviders() {
     method: 'GET'
   })
 }
+
+export const testModelConnection = (data) => requestModel({
+  url: '/ai/modelConfig/testConnection', method: 'POST', data, timeout: data.testMode === 'image' ? 195000 : 35000
+})
+
+export const getProviderModels = (data) => requestModel({
+  url: '/ai/modelConfig/providerModels', method: 'POST', data, timeout: 35000
+})
+
+export const getErrorAnalysisConfig = () => requestModel({ url: '/ai/modelConfig/errorAnalysis', method: 'GET' })
+export const saveErrorAnalysisConfig = (data) => requestModel({ url: '/ai/modelConfig/errorAnalysis', method: 'PUT', data })
+export const testErrorAnalysis = (data) => requestModel({ url: '/ai/modelConfig/errorAnalysis/test', method: 'POST', data, timeout: (data.timeoutSeconds + 15) * 1000 })
+
+export const getFeatureModelConfig = (feature) => requestModel({ url: `/ai/modelConfig/${feature}`, method: 'GET' })
+export const saveFeatureModelConfig = (feature, data) => requestModel({ url: `/ai/modelConfig/${feature}`, method: 'PUT', data })
+export const testFeatureModelConfig = (feature, data) => requestModel({ url: `/ai/modelConfig/${feature}/test`, method: 'POST', data, timeout: (data.timeoutSeconds + 15) * 1000 })

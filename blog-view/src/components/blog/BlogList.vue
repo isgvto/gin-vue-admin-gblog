@@ -35,10 +35,11 @@
 <style scoped>
 	.latest-card {
 		padding: 24px;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		background: rgba(255, 255, 255, .9);
-		box-shadow: 0 18px 45px rgba(15, 23, 42, .08);
+		border: 1px solid rgba(229, 231, 235, .92);
+		border-radius: 12px;
+		background: rgba(255, 255, 255, .94);
+		box-shadow: 0 12px 32px rgba(15, 23, 42, .06);
+		backdrop-filter: blur(8px);
 	}
 
 	.latest-header {
@@ -54,6 +55,17 @@
 		font-size: 22px;
 		line-height: 1.2;
 		letter-spacing: 0;
+	}
+
+	.latest-header h2::before {
+		display: inline-block;
+		width: 4px;
+		height: 20px;
+		margin-right: 10px;
+		border-radius: 999px;
+		background: #409eff;
+		content: '';
+		vertical-align: -2px;
 	}
 
 	@media only screen and (max-width: 640px) {

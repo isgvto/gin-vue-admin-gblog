@@ -132,7 +132,7 @@
 
 .diff-summary {
   margin: 6px 0;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   font-size: 12px;
 }
 
@@ -148,21 +148,21 @@
 .diff-block {
   position: relative;
   padding: 10px 12px;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: 6px;
-  background: #fff;
+  background: var(--admin-surface, var(--el-bg-color));
 }
 
 .diff-block.is-modified {
-  border-color: #e6a23c;
+  border-color: var(--el-color-warning);
 }
 
 .diff-block.is-added {
-  border-color: #67c23a;
+  border-color: var(--el-color-success);
 }
 
 .diff-block.is-removed {
-  border-color: #f56c6c;
+  border-color: var(--el-color-danger);
 }
 
 .block-tag {
@@ -170,32 +170,32 @@
   margin-bottom: 6px;
   padding: 1px 8px;
   border-radius: 4px;
-  background: #f0f2f5;
-  color: #909399;
+  background: var(--el-fill-color);
+  color: var(--el-text-color-secondary);
   font-size: 12px;
 }
 
 .is-modified .block-tag {
-  background: #fdf6ec;
-  color: #e6a23c;
+  background: var(--el-color-warning-light-9);
+  color: var(--el-color-warning);
 }
 
 .is-added .block-tag {
-  background: #f0f9eb;
-  color: #67c23a;
+  background: var(--el-color-success-light-9);
+  color: var(--el-color-success);
 }
 
 .is-removed .block-tag {
-  background: #fef0f0;
-  color: #f56c6c;
+  background: var(--el-color-danger-light-9);
+  color: var(--el-color-danger);
 }
 
 .block-text {
   margin: 0;
   padding: 6px 8px;
   border-radius: 4px;
-  background: #fafbfc;
-  color: #24292f;
+  background: var(--el-fill-color-lighter);
+  color: var(--admin-text, var(--el-text-color-primary));
   font-family: inherit;
   font-size: 13px;
   line-height: 1.7;
@@ -204,11 +204,11 @@
 }
 
 .block-text.original {
-  background: #fef0f0;
+  background: var(--el-color-danger-light-9);
 }
 
 .block-text.revised {
-  background: #f0f9eb;
+  background: var(--el-color-success-light-9);
 }
 
 .block-text.dimmed {

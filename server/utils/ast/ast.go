@@ -2,11 +2,12 @@ package ast
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"log"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
 )
 
 // AddImport 增加 import 方法

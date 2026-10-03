@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/request"
 )
 
 type AiModelConfigSearch struct {
@@ -21,4 +21,5 @@ type AiModelConfigUpsert struct {
 	MaxTokens   int     `json:"maxTokens"`
 	Status      bool    `json:"status"`
 	Remark      string  `json:"remark"`
+	TestMode    string  `json:"testMode,omitempty"` // Request-only: chat or image, selected by the user.
 }

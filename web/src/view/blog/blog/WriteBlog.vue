@@ -1,5 +1,5 @@
 <template>
-  <div class="write-blog-page">
+  <div class="admin-page admin-page--editor write-blog-page">
     <el-form :model="form" :rules="formRules" ref="formRef" label-position="top" class="writer-form">
       <div class="writer-shell">
         <main class="writer-main">
@@ -306,6 +306,7 @@
             this.$refs.contentEditorRef?.getSelection?.() || { text: '', start: 0, end: 0 },
           replaceSelection: (text) => this.$refs.contentEditorRef?.replaceSelection?.(text),
           insertAtCursor: (text) => this.$refs.contentEditorRef?.insertAtCursor?.(text),
+          appendChapter: (text, expected) => this.$refs.contentEditorRef?.appendChapter?.(text, expected),
           getFullText: () => this.form.content || '',
           getCursorContext: () => {
             const sel = this.$refs.contentEditorRef?.getSelection?.()
@@ -313,6 +314,13 @@
             return cursorContext(content, sel?.start)
           },
           getTitle: () => this.form.title || '',
+          getDescription: () => this.form.description || '',
+          getCover: () => this.form.firstPicture || '',
+          fillCover: (url, expectedCover) => {
+            if ((this.form.firstPicture || '') !== expectedCover) return { ok: false, message: '首图已被修改，请复制链接手动填写' }
+            this.form.firstPicture = url
+            return { ok: true }
+          },
           fillTitle: (title, expectedTitle) => {
             const message = titleFillError(title, expectedTitle, this.form.title || '')
             if (message) return { ok: false, message }
@@ -497,8 +505,9 @@
 <style scoped lang="scss">
 .write-blog-page {
   min-height: calc(100vh - 100px);
+  color: var(--admin-text, var(--el-text-color-primary));
   padding: 16px;
-  background: #f5f7fa;
+  background: var(--admin-canvas, var(--el-bg-color-page));
 }
 
 .writer-shell {
@@ -516,9 +525,9 @@
 .writer-header,
 .section-block,
 .side-panel {
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--admin-border, var(--el-border-color-lighter));
   border-radius: 8px;
-  background: #fff;
+  background: var(--admin-surface, var(--el-bg-color));
 }
 
 .writer-header {
@@ -531,14 +540,14 @@
 }
 
 .writer-title {
-  color: #303133;
+  color: var(--admin-text, var(--el-text-color-primary));
   font-size: 20px;
   font-weight: 700;
 }
 
 .writer-subtitle {
   margin-top: 4px;
-  color: #909399;
+  color: var(--admin-muted, var(--el-text-color-secondary));
   font-size: 13px;
 }
 
@@ -563,7 +572,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-  color: #303133;
+  color: var(--admin-text, var(--el-text-color-primary));
   font-size: 15px;
   font-weight: 700;
 }
@@ -606,13 +615,13 @@
   }
 
   span {
-    color: #909399;
+    color: var(--admin-muted, var(--el-text-color-secondary));
   }
 
   strong {
     max-width: 280px;
     overflow: hidden;
-    color: #303133;
+    color: var(--admin-text, var(--el-text-color-primary));
     font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;

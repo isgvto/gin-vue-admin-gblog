@@ -1,9 +1,11 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="评论管理" description="按页面查看评论，管理公开状态与回复信息。" />
+    <section class="gva-table-box">
 		<!--搜索-->
 		<el-row>
-			<el-col :span="6">
-				<el-select v-model="pageId" placeholder="请选择页面" :filterable="true" :clearable="true" @change="search" size="small" style="min-width: 400px">
+			<el-col :xs="24" :sm="12" :lg="8">
+				<el-select v-model="pageId" placeholder="请选择页面" :filterable="true" :clearable="true" @change="search" size="small" style="width: 100%; max-width: 360px">
 					<el-option :label="item.title" :value="item.id" v-for="item in blogList" :key="item.id"></el-option>
 				</el-select>
 			</el-col>
@@ -38,20 +40,20 @@
 			<el-table-column label="发表时间" width="170">
 				<template v-slot="scope">{{ blogDateFormat(scope.row.createTime) }}</template>
 			</el-table-column>
-			<el-table-column label="是否公开" width="80">
+			<el-table-column label="是否公开" width="80" align="center">
 				<template v-slot="scope">
 					<el-switch v-model="scope.row.isPublished" @change="commentPublishedChanged(scope.row)"></el-switch>
 				</template>
 			</el-table-column>
-			<el-table-column label="邮件提醒" width="80">
+			<el-table-column label="邮件提醒" width="80" align="center">
 				<template v-slot="scope">
 					<el-switch v-model="scope.row.isNotice" @change="commentNoticeChanged(scope.row)"></el-switch>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作" width="200">
+			<el-table-column label="操作" width="200" align="center">
 				<template v-slot="scope">
-					<el-button type="primary" icon="el-icon-edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
-					<el-button type="danger" icon="el-icon-delete" size="small" @click="deleteCommentById(scope.row.id)">删除</el-button>
+					<el-button type="primary" icon="Edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
+					<el-button type="danger" icon="Delete" size="small" @click="deleteCommentById(scope.row.id)">删除</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -63,7 +65,7 @@
 		</el-pagination>
 
 		<!--编辑评论对话框-->
-		<el-dialog title="编辑评论" width="50%" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
+		<el-dialog title="编辑评论" width="min(760px, 94vw)" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
 			<!--内容主体-->
 			<el-form :model="editForm" :rules="formRules" ref="editFormRef" label-width="80px">
 				<el-form-item label="昵称" prop="nickname">
@@ -91,7 +93,9 @@
 				<el-button type="primary" @click="editComment">确 定</el-button>
 			</template>
 		</el-dialog>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

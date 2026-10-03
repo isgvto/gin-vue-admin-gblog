@@ -3,12 +3,12 @@ package system
 import (
 	"strconv"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/system/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/utils"
 	"go.uber.org/zap"
 )
 
@@ -172,7 +172,7 @@ func (s *DictionaryDetailApi) GetDictionaryTreeList(c *gin.Context) {
 	} else {
 		id = uint(idUint64)
 	}
-	
+
 	list, err := dictionaryDetailService.GetDictionaryTreeList(id)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
@@ -197,7 +197,7 @@ func (s *DictionaryDetailApi) GetDictionaryTreeListByType(c *gin.Context) {
 		response.FailWithMessage("字典类型不能为空", c)
 		return
 	}
-	
+
 	list, err := dictionaryDetailService.GetDictionaryTreeListByType(dictType)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
@@ -223,7 +223,7 @@ func (s *DictionaryDetailApi) GetDictionaryDetailsByParent(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	
+
 	list, err := dictionaryDetailService.GetDictionaryDetailsByParent(req)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
@@ -248,7 +248,7 @@ func (s *DictionaryDetailApi) GetDictionaryPath(c *gin.Context) {
 		response.FailWithMessage("字典详情ID不能为空", c)
 		return
 	}
-	
+
 	var id uint
 	if idUint64, err := strconv.ParseUint(idStr, 10, 32); err != nil {
 		response.FailWithMessage("字典详情ID格式错误", c)
@@ -256,7 +256,7 @@ func (s *DictionaryDetailApi) GetDictionaryPath(c *gin.Context) {
 	} else {
 		id = uint(idUint64)
 	}
-	
+
 	path, err := dictionaryDetailService.GetDictionaryPath(id)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))

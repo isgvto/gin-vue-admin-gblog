@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-gray-50 text-slate-700 dark:text-slate-500 dark:bg-slate-800 w-screen h-screen"
+    class="gva-admin-shell bg-gray-50 text-slate-700 dark:text-slate-500 dark:bg-slate-800 w-screen h-screen"
   >
     <el-watermark
       v-if="config.show_watermark"
@@ -27,7 +27,7 @@
       <div class="flex-1 w-0 h-full">
         <gva-tabs v-if="config.showTabs" />
         <div
-          class="overflow-auto px-2"
+          class="admin-content overflow-auto px-2"
           :class="config.showTabs ? 'gva-container2' : 'gva-container pt-1'"
         >
           <router-view v-if="reloadFlag" v-slot="{ Component, route }">
@@ -66,6 +66,7 @@
   import { useAppStore } from '@/pinia'
   import { storeToRefs } from 'pinia'
   import '@/style/transition.scss'
+  import '@/style/admin-workspace.scss'
   const appStore = useAppStore()
   const { config, isDark, device } = storeToRefs(appStore)
 
@@ -75,11 +76,11 @@
 
   useResponsive(true)
   const font = reactive({
-    color: 'rgba(0, 0, 0, .15)'
+    color: 'rgba(0, 0, 0, .045)'
   })
 
   watchEffect(() => {
-    font.color = isDark.value ? 'rgba(255,255,255, .15)' : 'rgba(0, 0, 0, .15)'
+    font.color = isDark.value ? 'rgba(255,255,255, .05)' : 'rgba(0, 0, 0, .045)'
   })
 
   const router = useRouter()

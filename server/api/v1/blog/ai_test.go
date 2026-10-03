@@ -8,11 +8,54 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	modelService "github.com/flipped-aurora/gin-vue-admin/server/service/ai"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	systemReq "github.com/isgvto/gin-vue-admin-gblog/server/model/system/request"
+	modelService "github.com/isgvto/gin-vue-admin-gblog/server/service/ai"
 	"go.uber.org/zap"
 )
+
+func TestStatusChecksConnectionOnlyWhenRequested(t *testing.T) {
+	oldConfig, oldDB := global.GVA_CONFIG.AI, global.GVA_DB
+	defer func() { global.GVA_CONFIG.AI, global.GVA_DB = oldConfig, oldDB; modelService.Factory().Invalidate() }()
+	calls := 0
+	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, `{"error":{"message":"invalid key","type":"invalid_api_key"}}`)
+	}))
+	defer provider.Close()
+	global.GVA_DB = nil
+	global.GVA_CONFIG.AI.Enable = true
+	global.GVA_CONFIG.AI.Provider = "openai"
+	global.GVA_CONFIG.AI.BaseURL = provider.URL
+	global.GVA_CONFIG.AI.APIKey = "test-key"
+	global.GVA_CONFIG.AI.Model = "test-model"
+	modelService.Factory().Invalidate()
+	for _, query := range []string{"", "?checkConnection=true"} {
+		recorder := httptest.NewRecorder()
+		ctx, _ := gin.CreateTestContext(recorder)
+		ctx.Request = httptest.NewRequest(http.MethodGet, "/blog/ai/status"+query, nil)
+		ctx.Set("claims", &systemReq.CustomClaims{})
+		(&AiApi{}).Status(ctx)
+		var result struct {
+			Data struct {
+				Enabled bool   `json:"enabled"`
+				Reason  string `json:"reason"`
+			} `json:"data"`
+		}
+		if err := json.Unmarshal(recorder.Body.Bytes(), &result); err != nil {
+			t.Fatal(err)
+		}
+		if query == "" && (!result.Data.Enabled || calls != 0) {
+			t.Fatal("ordinary status called supplier")
+		}
+		if query != "" && (result.Data.Enabled || result.Data.Reason == "" || calls != 1) {
+			t.Fatal("connection failure was ignored")
+		}
+	}
+}
 
 func TestChatValidatesBeforeQuota(t *testing.T) {
 	oldLimit, oldRedis := global.GVA_CONFIG.AI.DailyLimit, global.GVA_REDIS

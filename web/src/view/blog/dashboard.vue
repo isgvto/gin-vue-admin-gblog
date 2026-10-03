@@ -1,5 +1,6 @@
 <template>
-	<div class="dashboard-page">
+	<div class="admin-page admin-page--cards dashboard-page">
+    <AdminPageHeading title="工作台" description="查看内容统计、访问趋势与最近动态。" />
 		<!-- 统计卡片 -->
 		<el-row :gutter="16" class="stat-row">
 			<el-col v-for="item in statCards" :key="item.label" :xs="12" :sm="12" :md="6">

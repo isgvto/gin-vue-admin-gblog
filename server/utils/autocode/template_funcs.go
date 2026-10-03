@@ -2,10 +2,11 @@ package autocode
 
 import (
 	"fmt"
-	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"slices"
 	"strings"
 	"text/template"
+
+	systemReq "github.com/isgvto/gin-vue-admin-gblog/server/model/system/request"
 )
 
 // GetTemplateFuncMap 返回模板函数映射，用于在模板中使用

@@ -1,9 +1,10 @@
 package ast
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"path/filepath"
 	"testing"
+
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 )
 
 func TestPluginInitializeGorm_Injection(t *testing.T) {
@@ -25,7 +26,7 @@ func TestPluginInitializeGorm_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginInitializeGorm,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "gorm.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/model"`,
 				StructName:  "User",
 				PackageName: "model",
 				IsNew:       false,
@@ -36,7 +37,7 @@ func TestPluginInitializeGorm_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginInitializeGorm,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "gorm.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/model"`,
 				StructName:  "User",
 				PackageName: "model",
 				IsNew:       true,
@@ -47,7 +48,7 @@ func TestPluginInitializeGorm_Injection(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginInitializeGorm,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "gorm.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/model"`,
 				StructName:  "SysUser",
 				PackageName: "model",
 				IsNew:       true,
@@ -96,7 +97,7 @@ func TestPluginInitializeGorm_Rollback(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginInitializeGorm,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "gorm.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/model"`,
 				StructName:  "User",
 				PackageName: "model",
 				IsNew:       false,
@@ -107,7 +108,7 @@ func TestPluginInitializeGorm_Rollback(t *testing.T) {
 			fields: fields{
 				Type:        TypePluginInitializeGorm,
 				Path:        filepath.Join(global.GVA_CONFIG.AutoCode.Root, global.GVA_CONFIG.AutoCode.Server, "plugin", "gva", "initialize", "gorm.go"),
-				ImportPath:  `"github.com/flipped-aurora/gin-vue-admin/server/plugin/gva/model"`,
+				ImportPath:  `"github.com/isgvto/gin-vue-admin-gblog/server/plugin/gva/model"`,
 				StructName:  "User",
 				PackageName: "model",
 				IsNew:       true,

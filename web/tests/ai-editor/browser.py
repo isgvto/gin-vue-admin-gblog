@@ -60,6 +60,10 @@ with sync_playwright() as playwright:
     def content():
         return page.evaluate('window.aiEditorTest.getContent()')
 
+    def more_action(name):
+        page.get_by_role('button', name='更多操作：大纲 / 标题 / 摘要 / 标签', exact=True).click()
+        page.get_by_role('menuitem', name=name, exact=True).click()
+
     original = '前文\r\n\r\n待修改😀\r\n\r\n后文\r\n'
     for selected in ['前文', '待修改😀', '后文', original]:
         reset(original)
@@ -149,14 +153,14 @@ with sync_playwright() as playwright:
         ('推荐标签', {'category': '技术', 'tags': ['Vue'], 'newTags': []}, 'Vue', '回填标签')
     ]:
         reset('测试正文')
-        page.get_by_role('button', name=button, exact=True).click()
+        more_action(button)
         expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
         page.wait_for_function('true')
         assert pending_single
         old = pending_single.pop()
         page.get_by_role('button', name='停止生成', exact=True).click()
         expect(page.get_by_role('button', name='停止生成', exact=True)).to_have_count(0)
-        page.get_by_role('button', name=button, exact=True).click()
+        more_action(button)
         expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
         old.fulfill(json={'code': 0, 'data': payload})
         expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
@@ -171,7 +175,7 @@ with sync_playwright() as playwright:
         expect(page.locator('.el-message--error')).to_have_count(0)
 
         reset('文章 A')
-        page.get_by_role('button', name=button, exact=True).click()
+        more_action(button)
         expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
         assert pending_single
         old = pending_single.pop()
@@ -184,13 +188,13 @@ with sync_playwright() as playwright:
     print('PASS: 摘要/标签取消、立即重试、旧响应隔离、成功回填、跨文章清理')
 
     reset('测试正文')
-    page.get_by_role('button', name='生成摘要', exact=True).click()
+    more_action('生成摘要')
     expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
     pending_single.pop().fulfill(json={'code': 7, 'msg': '今日 AI 调用次数已达上限'})
     expect(page.locator('.el-message--error')).to_have_count(1)
     expect(page.locator('.el-message--error')).to_contain_text('今日 AI 调用次数已达上限')
     expect(page.get_by_role('button', name='回填摘要', exact=True)).to_have_count(0)
-    page.get_by_role('button', name='推荐标签', exact=True).click()
+    more_action('推荐标签')
     expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
     pending_single.pop().fulfill(json={'code': 0, 'data': {'tags': 'wrong', 'newTags': []}})
     expect(page.get_by_role('button', name='回填标签', exact=True)).to_have_count(0)
@@ -217,7 +221,7 @@ with sync_playwright() as playwright:
 
     reset('原正文')
     response_text[0] = '生成的大纲'
-    page.get_by_role('button', name='生成大纲', exact=True).click()
+    more_action('生成大纲')
     expect(page.get_by_role('button', name='插入到光标处', exact=True)).to_be_enabled()
     page.get_by_role('button', name='插入到光标处', exact=True).click()
     assert '生成的大纲' in content()
@@ -225,7 +229,7 @@ with sync_playwright() as playwright:
 
     # 第三批：结构化建议选择、取材范围提示、光标与选区传参。
     reset('长文章正文')
-    page.get_by_role('button', name='推荐标签', exact=True).click()
+    more_action('推荐标签')
     expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
     pending_single.pop().fulfill(json={'code': 0, 'data': {
         'category': '技术', 'categoryId': 1, 'tags': ['Vue'], 'tagIds': [2], 'newTags': ['新标签'],
@@ -235,7 +239,7 @@ with sync_playwright() as playwright:
     page.get_by_role('button', name='回填标签', exact=True).click()
     assert page.evaluate('window.aiEditorTest.getMetadataForm()') == {'cate': 1, 'tagList': [3, 2]}
     assert page.evaluate('window.aiEditorTest.getSuggestion()')['newTags'] == []
-    page.get_by_role('button', name='推荐标签', exact=True).click()
+    more_action('推荐标签')
     expect(page.get_by_role('button', name='停止生成', exact=True)).to_be_visible()
     pending_single.pop().fulfill(json={'code': 0, 'data': {
         'category': '技术', 'categoryId': 1, 'tags': ['Vue'], 'tagIds': [2], 'newTags': ['新标签']}})
@@ -262,11 +266,11 @@ with sync_playwright() as playwright:
     # 第四批：标题回填、重试、自定义对比。运行需要 Python Playwright。
     reset('用于起标题的正文')
     response_text[0] = '1. 标题甲\n2. 标题乙'
-    page.get_by_role('button', name='起标题', exact=True).click()
+    more_action('起标题')
     expect(page.locator('.title-candidate')).to_have_count(2)
     page.locator('.title-candidate').nth(1).get_by_role('button', name='采用标题', exact=True).click()
     assert page.evaluate('window.aiEditorTest.getTitle()') == '标题乙'
-    page.get_by_role('button', name='起标题', exact=True).click()
+    more_action('起标题')
     expect(page.locator('.title-candidate')).to_have_count(2)
     page.evaluate("window.aiEditorTest.setTitle('人工编辑的标题')")
     page.locator('.title-candidate').first.get_by_role('button', name='采用标题', exact=True).click()
@@ -275,14 +279,18 @@ with sync_playwright() as playwright:
 
     reset('前文原选区后文')
     select('原选区')
-    page.locator('summary').filter(has_text='正文生成偏好').click()
+    if page.locator('.writing-preferences').get_attribute('open') is None:
+        page.locator('summary').filter(has_text='正文生成偏好').click()
     page.get_by_role('combobox', name='写作语气').click()
     page.get_by_role('option', name='正式严谨', exact=True).click()
+    page.locator('.writing-preferences .el-select').nth(2).click()
+    page.get_by_role('option', name='轻度修饰', exact=True).click()
     response_text[0] = '新选区'
     page.locator('.custom-input textarea').fill('重新表述选区')
     with page.expect_request('**/test-api/blog/ai/chat') as request:
         page.get_by_role('button', name='发送', exact=True).click()
     assert request.value.post_data_json['tone'] == 'formal'
+    assert request.value.post_data_json['editStrength'] == 'light'
     expect(page.get_by_role('button', name='与原选区对比', exact=True)).to_be_enabled()
     with page.expect_request('**/test-api/blog/ai/chat') as retry:
         page.get_by_role('button', name='重新生成', exact=True).click()
@@ -369,6 +377,22 @@ const text = '<img onerror="bad">'
     expect(page.locator('.el-message').filter(has_text='删除成功')).to_be_visible()
     assert model_requests[-1][0] == 'DELETE' and model_requests[-1][1].endswith('/42')
     print('PASS: 模型列表 ID 兼容，编辑、默认、删除均携带正确 ID')
+    reset('```mermaid\nflowchart TD\n A[写作] --> B[保存]\n```\n\n```mermaid\nsequenceDiagram\n 用户->>服务端: 请求\n 服务端-->>用户: 返回\n```')
+    expect(page.locator('.markdown-diagram')).to_have_count(2)
+    page.wait_for_function('''() => [...document.querySelectorAll('.markdown-diagram > img')]
+      .every(img => img.complete && img.naturalWidth > 0)''')
+    expect(page.locator('.markdown-preview svg')).to_have_count(0)
+    page.locator('.markdown-diagram summary').first.click()
+    expect(page.locator('.markdown-diagram details pre').first).to_contain_text('A[写作]')
+    page.locator('.markdown-textarea').fill('```mermaid\nflowchart TD\n A[未闭合\n```')
+    expect(page.locator('.mermaid-error')).to_contain_text('源码已保留')
+    expect(page.locator('.markdown-preview code')).to_contain_text('未闭合')
+    page.locator('.markdown-textarea').fill('```mermaid\n%%{init: {"securityLevel": "loose"}}%%\nflowchart TD\n A --> B\n```')
+    expect(page.locator('.mermaid-error')).to_contain_text('配置指令暂不支持')
+    page.locator('.markdown-textarea').fill('```mermaid\nflowchart LR\n A[恢复] --> B[成功]\n```')
+    expect(page.locator('.markdown-diagram')).to_have_count(1)
+    expect(page.locator('.mermaid-error')).to_have_count(0)
+    print('PASS: Mermaid 多图渲染、源码查看、语法错误回退、配置隔离与编辑恢复')
     assert not errors, errors
     browser.close()
     print('All browser regressions passed.')

@@ -1,5 +1,6 @@
 <template>
-  <div class="break-point">
+  <div class="admin-page admin-page--workspace break-point">
+    <AdminPageHeading title="断点续传" description="上传大文件并查看上传进度。" />
     <div class="gva-table-box">
       <el-divider content-position="left">大文件上传</el-divider>
       <form id="fromCont" method="post">

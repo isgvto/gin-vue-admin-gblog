@@ -1,20 +1,22 @@
 ﻿<template>
-	<div>
+	<div class="admin-page admin-page--legacy-list">
+    <AdminPageHeading title="文章分类" description="维护文章分类，组织内容主题。" />
+    <section class="gva-table-box">
 		<!--添加-->
 		<el-row :gutter="10">
 			<el-col :span="6">
-				<el-button type="primary" size="small" icon="el-icon-plus" @click="addDialogVisible=true">添加分类</el-button>
+				<el-button type="primary" size="small" icon="Plus" @click="addDialogVisible=true">添加分类</el-button>
 			</el-col>
 		</el-row>
 
 		<el-table :data="categoryList">
-			<el-table-column label="序号" type="index" width="100"></el-table-column>
-			<el-table-column label="名称" prop="categoryName" width="400"></el-table-column>
-			<el-table-column label="操作">
+			<el-table-column label="序号" type="index" width="100" align="center"></el-table-column>
+			<el-table-column label="名称" prop="categoryName" min-width="280"></el-table-column>
+			<el-table-column label="操作" align="center">
 				<template v-slot="scope">
-					<el-button type="primary" icon="el-icon-edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
-					<el-popconfirm title="确定删除吗？" icon="el-icon-delete" iconColor="red" @confirm="deleteCategoryById(scope.row.id)">
-						<template #reference><el-button size="small" type="danger" icon="el-icon-delete" >删除</el-button></template>
+					<el-button type="primary" icon="Edit" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
+					<el-popconfirm title="确定删除吗？" icon="Delete" iconColor="red" @confirm="deleteCategoryById(scope.row.id)">
+						<template #reference><el-button size="small" type="danger" icon="Delete" >删除</el-button></template>
 					</el-popconfirm>
 				</template>
 			</el-table-column>
@@ -27,7 +29,7 @@
 		</el-pagination>
 
 		<!--添加分类对话框-->
-		<el-dialog title="添加分类" width="50%" v-model="addDialogVisible" :close-on-click-modal="false" @close="addDialogClosed">
+		<el-dialog title="添加分类" width="min(760px, 94vw)" v-model="addDialogVisible" :close-on-click-modal="false" @close="addDialogClosed">
 			<!--内容主体-->
 			<el-form :model="addForm" :rules="formRules" ref="addFormRef" label-width="80px">
 				<el-form-item label="分类名称" prop="categoryName">
@@ -42,7 +44,7 @@
 		</el-dialog>
 
 		<!--编辑分类对话框-->
-		<el-dialog title="编辑分类" width="50%" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
+		<el-dialog title="编辑分类" width="min(760px, 94vw)" v-model="editDialogVisible" :close-on-click-modal="false" @close="editDialogClosed">
 			<!--内容主体-->
 			<el-form :model="editForm" :rules="formRules" ref="editFormRef" label-width="80px">
 				<el-form-item label="分类名称" prop="categoryName">
@@ -55,7 +57,9 @@
 				<el-button type="primary" @click="editCategory">确 定</el-button>
 			</template>
 		</el-dialog>
-	</div>
+
+    </section>
+  </div>
 </template>
 
 <script>

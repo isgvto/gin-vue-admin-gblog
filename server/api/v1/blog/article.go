@@ -3,12 +3,12 @@ package blog
 import (
 	"errors"
 
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	blogmw "github.com/flipped-aurora/gin-vue-admin/server/middleware/blog"
-	blogReq "github.com/flipped-aurora/gin-vue-admin/server/model/blog/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	blogService "github.com/flipped-aurora/gin-vue-admin/server/service/blog"
 	"github.com/gin-gonic/gin"
+	"github.com/isgvto/gin-vue-admin-gblog/server/global"
+	blogmw "github.com/isgvto/gin-vue-admin-gblog/server/middleware/blog"
+	blogReq "github.com/isgvto/gin-vue-admin-gblog/server/model/blog/request"
+	"github.com/isgvto/gin-vue-admin-gblog/server/model/common/response"
+	blogService "github.com/isgvto/gin-vue-admin-gblog/server/service/blog"
 	"go.uber.org/zap"
 )
 

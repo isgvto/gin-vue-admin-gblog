@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="admin-page admin-page--workspace">
+    <AdminPageHeading title="代码生成" description="配置模型与字段，生成业务代码。" />
     <warning-bar
       href="https://www.bilibili.com/video/BV1kv4y1g7nT?p=3"
       title="此功能为开发环境使用，不建议发布到生产，具体使用效果请点我观看。"
@@ -709,7 +710,7 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column align="left" label="操作" width="300" fixed="right">
+          <el-table-column align="left" label="操作" min-width="280" fixed="right">
             <template #default="scope">
               <el-button
                 v-if="!scope.row.disabled"

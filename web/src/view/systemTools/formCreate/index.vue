@@ -1,5 +1,5 @@
 <template>
-  <div class="form-designer-container">
+  <div class="admin-page admin-page--workspace form-designer-container">
     <fc-designer ref="designer" :config="config" height="calc(100vh - 160px)">
       <template #handle>
         <el-button type="primary" size="small" plain @click="exportVueTemplate">
@@ -8,12 +8,12 @@
       </template>
     </fc-designer>
 
-    <el-dialog v-model="dialogVisible" title="生成的 Vue 模板代码" width="70%" top="5vh">
-      <el-input 
-        type="textarea" 
-        :rows="25" 
-        v-model="vueCode" 
-        readonly 
+    <el-dialog v-model="dialogVisible" title="生成的 Vue 模板代码" width="min(760px, 94vw)" top="5vh">
+      <el-input
+        type="textarea"
+        :rows="25"
+        v-model="vueCode"
+        readonly
         class="code-input"
         resize="none"
       />
@@ -68,7 +68,7 @@
       if (!rule.field) return ''
 
       let tag = rule.type
-      
+
       const typeMap = {
         input: 'el-input',
         inputNumber: 'el-input-number',
@@ -186,7 +186,7 @@ const resetForm = () => {
   const exportVueTemplate = () => {
     const rules = designer.value.getRule()
     const options = designer.value.getOption()
-    
+
     vueCode.value = generateVueCode(rules, options)
     dialogVisible.value = true
   }
