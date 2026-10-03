@@ -17,6 +17,7 @@ const server = await createServer({
       const previews = new Map()
       let statusScenario = 'healthy', statusSamples = 0
       let dashboardScenario = 'healthy'
+      let profileScenario = 'healthy', githubUsername = 'demo'
       const models = [
         { id: 1, name: '常用模型', model: 'fixture-text', provider: 'openai', status: true, isDefault: true, hasKey: true, keyTail: 'test', baseUrl: 'https://example.test/v1' },
         { id: 2, name: '另一个供应商模型', model: 'fixture-other', provider: 'gemini', status: true, isDefault: false, hasKey: true, keyTail: 'test', baseUrl: 'https://other.example.test/v1' }
@@ -24,6 +25,27 @@ const server = await createServer({
       const features = new Map(['image', 'errorAnalysis', 'workflow'].map(feature => [feature, { enabled: false, modelId: 0, timeoutSeconds: feature === 'errorAnalysis' ? 60 : 180 }]))
       features.set('image', { enabled: true, provider: 'ark', baseUrl: '', model: 'fixture-image', timeoutSeconds: 180, apiKey: 'fixture-key' })
       server.middlewares.use(async (req, res, next) => {
+        if (req.url === '/test-api/profileScenario') {
+          let body = ''; for await (const chunk of req) body += chunk
+          profileScenario = JSON.parse(body).mode; res.end('ok'); return
+        }
+        if (req.url?.split('?')[0] === '/test-api/user/github') {
+          res.setHeader('Content-Type', 'application/json')
+          if (req.method === 'PUT') {
+            let body = ''; for await (const chunk of req) body += chunk
+            githubUsername = JSON.parse(body).username
+            res.end(JSON.stringify({code:0,data:{username:githubUsername}})); return
+          }
+          if (!githubUsername) {res.end(JSON.stringify({code:0,data:{username:''}}));return}
+          if (profileScenario === 'limited') {res.end(JSON.stringify({code:7,msg:'GitHub 限流或权限不足，请稍后重试'}));return}
+          const data = {username:githubUsername,fetchedAt:new Date().toISOString(),
+            profile:{login:githubUsername,name:'GitHub 开发者',bio:'记录开发过程，分享开源项目。',public_repos:12,followers:28,following:16,created_at:'2020-06-01T00:00:00Z',avatar_url:'',location:'',company:''},
+            repositories:[{name:'gblog',full_name:`${githubUsername}/gblog`,description:'Go 与 Vue 驱动的博客项目',language:'Go',stargazers_count:21,forks_count:3},{name:'notes',full_name:`${githubUsername}/notes`,description:'开发笔记与示例',language:'TypeScript',stargazers_count:8,forks_count:1}],
+            commits:[{sha:'abcdef123456',message:'优化文章编辑体验',date:'2026-10-02T08:00:00Z',repository:`${githubUsername}/gblog`}],
+            events:[{id:'1',type:'PushEvent',repository:`${githubUsername}/gblog`,createdAt:'2026-10-02T08:00:00Z'}],
+            warnings:[]}
+          res.end(JSON.stringify({code:0,data}));return
+        }
         if (req.url === '/test-api/dashboardScenario') {
           let body = ''; for await (const chunk of req) body += chunk
           dashboardScenario = JSON.parse(body).mode

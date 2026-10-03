@@ -43,5 +43,8 @@ func bizModel() error {
 	if err := migrateWorkflowAccess(db); err != nil {
 		return err
 	}
-	return migrateVisualAccess(db)
+	if err := migrateVisualAccess(db); err != nil {
+		return err
+	}
+	return migrateGitHubProfileAccess(db)
 }

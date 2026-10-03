@@ -7,8 +7,13 @@ import '../../src/style/admin-workspace.scss'
 import 'virtual:uno.css'
 import Fixture from './Fixture.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { useUserStore } from '../../src/pinia/modules/user'
 
-const app = createApp(Fixture).use(createPinia()).use(ElementPlus)
+const testPinia = createPinia()
+const app = createApp(Fixture).use(testPinia).use(ElementPlus)
+if (new URLSearchParams(window.location.search).has('profile')) {
+  useUserStore(testPinia).ResetUserInfo({userName:'fixture',nickName:'个人主页预览',headerImg:'',phone:'',email:'',githubUsername:'demo',authority:{authorityName:'管理员'}})
+}
 if (new URLSearchParams(window.location.search).has('dashboard')) {
   const component = { template: '<div />' }
   app.use(createRouter({ history: createWebHashHistory(), routes: [
