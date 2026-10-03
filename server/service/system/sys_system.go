@@ -1,6 +1,7 @@
 package system
 
 import (
+	"context"
 	"github.com/isgvto/gin-vue-admin-gblog/server/config"
 	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 	"github.com/isgvto/gin-vue-admin-gblog/server/model/system"
@@ -46,8 +47,9 @@ func (systemConfigService *SystemConfigService) SetSystemConfig(system system.Sy
 //@description: 获取服务器信息
 //@return: server *utils.Server, err error
 
-func (systemConfigService *SystemConfigService) GetServerInfo() (server *utils.Server, err error) {
+func (systemConfigService *SystemConfigService) GetServerInfo(ctx context.Context) (server *utils.Server, err error) {
 	var s utils.Server
+	s.Database = collectDatabaseStatus(ctx)
 	s.Os = utils.InitOS()
 	if s.Cpu, err = utils.InitCPU(); err != nil {
 		global.GVA_LOG.Error("func utils.InitCPU() Failed", zap.String("err", err.Error()))

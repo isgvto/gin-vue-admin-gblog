@@ -19,10 +19,11 @@ const (
 )
 
 type Server struct {
-	Os   Os     `json:"os"`
-	Cpu  Cpu    `json:"cpu"`
-	Ram  Ram    `json:"ram"`
-	Disk []Disk `json:"disk"`
+	Os       Os             `json:"os"`
+	Cpu      Cpu            `json:"cpu"`
+	Ram      Ram            `json:"ram"`
+	Disk     []Disk         `json:"disk"`
+	Database DatabaseStatus `json:"database"`
 }
 
 type Os struct {

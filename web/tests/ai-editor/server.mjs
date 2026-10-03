@@ -2,18 +2,20 @@ import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { randomBytes } from 'node:crypto'
+import UnoCSS from '@unocss/vite'
 
 // 独立夹具只加载实际编辑器/助手组件，不连接后台、不改写项目路由映射文件。
 const server = await createServer({
   configFile: false,
   root: fileURLToPath(new URL('../../', import.meta.url)),
   cacheDir: 'node_modules/.vite-ai-editor-tests',
-  plugins: [vue(), {
+  plugins: [vue(), UnoCSS(), {
     name: 'optional-local-ai-mock',
     configureServer(server) {
       // AI_TEST_MOCK=1 用于手工验证真实抽屉首次挂载和选区交接，不调用模型。
       if (process.env.AI_TEST_MOCK !== '1') return
       const previews = new Map()
+      let statusScenario = 'healthy', statusSamples = 0
       const models = [
         { id: 1, name: '常用模型', model: 'fixture-text', provider: 'openai', status: true, isDefault: true, hasKey: true, keyTail: 'test', baseUrl: 'https://example.test/v1' },
         { id: 2, name: '另一个供应商模型', model: 'fixture-other', provider: 'gemini', status: true, isDefault: false, hasKey: true, keyTail: 'test', baseUrl: 'https://other.example.test/v1' }
@@ -21,6 +23,13 @@ const server = await createServer({
       const features = new Map(['image', 'errorAnalysis', 'workflow'].map(feature => [feature, { enabled: false, modelId: 0, timeoutSeconds: feature === 'errorAnalysis' ? 60 : 180 }]))
       features.set('image', { enabled: true, provider: 'ark', baseUrl: '', model: 'fixture-image', timeoutSeconds: 180, apiKey: 'fixture-key' })
       server.middlewares.use(async (req, res, next) => {
+        if (req.url==='/test-api/statusScenario') {let body='';for await(const chunk of req) body+=chunk;statusScenario=JSON.parse(body).mode;res.end('ok');return}
+        if (req.url==='/test-api/system/getServerInfo') {
+          statusSamples++
+          const database={type:'mysql',healthy:statusScenario!=='down',message:statusScenario==='down'?'数据库连接失败':'连接正常',latencyMs:2.41,pool:{maxOpenConnections:100,openConnections:8,inUse:2,idle:6,waitCount:3,waitDurationMs:24.5}}
+          if(database.healthy) database.mysql=statusScenario==='denied'?{warning:'MySQL 全局指标无法读取，请检查数据库权限或稍后重试',version:'8.4.5',maxConnections:151,readOnly:false,uptime:null,threadsConnected:null,threadsRunning:null,questions:null,slowQueries:null,qps:null}:{version:'8.4.5',maxConnections:151,readOnly:false,uptime:90000,threadsConnected:12,threadsRunning:2,questions:15000,slowQueries:3,qps:statusSamples===1?null:12.5}
+          res.setHeader('Content-Type','application/json');res.end(JSON.stringify({code:0,data:{server:{os:{goos:'linux',numCpu:4,compiler:'gc',goVersion:'go1.25',numGoroutine:32},cpu:{cores:4,cpus:[10,12,8,15]},ram:{totalMb:8192,usedMb:2048,usedPercent:25},disk:[{mountPoint:'/',totalMb:102400,usedMb:25600,usedPercent:25}],database}}}));return
+        }
         if (req.url === '/test-api/admin/categoryAndTag') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({code:0,data:{categories:[],tags:[]}})); return }
         if (req.url?.startsWith('/test-api/ai/modelConfig/')) {
           const action = req.url.split('/').pop().split('?')[0]

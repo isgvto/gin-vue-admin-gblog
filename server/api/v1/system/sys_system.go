@@ -79,7 +79,7 @@ func (s *SystemApi) ReloadSystem(c *gin.Context) {
 // @Success   200  {object}  response.Response{data=map[string]interface{},msg=string}  "获取服务器信息"
 // @Router    /system/getServerInfo [post]
 func (s *SystemApi) GetServerInfo(c *gin.Context) {
-	server, err := systemConfigService.GetServerInfo()
+	server, err := systemConfigService.GetServerInfo(c.Request.Context())
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

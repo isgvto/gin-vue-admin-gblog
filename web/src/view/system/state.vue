@@ -31,6 +31,8 @@
       </div>
     </div>
 
+    <DatabaseStatus v-if="state.database" :database="state.database" />
+
     <el-row :gutter="16" class="card-row">
       <!-- CPU -->
       <el-col :xs="24" :md="12">
@@ -170,6 +172,7 @@
     Setting
   } from '@element-plus/icons-vue'
   import { getSystemState } from '@/api/system'
+  import DatabaseStatus from '@/components/system/DatabaseStatus.vue'
 
   defineOptions({
     name: 'State'
@@ -217,6 +220,7 @@
   }
 
   const reload = async () => {
+    if (refreshing.value) return
     try {
       refreshing.value = true
       const { data } = await getSystemState()
