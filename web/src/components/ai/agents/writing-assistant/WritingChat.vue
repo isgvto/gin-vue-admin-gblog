@@ -57,7 +57,7 @@
     <footer class="chat-composer">
       <div v-if="replyTo" class="followup-context" role="status"><span>{{ followupLabel }}</span><el-button link size="small" :disabled="busy || blocked" @click="cancelFollowup">取消引用</el-button></div>
       <div class="scope-row"><el-select v-model="scope" size="small" aria-label="对话参考范围" :disabled="busy || blocked || !!replyTo"><el-option label="自动：选区或继续上文" value="auto" /><el-option label="参考整篇文章" value="article" /><el-option label="当前选区" value="selection" :disabled="!selectionText" /></el-select><span>{{ scopeLabel }}</span></div>
-      <div class="chat-shortcuts"><button v-for="item in shortcuts" :key="item.label" type="button" :disabled="busy || blocked" @click="send(combineShortcut(item.text, draft))">{{ item.label }}</button></div>
+      <div class="chat-shortcuts"><button v-for="item in shortcuts" :key="item.label" type="button" :disabled="busy || blocked" @click="sendShortcut(item)" :title="item.reference === 'article' ? '无补充要求时默认参考整篇文章；自定义要求、明确选区范围或引用回复时沿用该范围' : undefined">{{ item.label }}</button></div>
       <el-input v-model="draft" type="textarea" :rows="3" :maxlength="4000" aria-label="写作要求" placeholder="说说你想怎么写，例如：这段再简洁一点，保留例子。" :disabled="busy || blocked" @keydown="onKeydown" />
       <div class="composer-actions"><small>记录仅存于此浏览器 · Enter 发送，Shift+Enter 换行</small><el-button v-if="busy" size="small" @click="stop">停止生成</el-button><el-button v-else type="primary" size="small" :disabled="!draft.trim() || blocked || storageConflict" @click="send()">发送</el-button></div>
       <p v-if="blocked" class="message-note">请先在正文完成当前修改对比，再继续对话。</p>
@@ -75,6 +75,7 @@ import { renderSafeMarkdown } from '@/utils/safeMarkdown'
 import { vMermaid } from '@/utils/mermaid'
 import { chatStorageKey, createChatId, createSession, loadChat, saveChat, parseChatResult, partialChatContent, restoreChatTarget } from './chatSession.js'
 import { combineShortcut, reviewTarget, appliedTarget, insertedTarget, historyResult, nearTranscriptBottom } from './writingFollowup.js'
+import { writingShortcuts as shortcuts, selectionPrompt } from './writingPrompts.js'
 const props = defineProps({ blocked: Boolean, preferences: Object })
 const emit = defineEmits(['busy', 'outline'])
 const store = useAiStore(), user = useUserStore(), context = computed(() => store.contexts.editor)
@@ -103,7 +104,13 @@ const chosenTarget = () => {
 }
 const followupLabel = computed(() => { const index = messages.value.filter(m => m.role === 'assistant').indexOf(replyTo.value) + 1; return pinnedTarget.value ? `正在讨论第 ${index} 条审阅中的这段原文` : `继续第 ${index} 条回复${replyTo.value?.application ? ' · 以实际保留的正文为准' : ''}` })
 const scopeLabel = computed(() => replyTo.value ? followupLabel.value : scope.value !== 'article' && selectionText.value ? `选区 ${[...selectionText.value].length} 字` : scope.value === 'auto' && restoreChatTarget(previousTarget.value?.continuationTarget || previousTarget.value?.target, context.value?.getEditorState?.())?.selection ? '沿用上一段选区' : '文章正文')
-const shortcuts = [{label:'润色',text:'润色当前选区，尽量保留原句和我的文风。'}, {label:'改写',text:'改写当前选区，换一种更清楚的表达，保留原意。'}, {label:'续写',text:'从当前光标前的内容自然续写一到两段。'}, {label:'起标题',text:'根据文章给我五个不夸张的候选标题。'}, {label:'摘要',text:'根据文章生成80到150字的摘要。'}, {label:'推荐标签',text:'为文章推荐分类和标签。'}, {label:'审阅文章',text:'从读者角度指出文章最需要改进的两三个问题，先给建议，不修改正文。'}, {label:'生成大纲',text:'根据文章主题和我的想法生成Markdown大纲。'}]
+async function sendShortcut(item) {
+  // 文章类任务默认读取全文，明确选择选区或引用旧回复时仍遵循作者范围。
+  const ctx = context.value, state = ctx?.getEditorState?.()
+  const target = item.reference === 'article' && scope.value === 'auto' && !replyTo.value && !draft.value.trim() && state?.active
+    ? { ...state, selection: null, cursor: ctx.getSelection?.()?.start ?? state.content.length } : null
+  await send(combineShortcut(item.text, draft.value), target)
+}
 function persist() {
   if (storageConflict.value) return
   try {
@@ -240,7 +247,7 @@ function discussIssue(message, issue, edit = false) {
   const target = issueTarget(message, issue)
   if (!target) return ElMessage.warning('原文无法唯一定位，请重新审阅')
   replyTo.value = message; pinnedTarget.value = target
-  const instruction = `讨论这段原文：${issue.reason}\n建议方向：${issue.suggestion}\n${edit ? '请按照建议修改这段，保留原意与作者文风。' : '请先说明怎么改。'}`
+  const instruction = `讨论这段原文：${issue.reason}\n建议方向：${issue.suggestion}\n${edit ? '请按照建议修改这段，保留原意、事实、作者文风和无需修改的内容，只返回可完整替换选区的新正文。' : '请先分析这个建议与文章观点是否相符，说明具体改法及取舍；现在只讨论，不修改正文。'}`
   draft.value = combineShortcut(instruction, draft.value); scrollBottom(true)
 }
 async function finish(message, result, success) { if (!result?.ok && result !== true) return ElMessage.warning(result?.message || '当前页面无法应用，请复制使用'); message.adopted = true
@@ -290,7 +297,7 @@ watch(() => store.selectionAction, async request => {
   if (!request || busy.value || props.blocked) return
   store.selectionAction = null
   syncSelection(); scope.value = 'selection'
-  await send(request.action === 'polish' ? '润色当前选区，尽量保留原句与作者文风。' : '改写当前选区，换一种表达，保留原意。', { ...request.snapshot, selection:request.snapshot, cursor:request.snapshot.start, title:context.value?.getTitle?.() || '', description:context.value?.getDescription?.() || '' })
+  await send(selectionPrompt(request.action), { ...request.snapshot, selection:request.snapshot, cursor:request.snapshot.start, title:context.value?.getTitle?.() || '', description:context.value?.getDescription?.() || '' })
 }, { immediate:true })
 onBeforeUnmount(() => { flush(); disposed = true; clearTimeout(draftTimer); document.removeEventListener('selectionchange', syncSelection); window.removeEventListener('storage', externalUpdate); window.removeEventListener('pagehide', flush); emit('busy', false) })
 </script>

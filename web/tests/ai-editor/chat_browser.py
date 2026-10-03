@@ -83,6 +83,25 @@ with sync_playwright() as playwright:
     assert '润色' in requests[-1]['instruction']
     print('PASS 快捷操作保留补充要求')
 
+    for label in ['起标题','摘要','推荐标签','审阅文章','生成大纲']:
+        reset();select('选中内容')
+        page.get_by_role('button',name=label,exact=True).click()
+        expect(page.get_by_role('button',name='停止生成',exact=True)).to_have_count(0)
+        assert requests[-1]['selection']=='' and requests[-1]['content']==content()
+    reset();select('选中内容')
+    page.locator('.scope-row .el-select').click()
+    page.get_by_role('option',name='当前选区',exact=True).click()
+    page.get_by_role('button',name='审阅文章',exact=True).click()
+    expect(page.get_by_role('button',name='停止生成',exact=True)).to_have_count(0)
+    assert requests[-1]['selection']=='选中内容'
+    reset();select('选中内容')
+    page.get_by_role('textbox',name='写作要求').fill('只为这段起两个标题')
+    page.get_by_role('button',name='起标题',exact=True).click()
+    expect(page.get_by_role('button',name='停止生成',exact=True)).to_have_count(0)
+    assert requests[-1]['selection']=='选中内容'
+    assert '只为这段起两个标题' in requests[-1]['instruction']
+    print('PASS 全文类快捷操作的默认范围、明确选区及自定义补充范围')
+
     reset('开头\n\n原文第一段\n\n原文第二段\n\n结尾')
     output[0]={'kind':'edit','content':'新第一段\n\n不想要的新第二段'}
     select('原文第一段\n\n原文第二段');send('改写两段')

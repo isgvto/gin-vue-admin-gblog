@@ -86,12 +86,12 @@ func (s *AiService) buildSystemPrompt() string {
 // buildUserMessage 按 action 拼装用户消息。
 func (s *AiService) buildUserMessage(req *AiChatRequest) (message string) {
 	defer func() { message += writingPreferences(req) }()
-	contextText, _ := chatContext(req)
+	contextText, contextInfo := chatContext(req)
 
 	switch req.Action {
 	case aiActionConversation:
 		prefix := []rune(cursorPrefix(req))
-		data, _ := json.Marshal(map[string]any{"title": req.Title, "reference": contextText, "instruction": req.Instruction, "catalog": req.Catalog, "cursorContext": string(prefix[max(0, len(prefix)-2000):])})
+		data, _ := json.Marshal(map[string]any{"title": req.Title, "reference": contextText, "instruction": req.Instruction, "catalog": req.Catalog, "hasSelection": strings.TrimSpace(req.Selection) != "", "hasContent": strings.TrimSpace(req.Content) != "", "contextTruncated": contextInfo.Truncated, "contextNotice": contextInfo.Notice, "cursorContext": string(prefix[max(0, len(prefix)-2000):])})
 		return "本次文章材料与作者要求（JSON）：\n" + string(data)
 	case aiActionPolish, aiActionRewrite:
 		actionLabel := "润色"
