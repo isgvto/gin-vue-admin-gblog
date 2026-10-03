@@ -16,6 +16,7 @@ const server = await createServer({
       if (process.env.AI_TEST_MOCK !== '1') return
       const previews = new Map()
       let statusScenario = 'healthy', statusSamples = 0
+      let dashboardScenario = 'healthy'
       const models = [
         { id: 1, name: '常用模型', model: 'fixture-text', provider: 'openai', status: true, isDefault: true, hasKey: true, keyTail: 'test', baseUrl: 'https://example.test/v1' },
         { id: 2, name: '另一个供应商模型', model: 'fixture-other', provider: 'gemini', status: true, isDefault: false, hasKey: true, keyTail: 'test', baseUrl: 'https://other.example.test/v1' }
@@ -23,6 +24,26 @@ const server = await createServer({
       const features = new Map(['image', 'errorAnalysis', 'workflow'].map(feature => [feature, { enabled: false, modelId: 0, timeoutSeconds: feature === 'errorAnalysis' ? 60 : 180 }]))
       features.set('image', { enabled: true, provider: 'ark', baseUrl: '', model: 'fixture-image', timeoutSeconds: 180, apiKey: 'fixture-key' })
       server.middlewares.use(async (req, res, next) => {
+        if (req.url === '/test-api/dashboardScenario') {
+          let body = ''; for await (const chunk of req) body += chunk
+          dashboardScenario = JSON.parse(body).mode
+          res.end('ok'); return
+        }
+        if (req.url === '/test-api/admin/dashboard') {
+          const empty = dashboardScenario === 'empty'
+          const data = { blogCount: empty ? 0 : 28, commentCount: empty ? 0 : 46,
+            category: { series: empty ? [] : [{name:'技术笔记',value:15},{name:'项目实践',value:8},{name:'日常记录',value:5}] },
+            tag: { series: empty ? [] : [{name:'Go',value:12},{name:'AI',value:9},{name:'Vue',value:7},{name:'MySQL',value:4}] } }
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(dashboardScenario === 'failure' ? {code:7,msg:'模拟统计不可用'} : {code:0,data})); return
+        }
+        if (req.url?.startsWith('/test-api/admin/blogs?')) {
+          const list = dashboardScenario === 'empty' ? [] : Array.from({length:5}, (_, index) => ({
+            id:index + 1,title:['AI Agent 基础概念','博客写作与配图流程','MySQL 连接池实践','Mermaid 图示整理','项目开发记录'][index],
+            published:index!==3,password:index===2?'fixture': '',category:{categoryName:'技术笔记'},createTime:`2026-10-0${3-index%3}T08:00:00+08:00`
+          }))
+          res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({code:0,data:{list,total:list.length}})); return
+        }
         if (req.url==='/test-api/statusScenario') {let body='';for await(const chunk of req) body+=chunk;statusScenario=JSON.parse(body).mode;res.end('ok');return}
         if (req.url==='/test-api/system/getServerInfo') {
           statusSamples++

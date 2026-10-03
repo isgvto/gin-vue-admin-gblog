@@ -5,13 +5,17 @@ import {
   normalizePageQuery
 } from './_helpers'
 
-export function getDataByQuery(queryInfo) {
-  return Promise.all([
-    service({
+export function getArticlePage(queryInfo) {
+  return service({
       url: '/admin/blogs',
       method: 'GET',
       params: normalizePageQuery(queryInfo)
-    }),
+  })
+}
+
+export function getDataByQuery(queryInfo) {
+  return Promise.all([
+    getArticlePage(queryInfo),
     getCategoryAndTag()
   ]).then(([res, metaRes]) => ({
     ...res,

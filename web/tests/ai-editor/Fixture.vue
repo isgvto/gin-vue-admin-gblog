@@ -1,5 +1,12 @@
 <template>
-  <div v-if="showState" class="gva-admin-shell">
+  <div v-if="showDashboard" class="gva-admin-shell">
+    <button type="button" @click="toggleTheme">切换测试主题</button>
+    <button type="button" @click="setDashboardScenario('empty')">模拟空博客</button>
+    <button type="button" @click="setDashboardScenario('failure')">模拟统计失败</button>
+    <button type="button" @click="setDashboardScenario('healthy')">恢复内容数据</button>
+    <Dashboard />
+  </div>
+  <div v-else-if="showState" class="gva-admin-shell">
     <button type="button" @click="toggleTheme">切换测试主题</button>
     <button type="button" @click="setStatusScenario('down')">模拟数据库断开</button>
     <button type="button" @click="setStatusScenario('denied')">模拟指标权限不足</button>
@@ -27,6 +34,7 @@
   import ModelConfig from '../../src/view/ai/modelConfig/modelConfig.vue'
   import WriteBlog from '../../src/view/blog/blog/WriteBlog.vue'
   import ServerState from '../../src/view/system/state.vue'
+  import Dashboard from '../../src/view/dashboard/index.vue'
   import { useAiStore } from '../../src/pinia/modules/ai.js'
   import { renderSafeMarkdown } from '../../src/utils/safeMarkdown.js'
   import { buildSuggestionPatch, cursorContext } from '../../src/components/ai/agents/writing-assistant/suggestion.js'
@@ -34,6 +42,8 @@
 
   const editor = ref()
   const writer = ref()
+  const showDashboard = new URLSearchParams(window.location.search).has('dashboard')
+  async function setDashboardScenario(mode) { await fetch('/test-api/dashboardScenario', {method:'POST',body:JSON.stringify({mode})}) }
   const showState = new URLSearchParams(window.location.search).has('state')
   async function setStatusScenario(mode) { await fetch('/test-api/statusScenario', {method:'POST',body:JSON.stringify({mode})}) }
   const showWriter = new URLSearchParams(window.location.search).has('writer')
@@ -50,7 +60,7 @@
   const metadataForm = ref({ cate: 9, tagList: [3] })
   const store = useAiStore()
   onMounted(() => {
-    if (showState) return
+    if (showState || showDashboard) return
     if (showWriter) {
       Object.assign(writer.value.form, { title: '文章编辑 · 主题预览', description: '## 文章摘要\n\n检查编辑区与预览区在明暗主题下的阅读效果。', content: '# 正文标题\n\n普通段落与 **强调文字**，以及 `行内代码`。\n\n> 引用内容应保持清晰可读。\n\n```js\n// 代码高亮预览\nconst title = "Hello";\nfunction greet() { return title; }\n```\n\n| 项目 | 状态 |\n| --- | --- |\n| 暗色背景 | 已适配 |\n| 编辑预览 | 清晰 |' })
       return
