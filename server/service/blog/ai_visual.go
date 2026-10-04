@@ -82,6 +82,11 @@ func ValidateVisualPlan(plan VisualPlan, requested string) error {
 		if len(source) > 20000 || (!strings.HasPrefix(source, "flowchart ") && !strings.HasPrefix(source, "graph ")) || unsafeDiagramDirective.MatchString(source) || strings.Contains(source, "<") {
 			return errors.New("模型未返回有效的 Mermaid 流程或结构图，请调整要求重试")
 		}
+		if plan.Kind == "flowchart" {
+			if err := validateCompactFlowchart(source); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -110,7 +115,7 @@ func (*VisualService) Plan(ctx context.Context, req VisualRequest) (VisualPlan, 
 只返回JSON对象，字段kind、prompt、mermaid、reason。kind只能为flowchart、structure、cover、illustration；用户指定类型时必须遵守。auto时选择最适合内容的类型，并简短解释。
 流程步骤使用flowchart，组成和模块关系使用structure，封面使用cover，场景或概念插图使用illustration。
 prompt是中文配图描述或图示设计要求。若输入有prompt，按该描述和补充要求设计。
-flowchart/structure必须给出完整Mermaid源码（不包围栏），仅用flowchart或graph；节点文字简短、加双引号。最多30个节点。使用分组、圆角节点和克制的蓝灰/青绿配色classDef提高美观；不得使用配置指令、HTML、链接和click。不要补充文章没有给出的步骤或关系，信息不足时明确说明。
+flowchart/structure必须给出完整Mermaid源码（不包围栏），仅用flowchart或graph；节点文字简短、加双引号。流程图用于文章正文阅读，以信息准确和布局可读为目标，不为了减少节点而删掉关键步骤、分支条件或反馈关系。通常6到12个节点，安全上限24个节点、40条连线，不限制主路径长度。节点ID用简短英文字母或数字，标签用双引号包围，优先8到20字的短句，最多36字；较长标签使用双引号内的Mermaid Markdown字符串（首尾加反引号）自动换行，不用HTML。连线条件用短标签。按真实阶段分组，最多4组且不嵌套，不使用装饰性起止节点或没有信息的分组。根据分支和反馈关系选择TD或LR，长线性过程可用横向布局，阶段内部可用direction TD；优先局部反馈，不能通过删除必要反馈来压缩。只表达原文已说明的流程；内容复杂时在reason说明可拆分的阶段，除非用户明确要求概览或局部流程，否则仍保留完整的关键流程，不擅自缩小范围。结构图最多30个节点，可按真实模块分组。使用圆角节点和克制的蓝灰/青绿配色classDef，样式只设置颜色和边框，不设置字号、节点尺寸或间距；不得使用配置指令、HTML、链接和click。不要补充文章没有给出的步骤或关系，信息不足时明确说明。
 cover/illustration的mermaid为空，prompt描述构图、主体、背景、配色；除非用户明确要求，不添加文字，不要求模型绘制精确流程或统计图。
 reason用一句话说明推荐原因。`), schema.UserMessage(data),
 	})

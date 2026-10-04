@@ -32,7 +32,11 @@
           <label for="visual-mermaid">Mermaid 源码 <span>修改后自动刷新预览</span></label>
           <el-input id="visual-mermaid" v-model="mermaidSource" type="textarea" :rows="7" :maxlength="20000" :disabled="busy || blocked || !!result.url" />
         </details>
-        <div ref="previewRef" class="diagram-preview" v-mermaid="diagramHtml" v-html="diagramHtml" @load.capture="diagramReady = true" />
+        <div ref="previewRef" class="diagram-preview" v-mermaid="diagramHtml" v-html="diagramHtml" @load.capture="diagramReady = true" @diagram-layout="diagramNeedsReview = $event.detail.needsReview" />
+        <div v-if="diagramNeedsReview && result.kind === 'flowchart'" class="layout-help">
+          <el-button size="small" :disabled="busy || blocked" @click="prepareStagePlan">准备分阶段方案</el-button>
+          <p class="help">将要求填入上方，可编辑后重新生成。当前预览与正文会保留。</p>
+        </div>
         <div class="visual-controls"><el-button type="primary" :disabled="busy || blocked || !diagramReady || inserted" @click="insertDiagram">{{ inserted ? '已插入正文' : '插入可编辑图示' }}</el-button><el-button :disabled="busy || blocked || !diagramReady || !!result.url" @click="uploadDiagram">导出图片并上传</el-button></div>
       </template>
       <template v-else>
@@ -65,6 +69,7 @@ const sourceMode = ref('auto'), selectionText = ref(''), kind = ref('auto'), siz
 const prompt = ref(''), recommendation = ref(''), error = ref(''), busy = ref(false)
 const status = ref({ imageEnabled: false }), statusError = ref(''), result = shallowRef(null), owner = shallowRef(null)
 const mermaidSource = ref(''), previewRef = ref(), diagramReady = ref(false), inserted = ref(false), coverSet = ref(false)
+const diagramNeedsReview = ref(false)
 const raster = computed(() => kind.value === 'cover' || kind.value === 'illustration')
 watch(kind, () => { recommendation.value = '' }, { flush: 'sync' })
 const diagram = computed(() => result.value?.kind === 'flowchart' || result.value?.kind === 'structure')
@@ -73,10 +78,19 @@ const rawSource = computed(() => sourceLabel.value === '当前选区' ? selectio
 const sourceText = computed(() => rawSource.value.slice(0, 12000)), sourceTruncated = computed(() => rawSource.value.length > 12000)
 const hasSource = computed(() => Boolean(context.value?.getEditorState?.()?.active && (sourceText.value.trim() || context.value?.getTitle?.()?.trim())))
 const diagramHtml = computed(() => renderSafeMarkdown('```mermaid\n' + mermaidSource.value + '\n```'))
-watch(diagramHtml, () => { diagramReady.value = false })
+watch(diagramHtml, () => { diagramReady.value = false; diagramNeedsReview.value = false })
 watch(busy, value => emit('busy', value), { flush: 'sync' })
 let controller = null, disposed = false, statusSeq = 0
 function refreshSelection() { selectionText.value = context.value?.getSelection?.()?.text || '' }
+function prepareStagePlan() {
+  const requirement = '请将本次完整流程改为阶段概览图：按真实阶段组织节点，保留关键判断、分支和阶段之间的反馈关系，细节步骤由正文说明。reason中说明各阶段包含哪些步骤，并建议哪些阶段适合另行生成详细流程图。不要编造步骤，不要自动改动文章。'
+  if (!prompt.value.includes(requirement)) {
+    const combined = [prompt.value, requirement].filter(Boolean).join('\n')
+    if (combined.length > 6000) return ElMessage.warning('配图要求接近长度上限，请先缩短再准备分阶段方案')
+    prompt.value = combined
+  }
+  document.getElementById('visual-prompt')?.focus()
+}
 function captureOwner() { const ctx = context.value, state = ctx?.getEditorState?.(); return { context: ctx, editorId: state?.editorId, documentId: state?.documentId, cover: ctx?.getCover?.() || '' } }
 function owns(value = owner.value) { const state = context.value?.getEditorState?.(); return !disposed && value && value.context === context.value && state?.active && value.editorId === state.editorId && value.documentId === state.documentId }
 function payload() { return { kind: kind.value, source: sourceText.value, title: (context.value?.getTitle?.() || '').slice(0, 500), summary: (context.value?.getDescription?.() || '').slice(0, 3000), prompt: prompt.value, size: size.value } }

@@ -28,13 +28,14 @@ class SPAHandler(SimpleHTTPRequestHandler):
 def run(base_url, channel):
     category = {"id": 1, "categoryName": "技术"}
     tag = {"id": 1, "tagName": "回归"}
+    long_flow = "flowchart TD; " + "; ".join(f"P{i}[步骤{i}]--&gt;P{i+1}[步骤{i+1}]" for i in range(14))
     article = {
         "id": 1, "title": "依赖升级回归文章", "createTime": "2026-10-03T09:00:00+08:00",
         "category": category, "tags": [tag], "views": 10, "words": 200,
         "readTime": 1, "commentEnabled": True, "appreciation": False,
         "content": '<h2 id="smoke-heading">正文标题</h2><p>正文内容 😀</p>'
         '<img src="/img/avatar.jpg" alt="测试配图">'
-        '<pre><code class="language-mermaid">graph TD; A[开始]--&gt;B[完成]</code></pre>',
+        '<pre><code class="language-mermaid">' + long_flow + '</code></pre>',
     }
     private = {**article, "id": 2, "title": "受保护回归文章", "privacy": True}
     submitted = []
@@ -119,6 +120,15 @@ def run(base_url, channel):
             expect(page).to_have_url(base_url + "/blog/1")
             expect(page.locator(".blog-title")).to_have_text(article["title"])
             expect(page.locator(".markdown-diagram img")).to_be_visible(timeout=15000)
+            assert page.locator(".markdown-diagram img").evaluate("el => el.getBoundingClientRect().height") <= 421
+            expect(page.locator(".markdown-diagram")).to_have_attribute("data-diagram-readability", "review")
+            expect(page.locator(".diagram-readability")).to_contain_text("完整流程已保留")
+            page.get_by_role("button", name="查看完整图示", exact=True).click()
+            diagram_viewer = page.get_by_role("dialog", name="完整图示", exact=True)
+            expect(diagram_viewer).to_be_visible()
+            diagram_viewer.get_by_role("button", name="放大图示", exact=True).click()
+            diagram_viewer.get_by_role("button", name="关闭图示", exact=True).click()
+            expect(diagram_viewer).to_have_count(0)
             expect(page.locator(".comment > .content > .text")).to_contain_text("<img")
             assert page.locator(".comment > .content > .text img").count() == 0
             assert page.evaluate("window.__commentXss") is None

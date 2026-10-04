@@ -11,9 +11,23 @@
   width: auto;
   height: auto;
   max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
   margin: 0 auto;
 }
 .markdown-diagram details { margin-top: 12px; color: #606266; font-size: 12px; }
 .markdown-diagram summary { cursor: pointer; }
 .markdown-diagram details pre { white-space: pre; overflow: auto; text-align: left; }
 .mermaid-error { margin: 8px 0 16px; color: #b88230; font-size: 12px; line-height: 1.6; }
+
+.diagram-expand { display:block; margin:10px auto 0; padding:5px 12px; border:1px solid #dcdfe6; border-radius:6px; background:#fff; color:#406080; font:inherit; font-size:12px; cursor:pointer; }
+.markdown-diagram-viewer { box-sizing:border-box; width:94vw; height:90vh; max-width:1400px; max-height:90vh; padding:0; border:1px solid #dcdfe6; border-radius:10px; background:#fff; color:#303133; }
+.markdown-diagram-viewer::backdrop { background:rgba(0,0,0,.55); }
+.markdown-diagram-viewer[open] { display:flex; flex-direction:column; }
+.diagram-viewer-tools { display:flex; align-items:center; gap:8px; padding:12px; border-bottom:1px solid #e4e7ed; flex-shrink:0; }
+.diagram-viewer-tools strong { margin-right:auto; font-size:14px; }
+.diagram-viewer-tools button { padding:5px 10px; background:#fff; border:1px solid #dcdfe6; border-radius:5px; color:#303133; cursor:pointer; }
+.diagram-viewer-stage { flex:1; min-height:0; overflow:auto; padding:12px; }
+.diagram-viewer-stage > img { display:block; max-width:none; max-height:none; margin:0 auto; object-fit:contain; }
+
+.diagram-readability { margin:10px 0 0; color:#80633b; font-size:12px; line-height:1.7; text-align:left; }

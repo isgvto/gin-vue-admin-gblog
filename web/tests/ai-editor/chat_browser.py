@@ -398,6 +398,21 @@ with sync_playwright() as playwright:
     expect(page.get_by_role('button',name='生成预览',exact=True)).to_be_enabled()
     page.get_by_role('button',name='生成预览',exact=True).click()
     expect(page.get_by_role('button',name='插入可编辑图示',exact=True)).to_be_enabled(timeout=20000)
+    page.get_by_text('编辑 Mermaid 源码',exact=True).click()
+    original_source=page.locator('#visual-mermaid').input_value()
+    source_before=content()
+    long_preview='flowchart TD\n'+'\n'.join(f'S{i}["步骤{i}"] --> S{i+1}["步骤{i+1}"]' for i in range(14))
+    page.locator('#visual-mermaid').fill(long_preview)
+    expect(page.get_by_role('button',name='准备分阶段方案',exact=True)).to_be_visible(timeout=20000)
+    count_before=len(previews)
+    page.get_by_role('button',name='准备分阶段方案',exact=True).click()
+    assert '阶段概览图' in page.locator('#visual-prompt').input_value()
+    assert page.locator('#visual-mermaid').input_value()==long_preview
+    assert content()==source_before and len(previews)==count_before
+    page.locator('#visual-mermaid').fill(original_source)
+    expect(page.get_by_role('button',name='准备分阶段方案',exact=True)).to_have_count(0)
+    expect(page.get_by_role('button',name='插入可编辑图示',exact=True)).to_be_enabled(timeout=20000)
+    print('PASS 分阶段要求需作者确认生成，不自动改动预览与正文')
     page.get_by_role('button',name='插入可编辑图示',exact=True).click()
     assert '```mermaid' in content()
     page.get_by_role('button',name='导出图片并上传',exact=True).click()
@@ -474,6 +489,38 @@ with sync_playwright() as playwright:
     expect(page.locator('.markdown-diagram')).to_have_count(1)
     expect(page.locator('.mermaid-error')).to_have_count(0)
     print('PASS: Mermaid 多图渲染、源码查看、语法错误回退、配置隔离与编辑恢复')
+
+    long_chart='flowchart TD\n'+'\n'.join(f'N{i}["步骤{i}"] --> N{i+1}["步骤{i+1}"]' for i in range(14))
+    page.locator('.markdown-textarea').fill('```mermaid\n'+long_chart+'\n```')
+    expect(page.locator('.markdown-diagram')).to_have_count(1)
+    page.wait_for_function('()=>{const img=document.querySelector(".markdown-diagram > img");return img?.complete&&img.naturalHeight>0}')
+    assert page.locator('.markdown-diagram > img').evaluate('(el)=>el.getBoundingClientRect().height')<=421
+    expect(page.locator('.markdown-diagram')).to_have_attribute('data-diagram-readability','review')
+    expect(page.locator('.diagram-readability')).to_contain_text('完整流程已保留')
+    page.get_by_role('button',name='查看完整图示',exact=True).click()
+    viewer=page.get_by_role('dialog',name='完整图示',exact=True)
+    expect(viewer).to_be_visible()
+    full=viewer.locator('img')
+    initial=full.evaluate('(el)=>el.getBoundingClientRect().width')
+    viewer.get_by_role('button',name='放大图示',exact=True).click()
+    assert full.evaluate('(el)=>el.getBoundingClientRect().width')>initial
+    viewer.get_by_role('button',name='适应窗口',exact=True).click()
+    page.keyboard.press('Escape');expect(viewer).to_have_count(0)
+    page.get_by_role('button',name='查看完整图示',exact=True).click()
+    page.evaluate("window.aiEditorTest.setContent('替换后的正文')")
+    expect(viewer).to_have_count(0)
+    print('PASS 长图预览高度限制、完整查看、缩放、Esc关闭与卸载清理')
+    # Root direction may change, but all content and editable source survive.
+    balanced='flowchart TD\n'+'\n'.join(f'A["开始"] --> N{i}["步骤{i}"] --> Z["完成"]' for i in range(9))
+    page.locator('.markdown-textarea').fill('```mermaid\n'+balanced+'\n```')
+    expect(page.locator('.markdown-diagram')).to_have_count(1)
+    expect(page.locator('.markdown-diagram')).to_have_attribute('data-layout-adjusted','true')
+    page.locator('.markdown-diagram summary').click()
+    expect(page.locator('.markdown-diagram details pre')).to_have_text(balanced)
+    svg=page.locator('.markdown-diagram > img').evaluate('async el=>await (await fetch(el.src)).text()')
+    assert svg.count('class="node default"') == 11
+    print('PASS 渲染后自动选择布局，原始源码与十一个节点完整保留')
+
 
     assert not errors,errors
     browser.close()
