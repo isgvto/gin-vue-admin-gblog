@@ -109,7 +109,7 @@ with sync_playwright() as playwright:
     page.locator('.paragraph-diff').get_by_role('button',name='采用 AI 版',exact=True).first.click()
     page.locator('.paragraph-diff').get_by_role('button',name='保留原文',exact=True).first.click()
     expect(page.locator('.paragraph-diff')).to_have_count(0)
-    page.get_by_role('button',name='继续调整',exact=True).click()
+    page.get_by_role('button',name='引用',exact=True).click()
     expect(page.locator('.followup-context')).to_contain_text('实际保留')
     output[0]={'kind':'edit','content':'新第一段更简洁\n\n原文第二段'}
     send('再简洁一点')
@@ -117,7 +117,7 @@ with sync_playwright() as playwright:
     history=json.loads(requests[-1]['history'][-1]['content'])
     assert history['content']=='新第一段\n\n原文第二段'
     assert '不想要的新第二段' not in requests[-1]['history'][-1]['content']
-    page.get_by_role('button',name='继续调整',exact=True).first.click()
+    page.get_by_role('button',name='引用',exact=True).first.click()
     expect(page.locator('.followup-context')).to_contain_text('第 1 条')
     page.get_by_role('button',name='取消引用',exact=True).click()
     print('PASS 部分采用后引用真实正文、旧版本追问范围明确')
@@ -128,14 +128,14 @@ with sync_playwright() as playwright:
     send('从文首先写一段')
     page.get_by_role('button',name='插入原光标位置',exact=True).click()
     expect(page.locator('.markdown-textarea')).to_have_value('重复\n重复\n重复\n')
-    page.get_by_role('button',name='继续调整',exact=True).click()
+    page.get_by_role('button',name='引用',exact=True).click()
     output[0]={'kind':'edit','content':'首段新内容\n'}
     send('只改刚插入的这一段')
     assert requests[-1]['selection']=='重复\n'
     page.get_by_role('button',name='查看修改对比',exact=True).click()
     page.get_by_role('button',name='采用剩余 AI 修改',exact=True).click()
     expect(page.locator('.markdown-textarea')).to_have_value('首段新内容\n重复\n重复\n')
-    print('PASS 插入后继续调整精确位置，重复段落不会错改')
+    print('PASS 插入后引用回复精确位置，重复段落不会错改')
 
     reset()
     output[0]={'kind':'review','content':'建议先明确这段的主体。','issues':[{'quote':'选中内容','reason':'读者不清楚主体是谁','suggestion':'补充具体主体'}]}
@@ -332,7 +332,10 @@ with sync_playwright() as playwright:
 
     def delete_entry(title):
         button=page.get_by_role('button',name='删除会话：'+title,exact=True)
-        if not button.is_visible():page.locator('.session-controls .el-select').click()
+        expect(page.get_by_role('dialog',name='删除对话',exact=True)).to_be_hidden()
+        page.keyboard.press('Escape')
+        expect(button).to_be_hidden()
+        page.locator('.session-controls .el-select').click()
         expect(button).to_be_visible()
         button.click()
     def stored_chat():

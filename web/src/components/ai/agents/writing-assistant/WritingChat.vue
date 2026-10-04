@@ -44,10 +44,10 @@
             <el-button v-if="message.result.kind === 'outline'" size="small" :disabled="busy || blocked" @click="emit('outline', message.content)">按大纲逐节写作</el-button>
             <el-button v-if="message.result.kind === 'summary'" type="primary" size="small" :disabled="unavailable(message)" @click="adoptSummary(message)">采用摘要</el-button>
             <el-button v-if="message.result.kind === 'tags'" type="primary" size="small" :disabled="unavailable(message)" @click="adoptTags(message)">采用分类与标签</el-button>
-            <el-button size="small" :disabled="busy || blocked" @click="revise(message)">继续调整</el-button>
+            <el-button size="small" :disabled="busy || blocked" title="引用这条回复继续讨论；直接发送也会自动携带最近的对话" @click="revise(message)">引用</el-button>
             <el-button link size="small" @click="copy(message.content)">复制</el-button>
           </div>
-          <small v-if="message.adopted" class="adopted-note">已采用；继续调整将引用实际保留的正文。文章仍需保存。</small><small v-else-if="message.resolved" class="message-note">已保留原文；继续调整将引用原文。</small>
+          <small v-if="message.adopted" class="adopted-note">已采用；引用时以实际保留的正文为准。文章仍需保存。</small><small v-else-if="message.resolved" class="message-note">已保留原文；引用时以原文为准。</small>
           <small v-else-if="message.target && !currentTarget(message)" class="message-note">正文已变化，旧结果仍可查看和复制。请重新生成后再应用。</small>
         </template>
         <template v-if="['error', 'stopped'].includes(message.status)"><el-button size="small" :disabled="busy || blocked" @click="retry(message)">重新尝试</el-button><el-button v-if="message.content" link size="small" @click="copy(message.content)">复制部分内容</el-button></template>
@@ -76,6 +76,7 @@ import { vMermaid } from '@/utils/mermaid'
 import { chatStorageKey, createChatId, createSession, loadChat, saveChat, parseChatResult, partialChatContent, restoreChatTarget } from './chatSession.js'
 import { combineShortcut, reviewTarget, appliedTarget, insertedTarget, historyResult, nearTranscriptBottom } from './writingFollowup.js'
 import { writingShortcuts as shortcuts, selectionPrompt } from './writingPrompts.js'
+import { resolveParagraphReference } from '@/components/blog/paragraphIndex.js'
 const props = defineProps({ blocked: Boolean, preferences: Object })
 const emit = defineEmits(['busy', 'outline'])
 const store = useAiStore(), user = useUserStore(), context = computed(() => store.contexts.editor)
@@ -102,7 +103,7 @@ const chosenTarget = () => {
   }
   return { ...state, selection, cursor: ctx.getSelection?.()?.start ?? state.content.length, title: ctx.getTitle?.() || '', description: ctx.getDescription?.() || '' }
 }
-const followupLabel = computed(() => { const index = messages.value.filter(m => m.role === 'assistant').indexOf(replyTo.value) + 1; return pinnedTarget.value ? `正在讨论第 ${index} 条审阅中的这段原文` : `继续第 ${index} 条回复${replyTo.value?.application ? ' · 以实际保留的正文为准' : ''}` })
+const followupLabel = computed(() => { const index = messages.value.filter(m => m.role === 'assistant').indexOf(replyTo.value) + 1; return pinnedTarget.value ? `正在讨论第 ${index} 条审阅中的这段原文` : `引用第 ${index} 条回复${replyTo.value?.application ? ' · 以实际保留的正文为准' : ''}` })
 const scopeLabel = computed(() => replyTo.value ? followupLabel.value : scope.value !== 'article' && selectionText.value ? `选区 ${[...selectionText.value].length} 字` : scope.value === 'auto' && restoreChatTarget(previousTarget.value?.continuationTarget || previousTarget.value?.target, context.value?.getEditorState?.())?.selection ? '沿用上一段选区' : '文章正文')
 async function sendShortcut(item) {
   // 文章类任务默认读取全文，明确选择选区或引用旧回复时仍遵循作者范围。
@@ -191,11 +192,15 @@ function normalizeTags(result) {
 async function send(text = draft.value, explicitTarget = null) {
   if (busy.value || props.blocked || storageConflict.value || typeof text !== 'string' || !text.trim()) return
   if (text.trim().length > 4000) return ElMessage.warning('合并后的写作要求超过4000字，请精简后发送；输入已保留')
-  if (scope.value === 'selection' && !selectionText.value && !explicitTarget && !replyTo.value) return ElMessage.warning('请先选中正文')
-  const sourceTarget = explicitTarget || chosenTarget()
+  const paragraph = explicitTarget ? { matched: false } : resolveParagraphReference(text, context.value?.getEditorState?.())
+  if (paragraph.error) return ElMessage.warning(paragraph.error)
+  if (scope.value === 'selection' && !selectionText.value && !explicitTarget && !replyTo.value && !paragraph.matched) return ElMessage.warning('请先选中正文')
+  const sourceTarget = paragraph.target || explicitTarget || chosenTarget()
   const target = sourceTarget ? { ...sourceTarget, title:context.value?.getTitle?.() || '', description:context.value?.getDescription?.() || '' } : null
+  if (target && !paragraph.matched && !explicitTarget) delete target.paragraphLabel
   if (replyTo.value?.target && !target) return ElMessage.warning('正文已变化，请重新选择范围后生成')
   const request = { action:'conversation', instruction:text.trim(), title:context.value?.getTitle?.() || '', content:target?.content || '', selection:target?.selection?.text || '', cursorOffset:target?.cursor, ...props.preferences }
+  if (target?.paragraphLabel) request.instruction += `\n\n[编辑器定位说明：本次选区已精确定位为发送时正文的${target.paragraphLabel}；编号不属于正文，不要按选区内部重新计数。若要求修改，返回整个选区的修改稿，保留未要求改变的内容；只讨论时正常回答，不修改正文。]`
   const taxonomy = context.value?.getTaxonomy?.() || { categories:[], tags:[] }
   const catalog = { categories:taxonomy.categories.slice(0, 50).map(c => c.categoryName), tags:taxonomy.tags.slice(0, 100).map(t => t.tagName) }
   while (JSON.stringify(catalog).length > 4000 && (catalog.tags.length || catalog.categories.length)) { if (catalog.tags.length) catalog.tags.pop(); else catalog.categories.pop() }
@@ -204,7 +209,7 @@ async function send(text = draft.value, explicitTarget = null) {
   request.history = previousMessages.filter(m => m.role === 'user' || m.status === 'complete').slice(-6).map(m => ({ role:m.role, content:[...(m.role === 'assistant' && m.result ? historyResult(m) : m.content)].slice(0, 8000).join('') }))
   cancelFollowup()
   const session = sessions.value.find(s => s.id === activeId.value)
-  const userMessage = { id:createChatId(), role:'user', content:text.trim(), createdAt:Date.now(), scope:target?.selection ? `选区 ${[...target.selection.text].length} 字` : '文章正文' }
+  const userMessage = { id:createChatId(), role:'user', content:text.trim(), createdAt:Date.now(), scope:target?.selection ? `${target.paragraphLabel ? target.paragraphLabel + ' · ' : ''}选区 ${[...target.selection.text].length} 字` : '文章正文' }
   const reply = reactive({ id:createChatId(), role:'assistant', content:'', status:'generating', createdAt:Date.now(), target, scope:userMessage.scope })
   session.messages.push(userMessage, reply)
   if (session.title === '新对话') session.title = text.trim().slice(0, 20)
@@ -233,7 +238,7 @@ async function send(text = draft.value, explicitTarget = null) {
 }
 function stop() { if (!handle) return; handle.abort(); if (running) { running.status = 'stopped'; running.error = '已停止，未完成的回复仅供复制。' }; handle = null; running = null; busy.value = false; persist() }
 function onKeydown(event) { if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); send() } }
-function retry(message) { const index = messages.value.indexOf(message); const text = messages.value[index-1]?.content; if (text) send(text, currentTarget(message) || chosenTarget()) }
+function retry(message) { const index = messages.value.indexOf(message); const text = messages.value[index-1]?.content; const target = currentTarget(message); if (message.target?.paragraphLabel && !target) return ElMessage.warning('正文已变化，请查看当前段落编号后重新发送'); if (text) send(text, target || chosenTarget()) }
 function revise(message) { const target = restoreChatTarget(message.continuationTarget || message.target, context.value?.getEditorState?.()); if (!target && message.target) return ElMessage.warning('正文已变化，请重新选择范围后提出修改要求'); replyTo.value = message; pinnedTarget.value = null; if (!draft.value.trim()) draft.value = '请在这一版基础上'; scrollBottom(true) }
 function issueTarget(message, issue) { return reviewTarget(currentTarget(message), issue.quote) }
 async function locateIssue(message, issue) {

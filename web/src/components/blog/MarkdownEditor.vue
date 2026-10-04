@@ -44,15 +44,24 @@
 
     <div class="markdown-body" :style="{ minHeight: editorHeight }">
       <div v-if="aiDiffActive" class="editor-pane diff-pane">
-        <ParagraphDiff :blocks="aiStore.diff.blocks" :disabled="aiStore.diff.applying || Boolean(diffConflict)" @change="resolveAiDiff" />
+        <ParagraphDiff :blocks="aiStore.diff.blocks" :before-text="diffBeforeText" :after-text="diffAfterText" :disabled="aiStore.diff.applying || Boolean(diffConflict)" @change="resolveAiDiff" />
       </div>
-      <div v-show="!aiDiffActive" class="editor-pane" :class="{ 'is-alone': !previewVisible }">
+      <div v-show="!aiDiffActive" class="editor-pane" :class="{ 'is-alone': !previewVisible, 'has-paragraph-numbers': enableAiDiff }">
+        <div v-if="enableAiDiff" class="paragraph-gutter" :style="{ height: `${textareaViewportHeight}px` }" aria-label="正文段落编号">
+          <button v-for="paragraph in gutterParagraphs" :key="paragraph.number" type="button"
+            class="paragraph-number" :class="{ 'is-current': paragraph.number === currentParagraph }"
+            :style="{ top: `${paragraph.top - textareaScrollTop}px` }"
+            :aria-label="`选中第${paragraph.number}段`" :title="`第${paragraph.number}段，点击选中；可对 AI 说：润色第${paragraph.number}段`"
+            :disabled="aiStore.writingBusy || aiDiffActive" @click="selectParagraph(paragraph)">{{ paragraph.number }}</button>
+        </div>
         <textarea
           ref="textareaRef"
           v-model="value"
           class="markdown-textarea"
           :placeholder="placeholder"
           spellcheck="false"
+          @scroll="textareaScrollTop = $event.target.scrollTop"
+          @select="syncCaret" @click="syncCaret" @keyup="syncCaret"
           @keydown.tab.prevent="insertText('  ', '', '')"
         />
       </div>
@@ -64,6 +73,7 @@
     </div>
 
     <div class="markdown-footer">
+      <span v-if="enableAiDiff" class="paragraph-help" title="空行不计数；标题、列表、引用、表格、完整代码块各按一段编号。编号仅在编辑时显示，不写入文章。">{{ paragraphs.length }} 段 · 可对 AI 说“润色第3段”</span>
       <span>{{ stats.characters }} 字符</span>
       <span>{{ stats.words }} 字</span>
       <span>{{ stats.lines }} 行</span>
@@ -73,7 +83,7 @@
 </template>
 
 <script setup>
-  import { computed, getCurrentInstance, nextTick, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
+  import { computed, getCurrentInstance, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
   import { renderSafeMarkdown } from '@/utils/safeMarkdown'
   import { vMermaid } from '@/utils/mermaid'
   import { textareaSelectionPoint } from './selectionToolbarPosition.js'
@@ -95,6 +105,8 @@
   import { useAiStore } from '@/pinia/modules/ai'
   import ParagraphDiff from '@/components/ai/agents/writing-assistant/ParagraphDiff.vue'
   import SelectionAiToolbar from './SelectionAiToolbar.vue'
+  import { indexParagraphs } from './paragraphIndex.js'
+  import { measureParagraphGutter } from './paragraphGutter.js'
 
   const props = defineProps({
     modelValue: {
@@ -132,6 +144,8 @@
   const aiDiffActive = computed(() => props.enableAiDiff && aiStore.diff.active && aiStore.diff.snapshot?.editorId === editorId)
   const diffConflict = computed(() => aiDiffActive.value ? snapshotError(aiStore.diff.snapshot, getEditorState()) : '')
   const mergedPreviewHtml = computed(() => renderSafeMarkdown(diffConflict.value ? value.value : aiStore.diffPreviewText))
+  const diffBeforeText = computed(() => aiDiffActive.value ? aiStore.diff.snapshot.content.slice(0, aiStore.diff.snapshot.start) : '')
+  const diffAfterText = computed(() => aiDiffActive.value ? aiStore.diff.snapshot.content.slice(aiStore.diff.snapshot.end) : '')
 
   const resolveAiDiff = async (choice) => {
     const result = await aiStore.setDiffChoice(choice, { applySelectionSnapshot, getEditorState })
@@ -150,6 +164,37 @@
     get: () => props.modelValue || '',
     set: (val) => emit('update:modelValue', val)
   })
+
+  const paragraphs = computed(() => props.enableAiDiff ? indexParagraphs(value.value) : [])
+  const gutterParagraphs = ref([]), textareaScrollTop = ref(0), textareaViewportHeight = ref(0), caretOffset = ref(0)
+  const currentParagraph = computed(() => paragraphs.value.find(paragraph => caretOffset.value >= paragraph.start && caretOffset.value <= paragraph.end)?.number)
+  const syncCaret = () => { caretOffset.value = getSelection().start }
+  let gutterFrame = 0, gutterObserver
+  const updateGutter = () => {
+    cancelAnimationFrame(gutterFrame)
+    gutterFrame = requestAnimationFrame(() => {
+      gutterParagraphs.value = measureParagraphGutter(textareaRef.value, paragraphs.value)
+      textareaScrollTop.value = textareaRef.value?.scrollTop || 0
+      textareaViewportHeight.value = textareaRef.value?.clientHeight || 0
+      syncCaret()
+    })
+  }
+  watch([value, previewVisible, aiDiffActive, () => props.enableAiDiff], () => nextTick(updateGutter))
+  onMounted(() => {
+    if (textareaRef.value) {
+      gutterObserver = new ResizeObserver(updateGutter)
+      gutterObserver.observe(textareaRef.value)
+    }
+    updateGutter()
+  })
+  onActivated(() => nextTick(updateGutter))
+  onBeforeUnmount(() => { cancelAnimationFrame(gutterFrame); gutterObserver?.disconnect() })
+  async function selectParagraph(paragraph) {
+    const snapshot = captureEditorSnapshot(getEditorState(), paragraph)
+    const result = await selectSnapshot(snapshot)
+    if (!result.ok) ElMessage.warning(result.message)
+    syncCaret()
+  }
 
   const editorHeight = computed(() => {
     if (typeof props.height === 'number') {
@@ -449,6 +494,8 @@
 
 .markdown-footer {
   gap: 16px;
+  flex-wrap: wrap;
+  row-gap: 6px;
   justify-content: flex-end;
   border-top: 1px solid var(--admin-border, var(--el-border-color-lighter));
   color: var(--admin-muted, var(--el-text-color-secondary));
@@ -479,8 +526,41 @@
 }
 
 .editor-pane {
+  position: relative;
   border-right: 1px solid var(--admin-border, var(--el-border-color-lighter));
 }
+
+.has-paragraph-numbers .markdown-textarea { padding-left: 64px; }
+.paragraph-gutter {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 44px;
+  overflow: hidden;
+  border-right: 1px solid var(--admin-border, var(--el-border-color-lighter));
+  background: var(--el-fill-color-light);
+  z-index: 1;
+}
+.paragraph-number {
+  position: absolute;
+  left: 0;
+  width: 43px;
+  height: 24.5px;
+  padding: 0 7px 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--admin-muted, var(--el-text-color-secondary));
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 24.5px;
+  text-align: right;
+  cursor: pointer;
+}
+.paragraph-number:hover, .paragraph-number.is-current {
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+}
+.paragraph-number:focus-visible { outline: 1px solid var(--el-color-primary); outline-offset: -2px; }
+.paragraph-help { margin-right: auto; cursor: help; }
 
 .editor-pane.is-alone {
   grid-column: 1 / -1;

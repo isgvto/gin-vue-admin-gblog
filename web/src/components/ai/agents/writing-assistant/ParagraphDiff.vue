@@ -1,5 +1,5 @@
 <template>
-  <div class="paragraph-diff">
+  <div ref="root" class="paragraph-diff">
     <div class="diff-toolbar">
       <el-radio-group v-model="viewMode" size="small">
         <el-radio-button value="inline">内联</el-radio-button>
@@ -14,6 +14,7 @@
     <div v-if="blocks.some(block => block.fallback)" class="diff-summary">部分内容的段落或结构发生变化，已合并为一组供你选择。</div>
 
     <div class="diff-list">
+      <pre v-if="beforeText" class="diff-context before-context" aria-label="修改范围之前的正文">{{ beforeText }}</pre>
       <div
         v-for="(block, index) in blocks"
         :key="index"
@@ -65,24 +66,31 @@
           </el-button>
         </div>
       </div>
+      <pre v-if="afterText" class="diff-context after-context" aria-label="修改范围之后的正文">{{ afterText }}</pre>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
+  import { computed, nextTick, onMounted, ref } from 'vue'
 
   const props = defineProps({
     blocks: {
       type: Array,
       required: true
     },
-    disabled: Boolean
+    disabled: Boolean,
+    beforeText: { type: String, default: '' },
+    afterText: { type: String, default: '' }
   })
 
   const emit = defineEmits(['change'])
 
   const viewMode = ref('inline')
+  const root = ref()
+  onMounted(() => nextTick(() => {
+    root.value?.querySelector('.block-actions')?.closest('.diff-block')?.scrollIntoView({ block: 'center' })
+  }))
 
   const stats = computed(() => {
     const selectable = props.blocks.filter(
@@ -215,6 +223,17 @@
 
 .diff-block.is-reviewed {
   border-color: var(--el-border-color-lighter);
+}
+
+.diff-context {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--admin-text, var(--el-text-color-primary));
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .is-reviewed .block-tag {
