@@ -30,4 +30,4 @@ COPY --from=0 /go/src/github.com/isgvto/gin-vue-admin-gblog/server/config.docker
 # VOLUME ["/go/src/github.com/isgvto/gin-vue-admin-gblog/server"]
 
 EXPOSE 8888
-ENTRYPOINT ./server -c config.docker.yaml
+ENTRYPOINT ["./server", "-c", "config.docker.yaml"]
