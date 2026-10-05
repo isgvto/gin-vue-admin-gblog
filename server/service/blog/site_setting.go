@@ -17,9 +17,6 @@ type defaultSiteSetting struct {
 }
 
 var defaultSiteSettings = []defaultSiteSetting{
-	{NameEn: "bg1", NameZh: "首页背景图 1", Value: "https://www.guitu.life/blog-file/bg1.jpg", Type: 1},
-	{NameEn: "bg2", NameZh: "首页背景图 2", Value: "https://www.guitu.life/blog-file/bg2.jpg", Type: 1},
-	{NameEn: "bg3", NameZh: "首页背景图 3", Value: "https://www.guitu.life/blog-file/bg3.jpg", Type: 1},
 	{NameEn: "malfunctionText", NameZh: "首页故障风文字", Value: "Gvto's Blog", Type: 1},
 	{NameEn: "docsGithubRepo", NameZh: "GitHub文档仓库", Value: "", Type: 4},
 	{NameEn: "docsGithubBranch", NameZh: "文档仓库分支", Value: "main", Type: 4},
@@ -37,7 +34,7 @@ func (s *SiteSettingService) GetGrouped() (map[string][]blogModel.SiteSetting, e
 		return nil, err
 	}
 	result := map[string][]blogModel.SiteSetting{}
-	for _, item := range list {
+	for _, item := range activeSiteSettings(list) {
 		key := "type0"
 		if item.Type != nil {
 			key = "type" + string(rune('0'+*item.Type))
@@ -48,6 +45,9 @@ func (s *SiteSettingService) GetGrouped() (map[string][]blogModel.SiteSetting, e
 }
 
 func ensureDefaultSiteSettings() error {
+	if err := CleanupRetiredSiteSettings(global.GVA_DB); err != nil {
+		return err
+	}
 	for _, item := range defaultSiteSettings {
 		var existing blogModel.SiteSetting
 		err := global.GVA_DB.Where("name_en = ?", item.NameEn).First(&existing).Error
@@ -77,6 +77,13 @@ func ensureDefaultSiteSettings() error {
 
 func (s *SiteSettingService) UpdateAll(info blogReq.SiteSettingBatchUpdate) error {
 	tx := global.GVA_DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	if err := cleanupRetiredSiteSettings(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
 	for _, id := range info.DeleteIDs {
 		if err := tx.Delete(&blogModel.SiteSetting{}, id).Error; err != nil {
 			tx.Rollback()
@@ -84,6 +91,12 @@ func (s *SiteSettingService) UpdateAll(info blogReq.SiteSettingBatchUpdate) erro
 		}
 	}
 	for _, item := range info.Settings {
+		if isRetiredSiteSetting(item.NameEn) {
+			continue
+		}
+		if item.Type != nil && *item.Type == 3 {
+			item.Value, _ = stripBadgeColor(item.Value)
+		}
 		if item.ID > 0 {
 			if err := tx.Model(&blogModel.SiteSetting{}).Where("id = ?", item.ID).Updates(map[string]interface{}{
 				"name_en": item.NameEn,

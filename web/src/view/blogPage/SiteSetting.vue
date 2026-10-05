@@ -73,9 +73,6 @@
 					<el-form-item label="value">
 						<el-input v-model="badge.value.value" size="small"></el-input>
 					</el-form-item>
-					<el-form-item label="color">
-						<el-input v-model="badge.value.color" size="small"></el-input>
-					</el-form-item>
 					<el-form-item>
 						<el-button type="danger" size="small" icon="Delete" @click="deleteBadge(badge)">删除</el-button>
 					</el-form-item>
@@ -103,7 +100,6 @@
 
 	const parseBadgeValue = (value) => {
 		const fallback = {
-			color: "",
 			subject: "",
 			title: "",
 			url: "",
@@ -114,18 +110,9 @@
 			return fallback
 		}
 
-		if (typeof value === 'object') {
-			return {
-				...fallback,
-				...value
-			}
-		}
-
 		try {
-			return {
-				...fallback,
-				...JSON.parse(value)
-			}
+			const parsed = typeof value === 'object' ? value : JSON.parse(value)
+			return Object.fromEntries(Object.keys(fallback).map(key => [key, typeof parsed?.[key] === 'string' ? parsed[key] : '']))
 		} catch (e) {
 			console.warn('Invalid badge site setting value:', value, e)
 			return fallback
@@ -133,6 +120,8 @@
 	}
 
 	const cloneTypeMap = (typeMap) => JSON.parse(JSON.stringify(typeMap))
+	// Old servers may still return these fields during a rolling upgrade.
+	const retiredSettings = new Set(['bg1', 'bg2', 'bg3', 'playlistServer', 'playlistId'])
 
 	export default {
 		name: 'BlogSiteSetting',
@@ -152,7 +141,7 @@
 				getSiteSettingData().then(res => {
 					const data = res.data || {}
 					const nextTypeMap = {
-						type1: Array.isArray(data.type1) ? data.type1 : [],
+						type1: Array.isArray(data.type1) ? data.type1.filter(item => !retiredSettings.has(item.nameEn)) : [],
 						type2: Array.isArray(data.type2) ? data.type2 : [],
 						type3: Array.isArray(data.type3) ? data.type3 : [],
 						type4: Array.isArray(data.type4) ? data.type4 : []
@@ -189,7 +178,6 @@
 					nameZh: "徽标",
 					type: 3,
 					value: {
-						color: "",
 						subject: "",
 						title: "",
 						url: "",
@@ -238,7 +226,7 @@
 			submit() {
 				const result = cloneTypeMap(this.typeMap)
 				result.type3.forEach(item => {
-					item.value = JSON.stringify(item.value)
+					item.value = JSON.stringify(parseBadgeValue(item.value))
 				})
 				let updateArr = []
 				updateArr.push(...result.type1)

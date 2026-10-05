@@ -50,7 +50,7 @@ export function normalizeSite(data = {}) {
 	;(data.siteSettings || []).forEach(item => {
 		const key = item.nameEn
 		const value = item.value
-		if (!key) {
+		if (!key || retiredSiteSettings.has(key)) {
 			return
 		}
 
@@ -65,20 +65,27 @@ export function normalizeSite(data = {}) {
 				introduction[key] = value
 			}
 		} else if (item.type === 3) {
-			badges.push(parseSettingValue(value))
+			badges.push(normalizeFooterBadge(value))
 		}
 	})
 
 	return {
-		siteInfo: {...siteInfo, ...(data.siteInfo || {})},
+		siteInfo: Object.fromEntries(Object.entries({...siteInfo, ...(data.siteInfo || {})}).filter(([key]) => !retiredSiteSettings.has(key))),
 		introduction: data.introduction || introduction,
-		badges: data.badges || badges,
+		badges: Array.isArray(data.badges) ? data.badges.map(normalizeFooterBadge) : badges,
 		categoryList: (data.categoryList || []).map(normalizeCategory),
 		tagList: (data.tagList || []).map(normalizeTag),
 		newBlogList: normalizeBlogs(data.newBlogList || []),
 		randomBlogList: normalizeBlogs(data.randomBlogList || []),
 		siteStats: normalizeSiteStats(data.siteStats, data)
 	}
+}
+
+const retiredSiteSettings = new Set(['bg1', 'bg2', 'bg3', 'playlistServer', 'playlistId'])
+
+export function normalizeFooterBadge(value) {
+	const parsed = parseSettingValue(value)
+	return Object.fromEntries(['subject', 'title', 'url', 'value'].map(key => [key, typeof parsed?.[key] === 'string' ? parsed[key] : '']))
 }
 
 function normalizeSiteStats(stats = {}, data = {}) {
@@ -91,10 +98,10 @@ function normalizeSiteStats(stats = {}, data = {}) {
 
 export function normalizeAbout(data) {
 	if (!Array.isArray(data)) {
-		return data || {}
+		return Object.fromEntries(Object.entries(data || {}).filter(([key]) => key !== 'musicId'))
 	}
 	return data.reduce((result, item) => {
-		result[item.nameEn] = item.value
+		if (item.nameEn !== 'musicId') result[item.nameEn] = item.value
 		return result
 	}, {})
 }

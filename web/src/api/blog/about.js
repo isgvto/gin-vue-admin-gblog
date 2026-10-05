@@ -28,7 +28,6 @@ export function getAbout() {
       ...res,
       data: {
         title: values.title || '',
-        musicId: values.musicId || '',
         content: values.content || '',
         commentEnabled: String(values.commentEnabled ?? 'true') === 'true'
       }
@@ -43,7 +42,6 @@ export function updateAbout(form) {
     data: {
       values: {
         title: String(form.title ?? ''),
-        musicId: String(form.musicId ?? ''),
         content: String(form.content ?? ''),
         commentEnabled: String(Boolean(form.commentEnabled))
       }

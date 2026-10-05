@@ -47,7 +47,7 @@ func (s *SiteService) GetSiteInfo() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	result["siteSettings"] = siteSettings
+	result["siteSettings"] = activeSiteSettings(siteSettings)
 	result["categoryList"] = categories
 	result["tagList"] = tags
 	result["newBlogList"] = newBlogs

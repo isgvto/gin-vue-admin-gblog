@@ -1,3 +1,5 @@
+import {nearRoadRight, nearRoadLeft, traceRoadCurve} from './landscapeGeometry'
+
 // A quiet layered landscape: distant light, a winding passage and moving air.
 export function createHeroScene(canvas, header, options = {}) {
 	const context = canvas.getContext('2d')
@@ -231,9 +233,9 @@ export function createHeroScene(canvas, header, options = {}) {
 		ctx.beginPath()
 		ctx.moveTo(width * .619, height * .655)
 		ctx.bezierCurveTo(width * .55, height * .658, width * .39, height * .7, width * .4, height * .77)
-		ctx.bezierCurveTo(width * .4, height * .84, width * .57, height * .85, width * .38, height * 1.02)
+		traceRoadCurve(ctx, nearRoadRight, width, height)
 		ctx.lineTo(width * .18, height * 1.02)
-		ctx.bezierCurveTo(width * .46, height * .85, width * .27, height * .83, width * .3, height * .76)
+		traceRoadCurve(ctx, nearRoadLeft, width, height, true)
 		ctx.bezierCurveTo(width * .32, height * .68, width * .58, height * .655, width * .629, height * .655)
 		ctx.closePath()
 		const passage = ctx.createLinearGradient(0, height * .64, 0, height)

@@ -21,11 +21,6 @@
     text-align: justify;
 }
 
-/*重置 aplayer 中歌词的样式*/
-.typo .aplayer .aplayer-lrc p {
-    text-align: unset;
-}
-
 /* 重设 HTML5 标签, IE 需要在 js 中 createElement(TAG) */
 .typo article, aside, details, figcaption, figure, footer, header, menu, nav, section {
     display: block;

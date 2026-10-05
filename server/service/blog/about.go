@@ -12,7 +12,7 @@ type AboutService struct{}
 
 func (s *AboutService) GetList() ([]blogModel.About, error) {
 	var list []blogModel.About
-	err := global.GVA_DB.Order("id asc").Find(&list).Error
+	err := global.GVA_DB.Where("name_en <> ?", "musicId").Order("id asc").Find(&list).Error
 	return list, err
 }
 
@@ -40,6 +40,9 @@ func (s *AboutService) UpdateValues(values map[string]string) error {
 	}
 
 	for key, value := range values {
+		if key == "musicId" {
+			continue
+		}
 		result := tx.Model(&blogModel.About{}).Where("name_en = ?", key).Update("value", value)
 		if result.Error != nil {
 			tx.Rollback()
@@ -63,8 +66,6 @@ func aboutNameZh(nameEn string) string {
 	switch nameEn {
 	case "title":
 		return "标题"
-	case "musicId":
-		return "网易云歌曲ID"
 	case "content":
 		return "正文Markdown"
 	case "commentEnabled":

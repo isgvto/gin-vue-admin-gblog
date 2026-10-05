@@ -1,6 +1,7 @@
 <template>
 	<header ref="header" class="home-hero">
 		<canvas ref="scene" class="hero-scene" aria-hidden="true"></canvas>
+		<canvas ref="rain" class="hero-scene hero-rain" aria-hidden="true"></canvas>
 		<div ref="brandContent" class="hero-content">
 			<h1 class="hero-brand" :aria-label="blogName">
 				<svg ref="brandMark" class="brand-mark" viewBox="0 0 560 176" role="img" aria-label="Gvto，归途">
@@ -34,6 +35,7 @@
 <script>
 	import {mapState} from 'vuex'
 	import {createHeroScene} from './heroScene'
+	import {createRainScene} from './rainScene'
 
 	export default {
 		name: 'Header',
@@ -57,8 +59,12 @@
 		},
 		mounted() {
 			this._heroScene = createHeroScene(this.$refs.scene, this.$refs.header, {brand: this.$refs.brandContent})
+			this._rainScene = createRainScene(this.$refs.rain, this.$refs.header, {hero: true})
 		},
-		beforeDestroy() { if (this._heroScene) this._heroScene.destroy() },
+		beforeDestroy() {
+			if (this._heroScene) this._heroScene.destroy()
+			if (this._rainScene) this._rainScene.destroy()
+		},
 		methods: {
 			async scrollToMain() {
 				this.cancelScrollToTop()
@@ -134,7 +140,7 @@
 		transform: translateY(-50%) rotate(45deg);
 	}
 	.caption-ornament-right { transform: rotate(180deg); }
-	.brand-mark { display: block; width: min(520px, 100%); height: auto; margin: auto; overflow: visible; filter: drop-shadow(0 10px 16px rgba(43,118,226,.09)); animation: brand-light-settle 1.5s ease-in-out 1.8s both; }
+	.brand-mark { display: block; width: min(460px, 100%); height: auto; margin: auto; overflow: visible; filter: drop-shadow(0 10px 16px rgba(43,118,226,.09)); animation: brand-light-settle 1.5s ease-in-out 1.8s both; }
 	.brand-mark path { fill: none; stroke-width: 15px; stroke-linecap: round; stroke-linejoin: round; }
 	.letter-tracks { stroke: #e9f2ff; }
 	.letter-ink { stroke: url(#hero-letter-blue); }
@@ -185,6 +191,7 @@
 	@media (max-width: 768px) {
 		.home-hero { min-height: 580px; }
 		.hero-content { width: 82%; margin-top: calc(-20svh - 36px); }
+		.brand-mark { width: 90%; }
 		.hero-caption { top: calc(100% + 10px); font-size: 14px; letter-spacing: .14em; }
 		.hero-caption-line { gap: 10px; }
 		.caption-ornament { flex-basis: 24px; width: 24px; }
@@ -195,7 +202,7 @@
 		.hero-signature::before, .hero-signature::after { width: 12px; }
 	}
 	@media (max-height: 720px) and (min-width: 769px) {
-		.brand-mark { width: 430px; }
+		.brand-mark { width: 390px; }
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.brand-mark, .letter-ink path, .scroll-circle > span, .hero-caption-line { animation: none; }

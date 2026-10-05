@@ -7,23 +7,27 @@
 			:style="tocStyle"
 		>
 			<div class="ui secondary segment">
-				<i class="list ul icon"></i>{{ title }}
+				<i class="list ul icon"></i><span class="toc-title">{{ title }}</span>
 				<div class="toc-actions" v-if="collapsibleTocItems.length">
-					<button type="button" title="全部折叠" @click="collapseAll">
-						<i class="compress arrows alternate icon"></i>
-					</button>
-					<button type="button" title="全部展开" @click="expandAll">
-						<i class="expand arrows alternate icon"></i>
+					<button
+						type="button"
+						:title="allTocExpanded ? '全部收起' : '全部展开'"
+						:aria-label="allTocExpanded ? '全部收起' : '全部展开'"
+						:aria-expanded="allTocExpanded ? 'true' : 'false'"
+						@click="allTocExpanded ? collapseAll() : expandAll()"
+					>
+						<i :class="allTocExpanded ? 'compress arrows alternate icon' : 'expand arrows alternate icon'"></i>
 					</button>
 				</div>
 			</div>
-			<div class="ui yellow segment" :class="{'toc-scroll-body': limitHeight}">
+			<div class="ui segment" :class="{'toc-scroll-body': limitHeight}">
 				<div v-if="fallbackTocItems.length === 0" class="toc-empty">{{ emptyText }}</div>
 				<ul class="toc-list fallback-toc" v-else>
 					<li
 						v-for="item in visibleTocItems"
 						:key="item.id"
 						:class="[`toc-list-item level-${item.level}`, {active: item.id === activeHeadingId, collapsed: isCollapsed(item)}]"
+						:style="{'--toc-depth': item.depth}"
 					>
 						<div class="toc-row">
 							<button
@@ -31,13 +35,14 @@
 								type="button"
 								class="toc-toggle"
 								:title="isCollapsed(item) ? '展开' : '折叠'"
+								:aria-expanded="isCollapsed(item) ? 'false' : 'true'"
+								:aria-label="`${isCollapsed(item) ? '展开' : '折叠'} ${item.text}`"
 								@click.stop="toggleCollapse(item)"
 							>
 								<i :class="isCollapsed(item) ? 'caret right icon' : 'caret down icon'"></i>
 							</button>
 							<span v-else class="toc-toggle-placeholder"></span>
-							<a class="toc-link" :href="`#${item.id}`" @click.prevent="scrollToHeading(item.id)">
-								<span v-if="item.level <= 2" class="toc-number">{{ item.number }}</span>
+							<a class="toc-link" :href="`#${item.id}`" :aria-current="item.id === activeHeadingId ? 'location' : null" @click.prevent="scrollToHeading(item.id)">
 								{{ item.text }}
 							</a>
 						</div>
@@ -98,6 +103,7 @@
 				tocLeft: 0,
 				tocWidth: 0,
 				tocHeight: 0,
+				tocFixedTop: 0,
 				stickyTimer: null,
 				resizeObserver: null,
 				fallbackTocItems: [],
@@ -111,7 +117,7 @@
 				return this.enableSticky && this.tocFixed ? {height: `${this.tocHeight}px`} : {}
 			},
 			tocStyle() {
-				return this.enableSticky && this.tocFixed ? {top: `${this.stickyTop}px`, left: `${this.tocLeft}px`, width: `${this.tocWidth}px`} : {}
+				return this.enableSticky && this.tocFixed ? {top: `${this.tocFixedTop}px`, left: `${this.tocLeft}px`, width: `${this.tocWidth}px`} : {}
 			},
 			visibleTocItems() {
 				const hiddenLevels = []
@@ -128,6 +134,10 @@
 			},
 			collapsibleTocItems() {
 				return this.fallbackTocItems.filter(item => this.hasChildren(item))
+			},
+			allTocExpanded() {
+				return this.collapsibleTocItems.length > 0
+					&& this.collapsibleTocItems.every(item => !this.isCollapsed(item))
 			}
 		},
 		mounted() {
@@ -177,11 +187,15 @@
 			buildFallbackToc(content) {
 				const headings = Array.from(content.querySelectorAll(this.headingSelector))
 				const counters = [0, 0, 0, 0]
+				const levels = []
 				this.fallbackTocItems = headings.map((heading, index) => {
 					if (!heading.id) {
 						heading.id = `blog-heading-${index + 1}`
 					}
 					const level = Number(heading.tagName.slice(1))
+					while (levels.length && levels[levels.length - 1] >= level) levels.pop()
+					const depth = levels.length
+					levels.push(level)
 					const counterIndex = level - 1
 					counters[counterIndex] += 1
 					for (let i = counterIndex + 1; i < counters.length; i++) {
@@ -197,6 +211,7 @@
 						id: heading.id,
 						text,
 						level,
+						depth,
 						number
 					}
 				}).filter(item => item.text)
@@ -212,6 +227,9 @@
 				if (window.ResizeObserver && this.$el.parentElement) {
 					this.resizeObserver = new ResizeObserver(this.refreshSticky)
 					this.resizeObserver.observe(this.$el.parentElement)
+					this.resizeObserver.observe(this.$refs.toc)
+					const footer = this.$el.closest('.site')?.querySelector('footer')
+					if (footer) this.resizeObserver.observe(footer)
 				}
 				this.stickyTimer = setTimeout(this.refreshSticky, 500)
 			},
@@ -239,6 +257,12 @@
 					return
 				}
 				this.tocFixed = window.pageYOffset + this.stickyTop >= this.tocTop
+				const footer = this.$el.closest('.site')?.querySelector('footer')
+				const height = this.$refs.toc ? this.$refs.toc.getBoundingClientRect().height : this.tocHeight
+				const marginTop = this.$refs.toc ? parseFloat(window.getComputedStyle(this.$refs.toc).marginTop) || 0 : 0
+				this.tocFixedTop = footer
+					? Math.min(this.stickyTop, footer.getBoundingClientRect().top - height - marginTop - 12)
+					: this.stickyTop
 			},
 			updateActiveHeading() {
 				if (this.fallbackTocItems.length === 0) {
@@ -249,7 +273,7 @@
 				let activeId = this.fallbackTocItems[0].id
 				this.fallbackTocItems.forEach(item => {
 					const heading = document.getElementById(item.id)
-					if (heading && heading.getBoundingClientRect().top <= offset) {
+					if (heading && heading.getBoundingClientRect().top <= offset + 1) {
 						activeId = item.id
 					}
 				})
@@ -263,7 +287,8 @@
 				const nav = document.querySelector('.blog-nav')
 				const offset = nav ? nav.getBoundingClientRect().height + 2 : 55
 				const top = heading.getBoundingClientRect().top + window.pageYOffset - offset
-				window.scrollTo({top, behavior: 'smooth'})
+				const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+				window.scrollTo({top, behavior: reducedMotion ? 'auto' : 'smooth'})
 				this.activeHeadingId = id
 			},
 			removeHeadingNumber(heading) {
@@ -283,9 +308,6 @@
 				heading.insertBefore(numberEl, heading.firstChild)
 			},
 			hasChildren(item) {
-				if (item.level > 2) {
-					return false
-				}
 				const index = this.fallbackTocItems.findIndex(tocItem => tocItem.id === item.id)
 				return index >= 0
 					&& this.fallbackTocItems[index + 1]
@@ -326,13 +348,32 @@
 	.m-toc {
 		z-index: 10 !important;
 	}
+	.ui.segments.m-toc {
+		border: 1px solid var(--blog-accent-border);
+		border-radius: 10px;
+		overflow: hidden;
+		transition: box-shadow .2s ease !important;
+	}
+	.site:not(.docs-layout) .ui.segments.m-toc.m-box,
+	.site:not(.docs-layout) .ui.segments.m-toc.m-box:hover {
+		box-shadow: 0 3px 14px rgba(50,111,168,.045) !important;
+	}
+	.m-toc > .ui.segment {
+		padding: 10px 8px;
+		border-color: var(--blog-accent-border);
+		background: #fff;
+	}
 
 	.m-toc > .secondary.segment {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
 		gap: 8px;
+		padding: 10px 12px;
+		background: var(--blog-accent-soft);
+		color: var(--blog-accent);
 	}
+	.m-toc > .secondary.segment > i.icon { margin: 0; }
+	.m-toc .toc-title { flex: 1; color: #1f2937; font-size: 14px; font-weight: 600; }
 
 	.m-toc .toc-actions {
 		display: inline-flex;
@@ -360,9 +401,10 @@
 
 	.m-toc .toc-actions button:hover,
 	.m-toc .toc-toggle:hover {
-		background: rgba(251, 189, 8, .12);
-		color: #fbbd08;
+		background: var(--blog-accent-soft-hover);
+		color: var(--blog-accent);
 	}
+	.m-toc button:focus-visible, .m-toc .toc-link:focus-visible { outline: 2px solid var(--blog-accent-border-strong); outline-offset: -2px; border-radius: 4px; }
 
 	.m-toc .toc-actions button i,
 	.m-toc .toc-toggle i {
@@ -386,7 +428,7 @@
 
 	.m-toc .toc-scroll-body::-webkit-scrollbar-thumb {
 		border-radius: 6px;
-		background: rgba(251, 189, 8, .55);
+		background: var(--blog-accent-border-strong);
 	}
 
 	.m-toc .toc-scroll-body::-webkit-scrollbar-track {
@@ -420,7 +462,14 @@
 		display: flex;
 		min-width: 0;
 		align-items: flex-start;
+		padding: 0 4px;
+		border-left: 2px solid transparent;
+		border-radius: 6px;
+		transition: background-color .18s ease, border-color .18s ease;
 	}
+	.m-toc .toc-list-item { margin: 2px 0; padding-left: calc(var(--toc-depth, 0) * 12px); }
+	.m-toc .toc-row:hover { background: var(--blog-accent-soft); }
+	.m-toc .active > .toc-row { border-left-color: var(--blog-accent); background: var(--blog-accent-soft); }
 
 	.m-toc .toc-toggle,
 	.m-toc .toc-toggle-placeholder {
@@ -429,50 +478,28 @@
 		height: 24px;
 		padding: 0;
 		border-radius: 4px;
+		margin-top: 4px;
 	}
 
 	.m-toc .toc-list li a {
-		display: flex;
+		display: block;
 		min-width: 0;
 		flex: 1 1 auto;
-		align-items: flex-start;
-		gap: 6px;
-		padding: 4px 0;
-		color: #4b5563;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-		font-size: 14px;
+		padding: 5px 2px;
+		color: #374151;
+		font-family: var(--blog-reading-font);
+		font-size: 13px;
 		font-weight: 400;
-		line-height: 1.5;
+		line-height: 1.65;
+		overflow-wrap: anywhere;
 	}
 
 	.m-toc .toc-list li a:hover {
-		color: #fbbd08;
-	}
-
-	.m-toc .fallback-toc .level-2 {
-		padding-left: 10px
-	}
-
-	.m-toc .fallback-toc .level-3 {
-		padding-left: 20px
-	}
-
-	.m-toc .fallback-toc .level-4 {
-		padding-left: 30px
+		color: #111827;
 	}
 
 	.m-toc a.toc-link {
-		color: currentColor;
-		height: 100%
-	}
-
-	.m-toc .toc-number {
-		flex: 0 0 auto;
-		min-width: 22px;
-		color: #9ca3af;
-		font-size: 13px;
-		font-weight: 400;
-		text-align: right;
+		text-decoration: none;
 	}
 
 	.m-toc .is-collapsible {
@@ -486,18 +513,13 @@
 	}
 
 	.m-toc .is-active-link {
-		font-weight: 700;
-		color: #fbbd08 !important;
+		font-weight: 600;
+		color: #111827 !important;
 	}
 
 	.m-toc .fallback-toc .active .toc-link {
-		font-weight: 700;
-		color: #fbbd08 !important;
-	}
-
-	.m-toc .fallback-toc .active .toc-number,
-	.m-toc .toc-list li a:hover .toc-number {
-		color: #fbbd08;
+		font-weight: 600;
+		color: #111827 !important;
 	}
 
 	.m-toc .toc-link::before {
@@ -512,6 +534,6 @@
 	}
 
 	.m-toc .is-active-link::before {
-		background-color: #54BC4B
+		background-color: var(--blog-accent)
 	}
 </style>

@@ -53,8 +53,6 @@ func (i *initBlogSiteSetting) InitializeData(ctx context.Context) (next context.
 		{NameEn: ptrString("beian"), NameZh: ptrString("ICP备案号"), Value: ptrString("豫ICP备2023001942号-1"), Type: ptrInt(1)},
 		{NameEn: ptrString("reward"), NameZh: ptrString("赞赏码"), Value: ptrString("/img/reward.jpg"), Type: ptrInt(1)},
 		{NameEn: ptrString("commentAdminFlag"), NameZh: ptrString("博主评论标识"), Value: ptrString("归途"), Type: ptrInt(1)},
-		{NameEn: ptrString("playlistServer"), NameZh: ptrString("播放器平台"), Value: ptrString("tencent"), Type: ptrInt(1)},
-		{NameEn: ptrString("playlistId"), NameZh: ptrString("播放器歌单"), Value: ptrString("9029144539"), Type: ptrInt(1)},
 		{NameEn: ptrString("avatar"), NameZh: ptrString("头像"), Value: ptrString("/img/avatar.jpg"), Type: ptrInt(2)},
 		{NameEn: ptrString("name"), NameZh: ptrString("昵称"), Value: ptrString("Gvto"), Type: ptrInt(2)},
 		{NameEn: ptrString("rollText"), NameZh: ptrString("滚动个签"), Value: ptrString("\"惶惶二十载，书剑两无成\",\"天地一逆旅，同悲万古尘\",\"漫漫迷途终有归途\""), Type: ptrInt(2)},
@@ -65,11 +63,8 @@ func (i *initBlogSiteSetting) InitializeData(ctx context.Context) (next context.
 		{NameEn: ptrString("netease"), NameZh: ptrString("网易云音乐"), Value: ptrString("https://music.163.com/#/user/home?id=1881835523"), Type: ptrInt(2)},
 		{NameEn: ptrString("email"), NameZh: ptrString("email"), Value: ptrString("3135679861@qq.com"), Type: ptrInt(2)},
 		{NameEn: ptrString("favorite"), NameZh: ptrString("自定义"), Value: ptrString("{\"title\":\"sasdad\",\"content\":\"sada\"}"), Type: ptrInt(2)},
-		{NameEn: ptrString("badge"), NameZh: ptrString("徽标"), Value: ptrString("{\"color\":\"asfdas\",\"subject\":\"asfas\",\"title\":\"asda\",\"url\":\"qwfqwa\",\"value\":\"safas\"}"), Type: ptrInt(3)},
-		{NameEn: ptrString("badge"), NameZh: ptrString("徽标"), Value: ptrString("{\"color\":\"ASGVAEF\",\"subject\":\"ASDVa\",\"title\":\"asfca\",\"url\":\"ewgwae\",\"value\":\"SDVAS\"}"), Type: ptrInt(3)},
-		{NameEn: ptrString("bg1"), NameZh: ptrString("首页背景图 1"), Value: ptrString("https://www.guitu.life/blog-file/bg1.jpg"), Type: ptrInt(1)},
-		{NameEn: ptrString("bg2"), NameZh: ptrString("首页背景图 2"), Value: ptrString("https://www.guitu.life/blog-file/bg2.jpg"), Type: ptrInt(1)},
-		{NameEn: ptrString("bg3"), NameZh: ptrString("首页背景图 3"), Value: ptrString("https://www.guitu.life/blog-file/bg3.jpg"), Type: ptrInt(1)},
+		{NameEn: ptrString("badge"), NameZh: ptrString("徽标"), Value: ptrString("{\"subject\":\"asfas\",\"title\":\"asda\",\"url\":\"qwfqwa\",\"value\":\"safas\"}"), Type: ptrInt(3)},
+		{NameEn: ptrString("badge"), NameZh: ptrString("徽标"), Value: ptrString("{\"subject\":\"ASDVa\",\"title\":\"asfca\",\"url\":\"ewgwae\",\"value\":\"SDVAS\"}"), Type: ptrInt(3)},
 		{NameEn: ptrString("malfunctionText"), NameZh: ptrString("首页故障风文字"), Value: ptrString("Gvto's Blog"), Type: ptrInt(1)},
 	}
 	if len(entities) == 0 {

@@ -4,6 +4,7 @@ import (
 	"github.com/isgvto/gin-vue-admin-gblog/server/global"
 	aiModel "github.com/isgvto/gin-vue-admin-gblog/server/model/ai"
 	blogModel "github.com/isgvto/gin-vue-admin-gblog/server/model/blog"
+	blogService "github.com/isgvto/gin-vue-admin-gblog/server/service/blog"
 )
 
 func bizModel() error {
@@ -32,6 +33,9 @@ func bizModel() error {
 		blogModel.Visitor{},
 	)
 	if err != nil {
+		return err
+	}
+	if err := blogService.CleanupRetiredSiteSettings(db); err != nil {
 		return err
 	}
 	if err := migrateImageModelBinding(db); err != nil {
