@@ -308,7 +308,11 @@ onBeforeUnmount(() => { flush(); disposed = true; clearTimeout(draftTimer); docu
 </script>
 
 <style scoped>
-.writing-chat{display:flex;flex-direction:column;flex:1;min-height:0;gap:12px;color:var(--el-text-color-primary)}
+.writing-chat{display:flex;flex-direction:column;flex:1;min-height:0;gap:12px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;color:var(--el-text-color-primary)}
+/* 矮窗口下允许整个对话区滚动，避免输入框和发送按钮被外层裁掉。 */
+.writing-chat > :not(.chat-transcript){flex-shrink:0}
+/* 聊天记录到达边缘后可继续滚动外层，矮窗口也能直接滚到输入区。 */
+.writing-chat .chat-transcript{overscroll-behavior-y:auto}
 .chat-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.chat-heading strong{display:block;font-size:18px;letter-spacing:.02em}.chat-heading span{display:block;margin-top:5px;font-size:12px;color:var(--el-text-color-secondary)}
 .session-controls{display:flex;gap:10px;align-items:center}.session-controls .el-select{flex:1}.chat-transcript{flex:1;min-height:150px;overflow-y:auto;overscroll-behavior:contain;padding:4px 8px 12px 0;scrollbar-gutter:stable}.chat-empty{padding:40px 20px;text-align:center}.empty-mark{font-size:36px;color:var(--el-color-primary)}.chat-empty h3{font-size:17px;font-weight:500}.chat-empty p{font-size:13px;line-height:1.8;color:var(--el-text-color-secondary)}
 .chat-message{margin-bottom:20px;overflow-wrap:anywhere}.chat-message.user{padding:12px 14px;margin-left:24px;background:var(--el-fill-color-light);border-radius:12px 12px 2px 12px}.chat-message.assistant{padding:4px 0 12px;border-bottom:1px solid var(--el-border-color-lighter)}.message-heading{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:600;color:var(--el-text-color-secondary)}.message-heading small{font-weight:400}.user-text{white-space:pre-wrap;margin:8px 0 0;font-size:14px;line-height:1.7}.message-content{font-size:14px;line-height:1.85}.message-content :deep(pre){overflow:auto;background:var(--el-fill-color-light);padding:12px;border-radius:6px}.message-content :deep(img){max-width:100%}.message-content :deep(table){border-collapse:collapse;display:block;overflow:auto}.message-content :deep(td),.message-content :deep(th){border:1px solid var(--el-border-color);padding:5px}

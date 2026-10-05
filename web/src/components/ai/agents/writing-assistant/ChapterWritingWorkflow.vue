@@ -199,6 +199,7 @@
 
 <style scoped>
 .chapter-workflow { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 2px 4px 12px 0; }
+.chapter-workflow > * { flex-shrink: 0; }
 .workflow-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .workflow-heading strong { font-size: 16px; color: var(--el-text-color-primary); }
 .workflow-heading p, .draft-note, .field-help { margin: 4px 0 0; font-size: 12px; line-height: 1.6; color: var(--el-text-color-secondary); }

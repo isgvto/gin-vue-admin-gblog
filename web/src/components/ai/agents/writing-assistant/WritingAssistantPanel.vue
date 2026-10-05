@@ -77,9 +77,9 @@ onBeforeUnmount(() => { disposed = true; aiStore.writingBusy = false; aiStore.se
 
 <style scoped>
 .writing-assistant{display:flex;flex-direction:column;height:100%;min-height:0;gap:16px}
-.assistant-sections{display:flex;gap:8px}.assistant-sections .el-button{flex:1;margin-left:0}
+.assistant-sections{display:flex;flex-shrink:0;gap:8px}.assistant-sections .el-button{flex:1;margin-left:0}
 .writing-section{display:flex;flex-direction:column;flex:1;min-height:0;gap:14px}
-.writing-modes{display:flex;align-items:center;gap:8px}.writing-modes .el-button{margin-left:0}
+.writing-modes{display:flex;flex-shrink:0;align-items:center;gap:8px}.writing-modes .el-button{margin-left:0}
 .preference-fields{display:flex;flex-direction:column;gap:8px}.preference-fields label{font-size:12px;font-weight:600}.preference-fields small{font-size:12px;color:var(--el-text-color-secondary)}
 .ai-disabled-tip{margin:auto;text-align:center;font-size:13px;line-height:1.7}
 </style>

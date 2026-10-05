@@ -58,6 +58,7 @@
   const showBrand = new URLSearchParams(window.location.search).has('brand')
   const brandNavigation = ref(0)
   import { useAiStore } from '../../src/pinia/modules/ai.js'
+  import { useAppStore } from '../../src/pinia/modules/app.js'
   import { renderSafeMarkdown } from '../../src/utils/safeMarkdown.js'
   import { buildSuggestionPatch, cursorContext } from '../../src/components/ai/agents/writing-assistant/suggestion.js'
   import { titleFillError } from '../../src/components/ai/agents/writing-assistant/writingTask.js'
@@ -121,6 +122,7 @@
       }
     })
     window.aiEditorTest = {
+      setDevice: (device) => useAppStore().toggleDevice(device),
       getContent: () => content.value,
       setContent: async (text) => { content.value = text; await nextTick() },
       setDocumentId: async (id) => { documentId.value = id; await nextTick() },

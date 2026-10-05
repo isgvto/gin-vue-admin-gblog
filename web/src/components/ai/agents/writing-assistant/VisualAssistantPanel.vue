@@ -148,7 +148,8 @@ onBeforeUnmount(() => { disposed = true; statusSeq++; cancel() })
 </script>
 
 <style scoped>
-.visual-panel { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.visual-panel { display: flex; flex-direction: column; flex: 1; gap: 10px; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 0 4px 12px 0; }
+.visual-panel > * { flex-shrink: 0; }
 .visual-intro strong { font-size: 16px; }
 .visual-intro p, .help { margin: 4px 0 0; font-size: 12px; line-height: 1.7; color: var(--el-text-color-secondary); }
 .visual-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

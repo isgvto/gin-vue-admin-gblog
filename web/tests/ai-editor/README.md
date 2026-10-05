@@ -24,6 +24,9 @@ python tests/ai-editor/paragraph_browser.py
 python tests/ai-editor/diff_context_browser.py
 ```
 
+长内容滚动回归使用 Node Playwright（需可解析 `playwright` 模块）：`node tests/ai-editor/scroll_browser.cjs --channel msedge`。
+覆盖真实 AI 抽屉在桌面、矮窗口、手机和横屏尺寸下的长图示、竖向配图、上传操作、长聊天回复、二十章大纲和章节预览，确认滚轮可以到达底部按钮；所有 AI 和上传接口使用模拟数据。
+
 独立 Vite 夹具使用真实 MarkdownEditor、WritingAssistantPanel 和 Pinia Store，所有 AI 接口均由测试拦截，不需要登录或模型密钥。默认端口为 5191；可通过 `AI_TEST_PORT` 和测试的 `--base-url` 调整。
 
 覆盖：局部与全文替换、全文预览、精确撤销、CRLF/emoji、逐段采纳、全部保留、取消、编辑冲突、切换文章、残缺流，以及三处 HTML 渲染的清洗和正常 Markdown 保留。
