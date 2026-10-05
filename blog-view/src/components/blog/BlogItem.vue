@@ -99,8 +99,8 @@
 	}
 
 	.article-item:hover {
-		border-color: #bfdbfe;
-		box-shadow: 0 10px 26px rgba(37, 99, 235, .09);
+		border-color: var(--blog-accent-border-strong);
+		box-shadow: 0 10px 26px rgba(50, 111, 168, .09);
 		transform: translateY(-1px);
 	}
 
@@ -133,8 +133,8 @@
 		min-height: 174px;
 		align-items: center;
 		justify-content: center;
-		background: linear-gradient(135deg, #dbeafe, #f1f5f9);
-		color: #2563eb;
+		background: linear-gradient(135deg, var(--blog-accent-soft-hover), var(--blog-accent-soft));
+		color: var(--blog-accent);
 		font-size: 40px;
 		font-weight: 700;
 	}
@@ -187,10 +187,16 @@
 		display: inline-flex;
 		padding: 5px 10px;
 		border-radius: 999px;
-		background: #eff6ff;
-		color: #2563eb;
+		background: var(--blog-accent-soft);
+		color: var(--blog-accent);
 		font-size: 13px;
 		font-weight: 600;
+	}
+
+	.article-category a:hover,
+	.article-category a:focus-visible {
+		background: var(--blog-accent-soft-hover);
+		color: var(--blog-accent-hover);
 	}
 
 	.article-title {
@@ -205,7 +211,7 @@
 	}
 
 	.article-title a:hover {
-		color: #2563eb;
+		color: var(--blog-accent);
 	}
 
 	.article-meta {
@@ -263,14 +269,15 @@
 	.article-tags a {
 		padding: 6px 12px;
 		border-radius: 999px;
-		background: #f3f4f6;
-		color: #6b7280;
+		background: var(--blog-accent-soft);
+		color: var(--blog-accent);
 		font-size: 13px;
 	}
 
-	.article-tags a:hover {
-		background: #e0edff;
-		color: #2563eb;
+	.article-tags a:hover,
+	.article-tags a:focus-visible {
+		background: var(--blog-accent-soft-hover);
+		color: var(--blog-accent-hover);
 	}
 
 	.read-more {
@@ -280,16 +287,17 @@
 		justify-content: center;
 		gap: 4px;
 		padding: 7px 12px;
-		border: 1px solid #60a5fa;
+		border: 1px solid var(--blog-accent-border-strong);
 		border-radius: 999px;
-		color: #2563eb;
+		color: var(--blog-accent);
 		font-size: 14px;
 		font-weight: 700;
 	}
 
-	.read-more:hover {
-		background: #eff6ff;
-		color: #1d4ed8;
+	.read-more:hover,
+	.read-more:focus-visible {
+		background: var(--blog-accent-soft);
+		color: var(--blog-accent-hover);
 	}
 
 	.read-more i {

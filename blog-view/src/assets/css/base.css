@@ -1,3 +1,13 @@
+:root {
+    --blog-accent: #326fa8;
+    --blog-accent-hover: #245784;
+    --blog-accent-soft: #edf4fa;
+    --blog-accent-soft-hover: #dce8f2;
+    --blog-accent-soft-active: #cedeea;
+    --blog-accent-border: #dce8f2;
+    --blog-accent-border-strong: #a9c5da;
+}
+
 html,
 body,
 #app {

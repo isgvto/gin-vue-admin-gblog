@@ -47,8 +47,17 @@ Vue.prototype.msgInfo = function (msg) {
 
 const cubic = value => Math.pow(value, 3);
 const easeInOutCubic = value => value < 0.5 ? cubic(value * 2) / 2 : 1 - cubic((1 - value) * 2) / 2;
+let scrollToTopFrame = null
+Vue.prototype.cancelScrollToTop = function () {
+	if (scrollToTopFrame !== null) {
+		const cancel = window.cancelAnimationFrame || clearTimeout
+		cancel(scrollToTopFrame)
+		scrollToTopFrame = null
+	}
+}
 //滚动至页面顶部，使用 Element-ui 回到顶部 组件中的算法
 Vue.prototype.scrollToTop = function () {
+	this.cancelScrollToTop()
 	const el = document.documentElement
 	const beginTime = Date.now()
 	const beginValue = el.scrollTop
@@ -57,12 +66,13 @@ Vue.prototype.scrollToTop = function () {
 		const progress = (Date.now() - beginTime) / 500;
 		if (progress < 1) {
 			el.scrollTop = beginValue * (1 - easeInOutCubic(progress))
-			rAF(frameFunc)
+			scrollToTopFrame = rAF(frameFunc)
 		} else {
 			el.scrollTop = 0
+			scrollToTopFrame = null
 		}
 	}
-	rAF(frameFunc)
+	scrollToTopFrame = rAF(frameFunc)
 }
 
 

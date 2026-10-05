@@ -187,6 +187,16 @@
 
 	.ui.circular.icon.button {
 		width: 38px;
+		background-color: var(--blog-accent-soft);
+	}
+
+	.ui.circular.icon.button:hover,
+	.ui.circular.icon.button:focus {
+		background-color: var(--blog-accent-soft-hover);
+	}
+
+	.ui.circular.icon.button:active {
+		background-color: var(--blog-accent-soft-active);
 	}
 
 	#rollText {

@@ -1,8 +1,8 @@
 <template>
 	<!--标签云-->
-	<div class="ui segments m-box">
+	<div class="ui segments m-box blog-sidebar-panel">
 		<div class="ui secondary segment"><i class="tags icon"></i>标签云</div>
-		<div class="ui yellow segment m-padding-small">
+		<div class="ui segment m-padding-small">
 			<router-link :to="`/tag/${tag.tagName}`" class="ui label m-text-500" :class="tag.color" v-for="(tag,index) in tagList" :key="index">
 				{{ tag.tagName }}
 			</router-link>

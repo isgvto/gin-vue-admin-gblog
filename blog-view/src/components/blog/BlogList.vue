@@ -63,7 +63,7 @@
 		height: 20px;
 		margin-right: 10px;
 		border-radius: 999px;
-		background: #409eff;
+		background: var(--blog-accent);
 		content: '';
 		vertical-align: -2px;
 	}

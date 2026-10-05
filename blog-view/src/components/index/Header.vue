@@ -1,310 +1,205 @@
 <template>
-	<header ref="header">
-		<div class="view">
-			<img ref="imgbg1" :src="siteInfo.bg1" style="display: none;">
-			<div class="bg1" :style="{backgroundImage:'url('+siteInfo.bg1+')'}"></div>
-			<div class="bg2" :style="{backgroundImage:'url('+siteInfo.bg2+')'}"></div>
-			<div class="bg3" :style="{backgroundImage:'url('+siteInfo.bg3+')'}" v-show="loaded"></div>
+	<header ref="header" class="home-hero">
+		<canvas ref="scene" class="hero-scene" aria-hidden="true"></canvas>
+		<div ref="brandContent" class="hero-content">
+			<h1 class="hero-brand" :aria-label="blogName">
+				<svg ref="brandMark" class="brand-mark" viewBox="0 0 560 176" role="img" aria-label="Gvto，归途">
+					<defs>
+						<linearGradient id="hero-letter-blue" x1="0" y1="0" x2="560" y2="130" gradientUnits="userSpaceOnUse">
+							<stop offset="0" stop-color="#17202d"/>
+							<stop offset="0.26" stop-color="#293e5a"/>
+							<stop offset="0.58" stop-color="#307eed"/>
+							<stop offset="1" stop-color="#69b5ff"/>
+						</linearGradient>
+					</defs>
+					<g class="letter-tracks" aria-hidden="true"><path v-for="(path, index) in letterPaths" :key="index" :d="path"/></g>
+					<g class="letter-ink" aria-hidden="true"><path v-for="(path, index) in letterPaths" :key="index" :d="path" pathLength="1" :style="{'--letter-delay': `${index * 150}ms`}"/></g>
+				</svg>
+			</h1>
+			<p v-if="heroCaption" class="hero-caption">
+				<span class="hero-caption-line">
+					<i class="caption-ornament" aria-hidden="true"></i>
+					<span class="hero-caption-text">{{ heroCaption }}</span>
+					<i class="caption-ornament caption-ornament-right" aria-hidden="true"></i>
+				</span>
+			</p>
 		</div>
-		<div class="text-malfunction" :data-word="siteInfo.malfunctionText">
-			{{ siteInfo.malfunctionText }}
-			<div class="line"></div>
-		</div>
-		<div class="wrapper">
-			<i class="ali-iconfont icon-down" @click="scrollToMain"></i>
-		</div>
-		<div class="wave1"></div>
-		<div class="wave2"></div>
+		<button type="button" class="hero-scroll" aria-label="进入博客列表" @click="scrollToMain">
+			<span class="scroll-circle"><span aria-hidden="true">↓</span></span>
+		</button>
+		<div class="hero-signature"><span>归·途</span></div>
 	</header>
 </template>
 
 <script>
 	import {mapState} from 'vuex'
+	import {createHeroScene} from './heroScene'
 
 	export default {
-		name: "Header",
+		name: 'Header',
 		data() {
 			return {
-				loaded: false,
-				startingPoint: 0,
-				handleMouseEnter: null,
-				handleMouseOut: null,
-				handleMouseMove: null
+				letterPaths: [
+					'M 139 43 C 125 26 105 18 83 18 C 44 18 18 44 18 84 C 18 125 44 152 83 152 C 106 152 125 144 140 129 L 140 92 L 91 92',
+					'M 183 61 L 224 141 Q 229 151 235 139 L 274 61',
+					'M 331 23 L 331 119 Q 331 147 359 147 L 378 147 M 303 61 L 378 61',
+					'M 535 104 C 535 76 515 56 487 56 C 459 56 439 76 439 104 C 439 132 459 152 487 152 C 515 152 535 132 535 104'
+				]
 			}
 		},
 		computed: {
-			...mapState(['clientSize', 'siteInfo'])
-		},
-		watch: {
-			'clientSize.clientHeight'() {
-				this.setHeaderHeight()
+			...mapState(['siteInfo']),
+			blogName() { return this.siteInfo && this.siteInfo.blogName || "Gvto's Blog" },
+			heroCaption() {
+				const text = this.siteInfo && this.siteInfo.malfunctionText
+				return typeof text === 'string' ? text.trim() : ''
 			}
 		},
 		mounted() {
-			/**
-			 * 因为bg3.jpg比较小，通常会比bg1.jpg先加载，显示出来会有一瞬间bg1显示一半，bg3显示一半，为了解决这个问题，增加这个判断，让bg1加载完毕后再显示bg3
-			 * HTML中使用img标签的原因：我个人想用div作为图片的载体，而只有img标签有图片加载完毕的onload回调，所以用一个display: none的img人柱力来加载图片
-			 * 当img中的src加载完毕后，会把图片缓存到浏览器，后续在div中用background url的形式将直接从浏览器中取出图片，不会下载两次图片
-			 */
-			this.$refs.imgbg1.onload = () => {
-				this.loaded = true
-			}
-			this.setHeaderHeight()
-			const header = this.$refs.header
-			this.handleMouseEnter = (e) => {
-				this.startingPoint = e.clientX
-			}
-			this.handleMouseOut = () => {
-				header.classList.remove('moving')
-				header.style.setProperty('--percentage', 0.5)
-			}
-			this.handleMouseMove = (e) => {
-				let percentage = (e.clientX - this.startingPoint) / window.outerWidth + 0.5
-				header.style.setProperty('--percentage', percentage)
-				header.classList.add('moving')
-			}
-			header.addEventListener('mouseenter', this.handleMouseEnter)
-			header.addEventListener('mouseout', this.handleMouseOut)
-			header.addEventListener('mousemove', this.handleMouseMove)
+			this._heroScene = createHeroScene(this.$refs.scene, this.$refs.header, {brand: this.$refs.brandContent})
 		},
-		beforeDestroy() {
-			const header = this.$refs.header
-			if (!header) {
-				return
-			}
-			header.removeEventListener('mouseenter', this.handleMouseEnter)
-			header.removeEventListener('mouseout', this.handleMouseOut)
-			header.removeEventListener('mousemove', this.handleMouseMove)
-		},
+		beforeDestroy() { if (this._heroScene) this._heroScene.destroy() },
 		methods: {
-			//根据可视窗口高度，动态改变首图大小
-			setHeaderHeight() {
-				this.$refs.header.style.height = this.clientSize.clientHeight + 'px'
-			},
-			//平滑滚动至正文部分
-			scrollToMain() {
-				window.scrollTo({top: this.clientSize.clientHeight, behavior: 'smooth'})
+			async scrollToMain() {
+				this.cancelScrollToTop()
+				// Measure after the click has bubbled and collapsed the mobile menu.
+				await new Promise(resolve => window.requestAnimationFrame(resolve))
+				const target = document.getElementById('blog-list')
+				if (!target) return
+				const nav = document.querySelector('.site .ui.fixed.menu')
+				const navHeight = nav ? nav.getBoundingClientRect().height : 0
+				const top = Math.max(0, window.scrollY + target.getBoundingClientRect().top - navHeight - 2)
+				const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+				window.scrollTo({top, behavior: reducedMotion ? 'auto' : 'smooth'})
 			}
-		},
+		}
 	}
 </script>
 
 <style scoped>
-	header {
-		--percentage: 0.5;
-		user-select: none;
-	}
-
-	.view {
-		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
+	.home-hero {
+		position: relative;
+		isolation: isolate;
 		display: flex;
+		align-items: center;
 		justify-content: center;
-		transform: translatex(calc(var(--percentage) * 100px));
-	}
-
-	.view div {
-		background-position: center center;
-		background-size: cover;
-		position: absolute;
-		width: 110%;
-		height: 100%;
-	}
-
-	.view .bg1 {
-		z-index: 10;
-		opacity: calc(1 - (var(--percentage) - 0.5) / 0.5);
-	}
-
-	.view .bg2 {
-		z-index: 20;
-		opacity: calc(1 - (var(--percentage) - 0.25) / 0.25);
-	}
-
-	.view .bg3 {
-		left: -10%;
-	}
-
-	header .view,
-	header .bg1,
-	header .bg2 {
-		transition: .2s all ease-in;
-	}
-
-	header.moving .view,
-	header.moving .bg1,
-	header.moving .bg2 {
-		transition: none;
-	}
-
-	.text-malfunction {
-		position: absolute;
-		padding: 0 4px;
-		top: 40%;
-		left: 51.5%;
-		transform: translate(-50%, -50%) scale(2.5);
-		font-size: 34px;
-		font-family: sans-serif;
-		color: transparent;
-	}
-
-	.line {
-		position: absolute;
-		width: calc(100% - 8px);
-		left: -0.5px;
-		height: 1px;
-		background: black;
-		z-index: 50;
-		animation: lineMove 5s ease-out infinite;
-	}
-
-	.text-malfunction:before, .text-malfunction:after {
-		content: attr(data-word);
-		position: absolute;
-		top: 0;
-		line-height: 36px;
+		height: 100vh;
+		height: 100svh;
+		min-height: 600px;
 		overflow: hidden;
-		filter: contrast(200%);
+		background: #fff;
+		color: #253446;
 	}
-
-	.text-malfunction:before {
-		left: 0;
-		color: red;
-		text-shadow: 1px 0 0 red;
-		z-index: 30;
-		animation: malfunctionAni 0.95s infinite;
-	}
-
-	.text-malfunction:after {
-		left: -1px;
-		color: cyan;
-		text-shadow: -1px 0 0 cyan;
-		z-index: 40;
-		mix-blend-mode: lighten;
-		animation: malfunctionAni 1.1s infinite 0.2s;
-	}
-
-	@keyframes lineMove {
-		9% {
-			top: 38px;
-		}
-		14% {
-			top: 8px;
-		}
-		18% {
-			top: 42px;
-		}
-		22% {
-			top: 1px;
-		}
-		32% {
-			top: 32px;
-		}
-		34% {
-			top: 12px;
-		}
-		40% {
-			top: 26px;
-		}
-		43% {
-			top: 7px;
-		}
-		99% {
-			top: 30px;
-		}
-	}
-
-	@keyframes malfunctionAni {
-		10% {
-			top: -0.4px;
-			left: -1.1px;
-		}
-		20% {
-			top: 0.4px;
-			left: -0.2px;
-		}
-		30% {
-			left: .5px;
-		}
-		40% {
-			top: -0.3px;
-			left: -0.7px;
-		}
-		50% {
-			left: 0.2px;
-		}
-		60% {
-			top: 1.8px;
-			left: -1.2px;
-		}
-		70% {
-			top: -1px;
-			left: 0.1px;
-		}
-		80% {
-			top: -0.4px;
-			left: -0.9px;
-		}
-		90% {
-			left: 1.2px;
-		}
-		100% {
-			left: -1.2px;
-		}
-	}
-
-	.wrapper {
+	.hero-scene { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+	.hero-content { position: relative; z-index: 1; width: min(780px, 80%); margin-top: calc(-17vh - 44px); text-align: center; transform: translate3d(var(--brand-x, 0px), var(--brand-y, 0px), 0); }
+	.hero-brand { margin: 0; line-height: 1; font-weight: 400; }
+	.hero-caption {
 		position: absolute;
-		width: 100px;
-		bottom: 150px;
+		top: calc(100% + 16px);
+		left: 50%;
+		width: min(520px, 100%);
+		margin: 0;
+		transform: translateX(-50%);
+		color: #526d86;
+		font-family: "LXGW WenKai", "霞鹜文楷", "STKaiti", "KaiTi", serif;
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 1.8;
+		letter-spacing: .18em;
+		white-space: pre-line;
+		overflow-wrap: anywhere;
+		text-wrap: balance;
+	}
+	.hero-caption-line { display: inline-flex; align-items: center; max-width: 100%; gap: 16px; animation: caption-reveal .9s ease-out 1.8s both; }
+	.hero-caption-text { display: block; min-width: 0; }
+	.caption-ornament { position: relative; flex: 0 0 56px; width: 56px; height: 12px; }
+	.caption-ornament::before {
+		content: '';
+		position: absolute;
+		top: 50%;
 		left: 0;
+		right: 12px;
+		height: 1px;
+		background: linear-gradient(90deg, rgba(169,197,218,0), #a9c5da);
+	}
+	.caption-ornament::after {
+		content: '';
+		position: absolute;
+		top: 50%;
 		right: 0;
-		margin: auto;
-		font-size: 26px;
-		z-index: 100;
+		width: 5px;
+		height: 5px;
+		border: 1px solid #a9c5da;
+		background: rgba(255,255,255,.65);
+		transform: translateY(-50%) rotate(45deg);
 	}
-
-	.wrapper i {
-		font-size: 60px;
-		opacity: 0.5;
-		cursor: pointer;
+	.caption-ornament-right { transform: rotate(180deg); }
+	.brand-mark { display: block; width: min(520px, 100%); height: auto; margin: auto; overflow: visible; filter: drop-shadow(0 10px 16px rgba(43,118,226,.09)); animation: brand-light-settle 1.5s ease-in-out 1.8s both; }
+	.brand-mark path { fill: none; stroke-width: 15px; stroke-linecap: round; stroke-linejoin: round; }
+	.letter-tracks { stroke: #e9f2ff; }
+	.letter-ink { stroke: url(#hero-letter-blue); }
+	.letter-ink path {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		animation: letter-draw 1.35s cubic-bezier(.45,0,.18,1) var(--letter-delay) forwards, letter-settle 1.35s cubic-bezier(.22,.7,.16,1) var(--letter-delay) both;
+	}
+	.hero-scroll { position: absolute; z-index: 1; bottom: 35px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; flex-direction: column; gap: 11px; padding: 8px 18px; border: 0; background: transparent; color: #283b55; cursor: pointer; }
+	.scroll-circle { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border: 1px solid #d4dde9; border-radius: 50%; background: rgba(255,255,255,.95); box-shadow: 0 6px 22px rgba(25,43,70,.07); font-size: 27px; line-height: 1; transition: border-color .2s, box-shadow .2s; }
+	.scroll-circle > span { display: block; animation: scroll-hint 3s ease-in-out infinite; }
+	.hero-paused .scroll-circle > span, .hero-paused .letter-ink path, .hero-paused .brand-mark, .hero-paused .hero-caption-line { animation-play-state: paused; }
+	.hero-scroll:hover .scroll-circle { border-color: #73a9f1; box-shadow: 0 8px 25px rgba(44,111,205,.14); }
+	.hero-scroll:focus-visible { outline: 2px solid #3979cc; outline-offset: 4px; border-radius: 30px; }
+	.hero-signature {
 		position: absolute;
-		top: 55px;
-		left: 20px;
-		animation: opener .5s ease-in-out alternate infinite;
-		transition: opacity .2s ease-in-out, transform .5s ease-in-out .2s;
+		z-index: 1;
+		right: clamp(24px, 4vw, 80px);
+		bottom: 58px;
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		color: #516b82;
+		font-family: "LXGW WenKai", "霞鹜文楷", "STKaiti", "KaiTi", serif;
+		font-size: 15px;
+		font-weight: 400;
+		line-height: 1.5;
+		user-select: none;
+		pointer-events: none;
 	}
-
-	.wrapper i:hover {
-		opacity: 1;
+	.hero-signature span { padding-left: .28em; letter-spacing: .28em; }
+	.hero-signature::before,
+	.hero-signature::after {
+		content: '';
+		width: 26px;
+		height: 1px;
+		background: linear-gradient(90deg, rgba(81,107,130,0), rgba(81,107,130,.6));
 	}
-
-	@keyframes opener {
-		100% {
-			top: 65px
-		}
+	.hero-signature::after { transform: rotate(180deg); }
+	@keyframes letter-draw { to { stroke-dashoffset: 0; } }
+	@keyframes letter-settle { from { opacity: .3; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+	@keyframes caption-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+	@keyframes brand-light-settle {
+		0%, 100% { filter: brightness(1) drop-shadow(0 10px 16px rgba(43,118,226,.09)) drop-shadow(0 0 0 rgba(80,150,240,0)); }
+		28% { filter: brightness(1.12) drop-shadow(0 10px 16px rgba(43,118,226,.09)) drop-shadow(0 0 12px rgba(80,150,240,.18)); }
 	}
-
-	.wave1, .wave2 {
-		position: absolute;
-		bottom: 0;
-		transition-duration: .4s, .4s;
-		z-index: 80;
+	@keyframes scroll-hint { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
+	@media (max-width: 768px) {
+		.home-hero { min-height: 580px; }
+		.hero-content { width: 82%; margin-top: calc(-20svh - 36px); }
+		.hero-caption { top: calc(100% + 10px); font-size: 14px; letter-spacing: .14em; }
+		.hero-caption-line { gap: 10px; }
+		.caption-ornament { flex-basis: 24px; width: 24px; }
+		.caption-ornament::before { right: 9px; }
+		.caption-ornament::after { width: 4px; height: 4px; }
+		.hero-scroll { bottom: 26px; }
+		.hero-signature { right: 20px; bottom: 49px; gap: 8px; font-size: 13px; }
+		.hero-signature::before, .hero-signature::after { width: 12px; }
 	}
-
-	.wave1 {
-		background: url('/img/header/wave1.png') repeat-x;
-		height: 75px;
-		width: 100%;
+	@media (max-height: 720px) and (min-width: 769px) {
+		.brand-mark { width: 430px; }
 	}
-
-	.wave2 {
-		background: url('/img/header/wave2.png') repeat-x;
-		height: 90px;
-		width: calc(100% + 100px);
-		left: -100px;
+	@media (prefers-reduced-motion: reduce) {
+		.brand-mark, .letter-ink path, .scroll-circle > span, .hero-caption-line { animation: none; }
+		.hero-content { transform: none; }
+		.letter-ink path { stroke-dashoffset: 0; }
 	}
 </style>

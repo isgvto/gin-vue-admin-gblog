@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<BlogList :getBlogList="getBlogList" :blogList="blogList" :totalPage="totalPage"/>
+		<BlogList id="blog-list" :getBlogList="getBlogList" :blogList="blogList" :totalPage="totalPage"/>
 	</div>
 </template>
 

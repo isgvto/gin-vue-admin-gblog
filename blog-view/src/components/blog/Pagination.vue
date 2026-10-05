@@ -61,6 +61,14 @@
 	}
 
 	.el-pagination.is-background .el-pager li:not(.disabled).active {
-		background-color: #409EFF !important;
+		background-color: var(--blog-accent) !important;
+		color: #fff;
+	}
+
+	.el-pagination.is-background .el-pager li:not(.disabled):not(.active):hover,
+	.el-pagination.is-background .btn-prev:not(:disabled):hover,
+	.el-pagination.is-background .btn-next:not(:disabled):hover {
+		background-color: var(--blog-accent-soft) !important;
+		color: var(--blog-accent);
 	}
 </style>

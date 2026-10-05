@@ -289,7 +289,7 @@
 
 	.back-button:hover {
 		background: transparent;
-		color: #2563eb;
+		color: var(--blog-accent);
 	}
 
 	.back-button i,
@@ -327,7 +327,7 @@
 	}
 
 	.header-tag:hover {
-		color: #1d4ed8;
+		color: var(--blog-accent-hover);
 	}
 
 	.header-category {
@@ -335,14 +335,15 @@
 		min-height: 30px;
 		padding: 7px 12px;
 		border-radius: 6px;
-		background: #eff6ff;
-		color: #2563eb;
+		background: var(--blog-accent-soft);
+		color: var(--blog-accent);
 		font-weight: 700;
 	}
 
-	.header-category:hover {
-		background: #dbeafe;
-		color: #1d4ed8;
+	.header-category:hover,
+	.header-category:focus-visible {
+		background: var(--blog-accent-soft-hover);
+		color: var(--blog-accent-hover);
 	}
 
 	.blog-title {
@@ -389,8 +390,8 @@
 	}
 
 	.meta-action:hover {
-		background: #dbeafe;
-		color: #2563eb;
+		background: var(--blog-accent-soft-hover);
+		color: var(--blog-accent);
 	}
 
 	.el-divider {

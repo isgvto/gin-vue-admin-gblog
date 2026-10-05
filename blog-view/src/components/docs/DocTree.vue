@@ -102,27 +102,27 @@
 		min-height: 34px;
 		padding: 6px 10px;
 		border-radius: 4px;
-		color: #64748b;
+		color: #000;
 		cursor: pointer;
 		line-height: 1.35;
 		transition: background-color .16s ease, color .16s ease, transform .16s ease;
 	}
 
 	.doc-tree-item.folder {
-		color: #374151;
+		color: #000;
 		font-weight: 600;
 	}
 
 	.doc-tree-item.folder:hover {
 		background: #f8fafc;
-		color: #1f2937;
+		color: #000;
 	}
 
 	.doc-tree-item:not(.folder):hover,
 	.doc-tree-item.active {
-		background: #f1f6ff;
-		color: #3568d4;
-		box-shadow: inset 3px 0 0 #4f7df0;
+		background: var(--blog-accent-soft);
+		color: #000;
+		box-shadow: inset 3px 0 0 var(--blog-accent);
 	}
 
 	.doc-tree-item:not(.folder):hover {
@@ -138,5 +138,5 @@
 		flex: 0 0 auto;
 		margin: 0 !important;
 	}
-	.doc-tree-item:focus-visible { outline: 2px solid #3568d4; outline-offset: 2px; }
+	.doc-tree-item:focus-visible { outline: 2px solid var(--blog-accent); outline-offset: 2px; }
 </style>

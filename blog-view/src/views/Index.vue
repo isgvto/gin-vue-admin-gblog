@@ -1,11 +1,9 @@
 <template>
-	<div class="site" :class="{'docs-layout': isDocsPage}">
+	<div class="site" :class="{'docs-layout': isDocsPage, 'home-layout': $route.name==='home'}">
 		<!--顶部导航-->
 		<Nav :blogName="siteInfo.blogName" :categoryList="categoryList"/>
-		<!--首页大图 只在首页且pc端时显示-->
-		<div class="m-mobile-hide">
-			<Header v-if="$route.name==='home'"/>
-		</div>
+		<!--首页动态首屏-->
+		<Header v-if="$route.name==='home'"/>
 
 		<div class="main">
 			<div class="m-padded-tb-big">
@@ -27,7 +25,7 @@
 							<RandomBlog :randomBlogList="randomBlogList" :class="{'m-display-none':focusMode}"/>
 							<Tags :tagList="tagList" :class="{'m-display-none':focusMode}"/>
 							<!--只在文章页面显示目录-->
-							<Tocbot v-if="$route.name==='blog'"/>
+							<Tocbot v-if="$route.name==='blog'" :sticky-top="70"/>
 						</div>
 					</div>
 				</div>
@@ -153,14 +151,20 @@
 
 <style scoped>
 	.site {
+		--blog-nav-clearance: 70px;
 		display: flex;
 		min-height: 100vh; /* 没有元素时，也把页面撑开至100% */
 		flex-direction: column;
 	}
 
 	.main {
-		margin-top: 40px;
+		margin-top: var(--blog-nav-clearance);
 		flex: 1;
+	}
+
+	.main > .m-padded-tb-big {
+		/* Offset the Semantic grid's negative top margin so cards begin at the shared clearance. */
+		padding-top: 14px !important;
 	}
 
 	.main .ui.container {
@@ -183,8 +187,13 @@
 
 	.blog-left-sticky {
 		position: sticky;
-		top: 60px;
+		top: var(--blog-nav-clearance);
 		z-index: 10;
+	}
+	.home-layout { background: #fff; }
+	.home-layout .main { margin-top: 2px; }
+	.home-layout .main .ui.container {
+		width: min(clamp(960px, 75vw, 1800px), calc(100% - 64px)) !important;
 	}
 	.docs-layout { background: #f6f8fb; }
 	.docs-layout .main .ui.container {
@@ -192,6 +201,22 @@
 		max-width: 1440px;
 	}
 	@media (max-width: 768px) {
+		.main > .m-padded-tb-big > .ui.container > .ui.stackable.grid > .ten.column { padding-top: 0 !important; }
+		.home-layout .main .ui.container { width: calc(100% - 32px) !important; }
 		.docs-layout .main .ui.container { width: calc(100% - 24px) !important; }
+	}
+</style>
+
+<style>
+	.ui.segments.blog-sidebar-panel {
+		border-color: var(--blog-accent-border);
+	}
+	.ui.segments.blog-sidebar-panel > .ui.segment {
+		background: #fff;
+		border-color: var(--blog-accent-border);
+	}
+	.ui.segments.blog-sidebar-panel > .ui.secondary.segment {
+		background: var(--blog-accent-soft);
+		color: var(--blog-accent);
 	}
 </style>

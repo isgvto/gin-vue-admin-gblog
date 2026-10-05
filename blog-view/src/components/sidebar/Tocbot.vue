@@ -244,10 +244,12 @@
 				if (this.fallbackTocItems.length === 0) {
 					return
 				}
+				const nav = document.querySelector('.blog-nav')
+				const offset = nav ? nav.getBoundingClientRect().height + 2 : 90
 				let activeId = this.fallbackTocItems[0].id
 				this.fallbackTocItems.forEach(item => {
 					const heading = document.getElementById(item.id)
-					if (heading && heading.getBoundingClientRect().top <= 90) {
+					if (heading && heading.getBoundingClientRect().top <= offset) {
 						activeId = item.id
 					}
 				})
@@ -258,7 +260,9 @@
 				if (!heading) {
 					return
 				}
-				const top = heading.getBoundingClientRect().top + window.pageYOffset - 55
+				const nav = document.querySelector('.blog-nav')
+				const offset = nav ? nav.getBoundingClientRect().height + 2 : 55
+				const top = heading.getBoundingClientRect().top + window.pageYOffset - offset
 				window.scrollTo({top, behavior: 'smooth'})
 				this.activeHeadingId = id
 			},
@@ -370,7 +374,7 @@
 	}
 
 	.m-toc .toc-scroll-body {
-		max-height: calc(100vh - 125px);
+		max-height: calc(100vh - var(--blog-nav-clearance, 60px) - 65px);
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		scrollbar-width: thin;
